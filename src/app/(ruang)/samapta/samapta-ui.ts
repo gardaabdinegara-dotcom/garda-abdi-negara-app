@@ -50,6 +50,29 @@ export function shortDate(tanggal: string): string {
   return new Intl.DateTimeFormat("id-ID", { timeZone: "UTC", day: "numeric", month: "short" }).format(date).replace(".", "");
 }
 
+/** "2026-11-15" → "Minggu, 15 Nov". */
+export function dayDate(tanggal: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(tanggal);
+  if (!match) return tanggal || "-";
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  const weekday = new Intl.DateTimeFormat("id-ID", { timeZone: "UTC", weekday: "long" }).format(date);
+  return `${weekday}, ${shortDate(tanggal)}`;
+}
+
+/** "2026-11-15" → "15 Nov 2026". */
+export function mediumDate(tanggal: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(tanggal);
+  return match ? `${shortDate(tanggal)} ${match[1]}` : tanggal || "-";
+}
+
+/** "2026-10-18" → "Okt". */
+export function monthShort(tanggal: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(tanggal);
+  if (!match) return "";
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, 1));
+  return new Intl.DateTimeFormat("id-ID", { timeZone: "UTC", month: "short" }).format(date).replace(".", "");
+}
+
 /** "07:00" → "07.00" (penulisan jam di Indonesia). */
 export const jam = (value: string) => value.replace(":", ".");
 
@@ -57,9 +80,6 @@ export const jam = (value: string) => value.replace(":", ".");
 export const shortTestName = (nama: string) => nama.replace(/^Tes Samapta\s+/i, "Tes ");
 
 export const jkLabel = (jk: string) => (jk === "P" ? "putri" : jk === "L" ? "putra" : "-");
-
-/** Dua kata pertama nama untuk chip. */
-export const shortName = (nama: string) => nama.trim().split(/\s+/).slice(0, 2).join(" ");
 
 export type BadgeTone = "neutral" | "success" | "warning" | "danger" | "info";
 
@@ -120,35 +140,7 @@ export function renangText(result: SamaptaResult): string | null {
   return parts.length ? parts.join(" · ") : null;
 }
 
-const mean = (values: (number | null)[]) => {
-  const xs = values.filter((v): v is number => v !== null);
-  return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
-};
-
-export interface CompareGroup {
-  label: string;
-  a: number | null;
-  b: number | null;
-}
-
 type Scored = { result: SamaptaResult; score: SamaptaScore };
-
-/** Nilai per materi untuk dua tes (satu siswa). */
-export function compareGroups(prev: Scored, cur: Scored): CompareGroup[] {
-  const a = materiOf(prev.result, cur.score.pullLabel);
-  const b = materiOf(cur.result, cur.score.pullLabel);
-  return [...b.map((m, i) => ({ label: m.short, a: a[i]!.nilai, b: m.nilai })), { label: "Akhir", a: prev.score.akhir, b: cur.score.akhir }];
-}
-
-/** Rata-rata nilai per materi seluruh peserta untuk dua tes. */
-export function averageGroups(prev: readonly Scored[], cur: readonly Scored[]): CompareGroup[] {
-  const pick = (list: readonly Scored[], i: number) => mean(list.map((e) => materiOf(e.result, e.score.pullLabel)[i]!.nilai));
-  const labels = ["Lari", "Pull/Chin", "Sit up", "Push up", "Shuttle"];
-  return [
-    ...labels.map((label, i) => ({ label, a: pick(prev, i), b: pick(cur, i) })),
-    { label: "Akhir", a: mean(prev.map((e) => e.score.akhir)), b: mean(cur.map((e) => e.score.akhir)) },
-  ];
-}
 
 const KLAS_ORDER: Record<Klasifikasi, number> = { Kurang: 0, Cukup: 1, Baik: 2, "Baik Sekali": 3 };
 
@@ -264,4 +256,111 @@ export function normalizeDuration(text: string): string {
   const value = text.trim();
   const mss = /^(\d)[.,]([0-5]\d)$/.exec(value);
   return mss ? `${mss[1]}:${mss[2]}` : value;
+}
+
+// ---------------------------------------------------------------- Mode lapangan & hasil
+
+/** Nama pos di kotak pos dan judul singkat. */
+export const POS_TILE: Record<Pos, string> = {
+  tensi: "Tensi",
+  badan: "Tinggi & berat",
+  lari: "Lari 12 menit",
+  pull: "Pull up / Chin",
+  situp: "Sit up",
+  pushup: "Push up",
+  shuttle: "Shuttle run",
+  renang: "Renang 50 m",
+};
+
+/** Judul pos di mode lapangan. */
+export const POS_TITLE: Record<Pos, string> = {
+  tensi: "Tensi & riwayat",
+  badan: "Tinggi & berat badan",
+  lari: "Lari 12 menit",
+  pull: "Pull up / Chinning",
+  situp: "Sit up 1 menit",
+  pushup: "Push up 1 menit",
+  shuttle: "Shuttle run 6×10 m",
+  renang: "Renang 50 m",
+};
+
+/** Selisih b − a (2 desimal), atau null bila salah satunya kosong. */
+export function diff(a: number | null | undefined, b: number | null | undefined): number | null {
+  if (a === null || a === undefined || b === null || b === undefined) return null;
+  return Math.round((b - a) * 100) / 100;
+}
+
+/** "▲ 6,75", "▼ 0,75", atau "= 0". */
+export function deltaText(d: number | null, digits = 2): string {
+  if (d === null) return "";
+  if (d > 0) return `▲ ${fmt(d, digits)}`;
+  if (d < 0) return `▼ ${fmt(-d, digits)}`;
+  return "= 0";
+}
+
+export const deltaTone = (d: number | null) => (d === null || d === 0 ? "flat" : d > 0 ? "up" : "down");
+
+/** Ringkas hasil satu pos dari data tersimpan, mis. { main: "18,2 dtk", sub: "nilai 74" }. */
+export function posBrief(pos: Pos, r: SamaptaResult): { main: string; sub: string } | null {
+  const nilai = (n: number | null) => (n === null ? "nilai belum" : `nilai ${fmt(n)}`);
+  switch (pos) {
+    case "tensi": {
+      const first = r.tensi.find((t) => t !== "");
+      return first ? { main: first, sub: `${r.tensi.filter((t) => t !== "").length} kali ukur` } : null;
+    }
+    case "badan":
+      return r.tinggi_cm === null && r.berat_kg === null ? null : { main: r.tinggi_cm === null ? "-" : `${fmt(r.tinggi_cm, 1)} cm`, sub: r.berat_kg === null ? "berat belum" : `${fmt(r.berat_kg, 1)} kg` };
+    case "lari":
+      return r.lari_jarak === null && r.lari_nilai === null ? null : { main: r.lari_jarak === null ? "-" : `${fmt(r.lari_jarak, 0)} m`, sub: nilai(r.lari_nilai) };
+    case "pull":
+    case "situp":
+    case "pushup": {
+      const jumlah = r[`${pos}_jumlah`];
+      const n = r[`${pos}_nilai`];
+      return jumlah === null && n === null ? null : { main: jumlah === null ? "-" : `${fmt(jumlah, 0)} kali`, sub: nilai(n) };
+    }
+    case "shuttle":
+      return r.shuttle_waktu === null && r.shuttle_nilai === null ? null : { main: r.shuttle_waktu === null ? "-" : `${fmt(r.shuttle_waktu, 1)} dtk`, sub: nilai(r.shuttle_nilai) };
+    case "renang":
+      return r.renang_waktu === null && !r.renang_gaya ? null : { main: r.renang_waktu === null ? "-" : formatDuration(r.renang_waktu), sub: r.renang_gaya ? `gaya ${r.renang_gaya.toLowerCase()}` : "gaya belum" };
+  }
+}
+
+/** Angka isian ("2470", "17,8") untuk tampilan ("2.470", "17,8"). */
+function inputNum(text: string | undefined, digits = 2): string {
+  const value = (text ?? "").trim();
+  if (!value) return "";
+  const n = Number(value.replace(",", "."));
+  return Number.isFinite(n) ? fmt(n, digits) : value;
+}
+
+/** Ringkas isian satu pos dari teks form, untuk baris "Baru tersimpan". */
+export function posValuesBrief(pos: Pos, v: Record<string, string>): string {
+  const part = (text: string, unit: string, empty: string) => (text ? `${text} ${unit}`.trim() : empty);
+  const nilai = (key: string) => (inputNum(v[key]) ? `nilai ${inputNum(v[key])}` : "nilai belum");
+  switch (pos) {
+    case "tensi":
+      return [v.tensi_1, v.tensi_2, v.tensi_3].map((t) => (t ?? "").trim() || "-").join(" · ");
+    case "badan":
+      return `${part(inputNum(v.tinggi_cm, 1), "cm", "tinggi belum")} · ${part(inputNum(v.berat_kg, 1), "kg", "berat belum")}`;
+    case "lari":
+      return `${part(inputNum(v.lari_jarak, 0), "m", "jarak belum")} · ${nilai("lari_nilai")}`;
+    case "pull":
+    case "situp":
+    case "pushup":
+      return `${part(inputNum(v[`${pos}_jumlah`], 0), "kali", "jumlah belum")} · ${nilai(`${pos}_nilai`)}`;
+    case "shuttle":
+      return `${part(inputNum(v.shuttle_waktu, 1), "dtk", "waktu belum")} · ${nilai("shuttle_nilai")}`;
+    case "renang": {
+      const waktu = normalizeDuration(v.renang_waktu ?? "");
+      return `${v.renang_gaya || "gaya belum"} · ${waktu ? (waktu.includes(":") ? waktu : `${waktu} dtk`) : "waktu belum"}`;
+    }
+  }
+}
+
+/** Materi bernilai paling rendah (untuk daftar perlu pembinaan). */
+export function lowestMateri(result: SamaptaResult, pullLabel: string): Materi | null {
+  return materiOf(result, pullLabel)
+    .filter((m) => m.nilai !== null)
+    .sort((a, b) => a.nilai! - b.nilai!)[0] ?? null;
 }

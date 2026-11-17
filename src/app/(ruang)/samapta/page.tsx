@@ -2,18 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { randomUUID } from "node:crypto";
-import { simpanTesSamapta } from "@/app/actions/samapta";
-import { ListCard } from "@/components/dashboard";
-import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { BodyFacts, BreakdownTable, CompareBars, HowCalculated, KlasBadge, PosChips, PrintLink, ResultCards, SamaptaStatusBadge } from "@/components/samapta";
-import { Empty, Notice, PageHead } from "@/components/ui";
-import { canManageSamapta, KLASIFIKASI, type SamaptaSettings } from "@/lib/core/samapta";
+import { HowCalculated, ResultHero, RincianList, StationTiles } from "@/components/samapta";
+import { CreateTestSheet } from "@/components/samapta-client";
+import { SamIcon } from "@/components/samapta-icon";
+import { Empty } from "@/components/ui";
+import { canManageSamapta, POS } from "@/lib/core/samapta";
 import type { Actor } from "@/lib/core/types";
-import { formatDate } from "@/lib/format";
-import { loadMySamapta, loadSamaptaOverview, type StudentHistoryItem, type TestSummary } from "@/lib/server/samapta";
+import { loadMySamapta, loadSamaptaOverview, type TestSummary } from "@/lib/server/samapta";
 import { getActor, requireActor } from "@/lib/server/session";
-import { compareGroups, fmt, jam, KLAS_TONE, longDate, overallProgress, progressSentence, roman, shortDate, shortTestName } from "./samapta-ui";
+import { dayDate, defaultPos, fmt, jam, mediumDate, monthShort, overallProgress, POS_TILE, roman, shortDate, shortTestName } from "./samapta-ui";
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
@@ -24,177 +22,163 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SamaptaPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor();
-  if (canManageSamapta(actor)) return <StaffOverview actor={actor} />;
-  if (actor.user.peran !== "SISWA") notFound();
   const params = await searchParams;
+  if (canManageSamapta(actor)) return <StaffOverview actor={actor} openCreate={params.baru === "1"} />;
+  if (actor.user.peran !== "SISWA") notFound();
   return <StudentView actor={actor} tes={typeof params.tes === "string" ? params.tes : undefined} />;
 }
 
 // ---------------------------------------------------------------- Owner / staf
 
-async function StaffOverview({ actor }: { actor: Actor }) {
+async function StaffOverview({ actor, openCreate }: { actor: Actor; openCreate: boolean }) {
   const data = await loadSamaptaOverview(actor);
+  const running = data.tests.find((s) => s.test.status === "BERJALAN");
+  const others = data.tests.filter((s) => s !== running);
   const latest = data.tests[0];
-  const blankDefault = latest ? Math.min(40, Math.max(1, latest.peserta)) : 1;
+  const blankDefault = latest ? Math.min(40, Math.max(1, latest.peserta)) : 10;
+  const create = (
+    <CreateTestSheet
+      operationId={randomUUID()}
+      defaultName={`Tes Samapta ${roman(data.tests.length + 1)}`}
+      today={data.today}
+      tempat={data.settings.tempat}
+      startOpen={openCreate}
+      className="btn btn-secondary sam-hb"
+    />
+  );
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow="Kesamaptaan jasmani"
-        title="Tes Samapta"
-        description="Garjas A (lari 12 menit), Garjas B (pull up/chinning, sit up, push up, shuttle run), renang, tensi, serta tinggi dan berat badan. Diisi per pos dari HP di lapangan, lalu dicetak di blangko A4."
-        actions={
-          <>
-            <BlankPrintForm defaultCount={blankDefault} />
-            <a className="btn" href="#buat-sesi">
-              <Icon name="plus" />
-              Buat sesi tes
-            </a>
-          </>
-        }
-      />
-      <div className="grid-main">
-        <div className="stack sam-col">
-          {data.tests.length === 0 ? (
-            <section className="card">
-              <Empty title="Belum ada sesi tes">
-                Mulai dari form Buat sesi tes: isi tanggal, jam, dan tempat. Semua siswa aktif langsung jadi peserta, lalu tiap pos bisa diisi dari HP.
+    <div className="page sam-page">
+      <header className="sam-top">
+        <div>
+          <h1>Tes Samapta</h1>
+          <p>Isi nilai per pos dari HP, lalu lihat hasil dan cetak blangko.</p>
+        </div>
+        <div className="sam-top-act">{create}</div>
+      </header>
+
+      <div className="sam-home">
+        <div className="sam-home-main">
+          {running ? (
+            <RunningTest summary={running} />
+          ) : (
+            <section className="card sam-card">
+              <Empty title={data.tests.length ? "Tidak ada tes yang berjalan" : "Belum ada tes"}>
+                Buat tes baru untuk mulai mengisi nilai di lapangan. Semua siswa aktif otomatis jadi peserta.
               </Empty>
             </section>
-          ) : (
-            data.tests.map((summary, i) => <TestCard key={summary.test.tes_id} summary={summary} latest={i === 0} />)
           )}
         </div>
-        <div className="stack sam-col">
-          <CreateTestCard count={data.tests.length} today={data.today} settings={data.settings} />
-          <ListCard
-            title="Alur satu sesi tes"
-            sub="Dari membuat sesi sampai blangko tercetak."
-            empty=""
-            items={[
-              { key: "1", icon: "calendar", tone: "green", title: "1. Buat sesi tes", sub: "Tanggal, jam, dan tempat. Peserta otomatis semua siswa aktif." },
-              { key: "2", icon: "run", tone: "gold", title: "2. Isi per pos dari HP", sub: "Pilih pos, lalu isi siswa satu per satu. Tiap baris tersimpan sendiri." },
-              { key: "3", icon: "chart", tone: "blue", title: "3. Dihitung otomatis", sub: "Rata-rata B, hasil akhir (A + B) ÷ 2, klasifikasi, dan IMT." },
-              { key: "4", icon: "print", tone: "violet", title: "4. Cetak blangko A4", sub: "Satu siswa, semua peserta sekaligus, atau blangko kosong." },
-            ]}
-          />
-          <Notice>Nilai tiap materi diisi manual dulu. Setelah tabel nilai resmi tersedia, nilai terisi otomatis dari hasil tes.</Notice>
+
+        <div className="sam-home-side">
+          {running ? (
+            <Link className="sam-lnk" href={`/samapta/${running.test.tes_id}`}>
+              <span className="sam-lnk-ic is-g">
+                <SamIcon name="table" />
+              </span>
+              <span className="sam-lnk-main">
+                <b>{running.lengkap ? "Hasil sementara" : "Hasil & peringkat"}</b>
+                <span>
+                  {running.lengkap
+                    ? `Rata-rata ${fmt(running.rata)} · ${running.lengkap} dari ${running.peserta} siswa`
+                    : "Muncul setelah ada siswa yang lengkap"}
+                </span>
+              </span>
+              <SamIcon name="right" />
+            </Link>
+          ) : null}
+          {others.map((s) => (
+            <Link key={s.test.tes_id} className="sam-lnk" href={`/samapta/${s.test.tes_id}`}>
+              <span className="sam-lnk-ic">
+                <SamIcon name={s.test.status === "SELESAI" ? "lock" : s.test.status === "DIBATALKAN" ? "close" : "field"} />
+              </span>
+              <span className="sam-lnk-main">
+                <b>{s.test.nama}</b>
+                <span>
+                  {shortDate(s.test.tanggal)} · {s.test.status === "SELESAI" ? "selesai" : s.test.status === "DIBATALKAN" ? "dibatalkan" : "berjalan"}
+                  {s.rata !== null ? ` · rata-rata ${fmt(s.rata)}` : ""}
+                </span>
+              </span>
+              <SamIcon name="right" />
+            </Link>
+          ))}
+          <form method="get" action="/cetak/samapta/kosong" className="sam-blank">
+            <span className="sam-lnk-ic">
+              <Icon name="print" />
+            </span>
+            <span className="sam-lnk-main">
+              <b>Cetak blangko kosong</b>
+              <span>Untuk diisi tangan di lapangan</span>
+            </span>
+            <label className="sr-only" htmlFor="jumlah-blangko">
+              Jumlah lembar
+            </label>
+            <select id="jumlah-blangko" name="jumlah" defaultValue={String(blankDefault)}>
+              {Array.from(new Set([1, 5, 10, 15, 20, 25, 30, 35, 40, blankDefault]))
+                .sort((a, b) => a - b)
+                .map((n) => (
+                  <option key={n} value={n}>
+                    {n} lbr
+                  </option>
+                ))}
+            </select>
+            <button type="submit" className="btn btn-secondary btn-sm">
+              Cetak
+            </button>
+          </form>
         </div>
       </div>
     </div>
   );
 }
 
-function BlankPrintForm({ defaultCount }: { defaultCount: number }) {
-  const counts = Array.from(new Set([1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, defaultCount])).sort((a, b) => a - b);
-  return (
-    <form method="get" action="/cetak/samapta/kosong" className="sam-blank" aria-label="Cetak blangko kosong">
-      <label className="sr-only" htmlFor="jumlah-blangko">
-        Jumlah lembar blangko kosong
-      </label>
-      <select id="jumlah-blangko" name="jumlah" defaultValue={String(defaultCount)}>
-        {counts.map((n) => (
-          <option key={n} value={n}>
-            {n} lembar
-          </option>
-        ))}
-      </select>
-      <button type="submit" className="btn btn-secondary">
-        <Icon name="print" />
-        Cetak blangko kosong
-      </button>
-    </form>
-  );
-}
-
-function TestCard({ summary, latest }: { summary: TestSummary; latest: boolean }) {
-  const { test, peserta, progress, lengkap, rata, klas } = summary;
+function RunningTest({ summary }: { summary: TestSummary }) {
+  const { test, peserta, progress } = summary;
   const p = overallProgress(progress, peserta);
-  const selesai = test.status === "SELESAI";
-  const href = `/samapta/${test.tes_id}`;
-  const belumRenang = peserta - progress.renang;
+  const next = defaultPos(progress, peserta);
+  const left = peserta - (progress[next] ?? 0);
+  const allDone = p.filled >= p.total;
+  const lengkapPos = POS.filter((pos) => (progress[pos] ?? 0) >= peserta).length;
   return (
-    <section className={`card sam-test${latest ? " is-latest" : ""}`}>
-      <div className="sam-test-top">
-        <div className="sam-test-title">
-          <div className="row sam-gap6">
-            <SamaptaStatusBadge status={test.status} />
-            <b>{test.nama}</b>
-          </div>
-          <h2>
-            <Link href={href} className="cell-title">
-              {longDate(test.tanggal)} · {jam(test.jam_mulai)}
-            </Link>
-          </h2>
-          <p className="muted small">
-            {test.tempat || "Tempat belum diisi"} · {peserta} peserta
-            {test.catatan ? ` · ${test.catatan}` : ""}
-          </p>
+    <>
+      <section className="sam-hero" aria-label={`${test.nama}, berjalan`}>
+        <div className="sam-hero-top">
+          <span className="sam-hpill">Berjalan</span>
+          <span>
+            {dayDate(test.tanggal)} · {jam(test.jam_mulai)}
+          </span>
         </div>
-        <div className="row sam-test-act">
-          <Link className={selesai ? "btn" : "btn btn-secondary"} href={`${href}?tab=hasil`}>
-            <Icon name="chart" />
-            Hasil & cetak
-          </Link>
-          <Link className={selesai ? "btn btn-secondary" : "btn"} href={`${href}?tab=pos`}>
-            <Icon name="run" />
-            Isi per pos
-          </Link>
+        <h2>{test.nama}</h2>
+        <p className="sam-hero-sub">
+          {test.tempat || "Tempat belum diisi"} · {peserta} peserta
+        </p>
+        <div className="sam-hero-prog">
+          <b>
+            {p.filled} dari {p.total} isian
+          </b>
+          <span>{fmt(Math.floor(p.persen), 0)}%</span>
         </div>
-      </div>
-      <div className="sam-prog">
-        <meter className="capacity" min={0} max={Math.max(p.total, 1)} value={p.filled} aria-label={`Kemajuan isian ${test.nama}`} />
-        <span className="small muted">
-          {fmt(p.persen, 0)}% terisi · {p.filled} dari {p.total} isian
-          {p.filled < p.total && belumRenang > 0 ? ` · ${belumRenang} siswa belum renang` : ""}
+        <meter className="sam-hero-bar" min={0} max={Math.max(p.total, 1)} value={p.filled} aria-label={`Kemajuan isian ${test.nama}`} />
+        {allDone ? (
+          <Link className="sam-hero-btn" href={`/samapta/${test.tes_id}`}>
+            Semua terisi: lihat hasil
+            <Icon name="arrow" />
+          </Link>
+        ) : (
+          <Link className="sam-hero-btn" href={`/samapta/${test.tes_id}/pos/${next}`}>
+            Lanjut isi: {POS_TILE[next]} <span>· {left} belum</span>
+            <Icon name="arrow" />
+          </Link>
+        )}
+      </section>
+      <div className="sam-sec-t">
+        <h2>Pilih pos</h2>
+        <span>
+          {lengkapPos} dari {POS.length} pos lengkap
         </span>
       </div>
-      <PosChips tesId={test.tes_id} progress={progress} peserta={peserta} label={`Kemajuan pos ${test.nama}`} />
-      {lengkap ? (
-        <div className="sam-klas-row" aria-label={`Ringkasan hasil ${test.nama}`}>
-          <span className="sam-chip is-static">
-            <span>Rata-rata akhir</span>
-            <b>{fmt(rata)}</b>
-          </span>
-          {KLASIFIKASI.map((k) => (
-            <span key={k} className={`sam-chip is-static is-${KLAS_TONE[k]}`}>
-              <span>{k}</span>
-              <b>{klas[k]}</b>
-            </span>
-          ))}
-        </div>
-      ) : (
-        <p className="muted small">Rata-rata dan klasifikasi muncul setelah ada siswa yang lengkap Garjas A dan B.</p>
-      )}
-    </section>
-  );
-}
-
-function CreateTestCard({ count, today, settings }: { count: number; today: string; settings: SamaptaSettings }) {
-  return (
-    <section className="card sam-anchor" id="buat-sesi">
-      <div className="card-head">
-        <div>
-          <h2>Buat sesi tes</h2>
-          <p>Satu sesi untuk satu hari tes.</p>
-        </div>
-      </div>
-      <ActionForm action={simpanTesSamapta} operationId={randomUUID()} className="stack">
-        <div className="form-grid two">
-          <Field label="Nama sesi" name="nama" defaultValue={`Tes Samapta ${roman(count + 1)}`} maxLength={80} className="span-all" />
-          <Field label="Tanggal" name="tanggal" type="date" defaultValue={today} required />
-          <Field label="Jam mulai" name="jam_mulai" type="time" defaultValue="07:00" required />
-          <Field label="Tempat" name="tempat" defaultValue={settings.tempat} maxLength={80} hint="Bawaan dari Pengaturan, bisa diubah." className="span-all" />
-          <Field label="Catatan" name="catatan" type="textarea" placeholder="Opsional" className="span-all" />
-        </div>
-        <p className="muted small">Semua siswa aktif otomatis jadi peserta.</p>
-        <div className="form-actions">
-          <SubmitButton pendingLabel="Membuat…">
-            <Icon name="plus" />
-            Buat sesi tes
-          </SubmitButton>
-        </div>
-      </ActionForm>
-    </section>
+      <StationTiles tesId={test.tes_id} progress={progress} peserta={peserta} />
+    </>
   );
 }
 
@@ -204,9 +188,14 @@ async function StudentView({ actor, tes }: { actor: Actor; tes?: string }) {
   const data = await loadMySamapta(actor);
   if (!data || data.history.length === 0) {
     return (
-      <div className="page">
-        <PageHead eyebrow="Kesamaptaan jasmani" title="Hasil Samapta" description="Hasil tes kesamaptaan jasmani kamu: Garjas A, Garjas B, renang, tensi, serta tinggi dan berat badan." />
-        <section className="card">
+      <div className="page sam-page">
+        <header className="sam-top">
+          <div>
+            <h1>Hasil Samapta</h1>
+            <p>Hasil tes kesamaptaan jasmani kamu.</p>
+          </div>
+        </header>
+        <section className="card sam-card">
           {data ? (
             <Empty title="Belum ada hasil tes">Hasil muncul di sini setelah kamu mengikuti tes samapta pertama.</Empty>
           ) : (
@@ -222,107 +211,61 @@ async function StudentView({ actor, tes }: { actor: Actor; tes?: string }) {
   const item = history[index]!;
   const prev = index > 0 ? history[index - 1]! : null;
   const { test, entry, peserta } = item;
-  const label = (h: StudentHistoryItem) => `${shortTestName(h.test.nama)} · ${shortDate(h.test.tanggal)}`;
+  const prevName = prev ? shortTestName(prev.test.nama) : "";
 
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${test.nama} · ${formatDate(test.tanggal, "long")}`}
-        title="Hasil Samapta"
-        description="Hasil tes kesamaptaan jasmani kamu, dibanding tes sebelumnya. Blangko bisa dicetak untuk arsip."
-        actions={
-          <PrintLink variant="primary" href={`/cetak/samapta/${test.tes_id}?siswa=${student.siswa_id}`}>
-            Cetak blangko saya
-          </PrintLink>
-        }
-      />
+    <div className="page sam-page">
+      <header className="sam-top">
+        <div>
+          <h1>Hasil Samapta</h1>
+          <p>Hasil tes kamu, dibanding tes sebelumnya.</p>
+        </div>
+      </header>
       {history.length > 1 ? (
-        <nav className="sam-seg" aria-label="Pilih tes">
+        <nav className="sam-tests" aria-label="Pilih tes">
           {[...history].reverse().map((h, i) => (
             <Link key={h.test.tes_id} href={`/samapta?tes=${h.test.tes_id}`} aria-current={h.test.tes_id === test.tes_id ? "page" : undefined}>
-              {label(h)}
+              {shortTestName(h.test.nama)} · {shortDate(h.test.tanggal)}
               {i === 0 ? " (terbaru)" : ""}
             </Link>
           ))}
         </nav>
       ) : null}
-      {test.status === "BERJALAN" ? <Notice>Tes ini masih berjalan. Nilai bisa berubah sampai pelatih menandai tes selesai.</Notice> : null}
-      <ResultCards entry={entry} rank={{ rank: entry.rank, total: peserta }} />
-      <div className="grid-main">
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Rincian nilai</h2>
-              <p>
-                {test.nama} · {test.tempat || "-"}
-              </p>
-            </div>
+      {test.status === "BERJALAN" ? <p className="sam-note">Tes ini masih berjalan. Nilai bisa berubah sampai pelatih menandai tes selesai.</p> : null}
+
+      <div className="sam-sv">
+        <div className="sam-sv-main">
+          <ResultHero
+            entry={entry}
+            label={`${test.nama} · ${mediumDate(test.tanggal)}`}
+            peserta={peserta}
+            prev={prev ? { entry: prev.entry, name: prevName, month: monthShort(prev.test.tanggal) } : null}
+          />
+          <div className="sam-sec-t">
+            <h2>Rincian nilai</h2>
+            <span>{prev ? `dibanding ${prevName}` : test.tempat || ""}</span>
           </div>
-          <BreakdownTable entry={entry} />
-        </section>
-        <div className="stack sam-col">
-          <section className="card">
-            <div className="card-head">
-              <h2>Badan & tensi</h2>
-            </div>
-            <BodyFacts entry={entry} />
+          <section className="card sam-card sam-card-tight">
+            <RincianList entry={entry} prev={prev?.entry ?? null} prevName={prevName} />
           </section>
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Riwayat tes</h2>
-                <p>Ketuk untuk melihat hasil tes itu.</p>
-              </div>
-            </div>
-            <div className="item-list">
-              {[...history].reverse().map((h) => (
-                <div className="item" key={h.test.tes_id}>
-                  <div className="item-main">
-                    <Link className="cell-title" href={`/samapta?tes=${h.test.tes_id}`} aria-current={h.test.tes_id === test.tes_id ? "page" : undefined}>
-                      {h.test.nama}
-                    </Link>
-                    <span className="cell-sub">
-                      {formatDate(h.test.tanggal)} · Hasil akhir {fmt(h.entry.score.akhir)}
-                      {h.test.tes_id === test.tes_id ? " · sedang dilihat" : ""}
-                    </span>
-                  </div>
-                  <KlasBadge klas={h.entry.score.klas} />
-                </div>
-              ))}
-            </div>
-          </section>
+          <a className="btn sam-btn-lg sam-only-phone" href={`/cetak/samapta/${test.tes_id}?siswa=${student.siswa_id}`}>
+            <Icon name="print" />
+            Cetak blangko saya
+          </a>
         </div>
-      </div>
-      <div className="grid-2">
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Perkembangan</h2>
-              <p>{prev ? `Nilai tiap materi, ${shortTestName(prev.test.nama)} dibanding ${shortTestName(test.nama)}.` : "Perbandingan dengan tes sebelumnya."}</p>
-            </div>
-          </div>
-          {prev ? (
-            <>
-              <CompareBars title="Nilai per materi" groups={compareGroups(prev.entry, entry)} labelA={label(prev)} labelB={label(item)} />
-              <p className="sam-sentence">{progressSentence(prev.entry, entry)}</p>
-            </>
-          ) : (
-            <p className="muted">Grafik perkembangan muncul setelah kamu mengikuti dua tes.</p>
-          )}
-        </section>
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Cara nilai dihitung</h2>
-              <p>
-                {entry.score.akhir !== null
-                  ? `Hasil akhir kamu ${fmt(entry.score.akhir)}, masuk ${entry.score.klas}.`
-                  : "Hasil akhir muncul setelah semua materi Garjas A dan B terisi."}
-              </p>
-            </div>
-          </div>
-          <HowCalculated entry={entry} settings={settings} />
-        </section>
+        <div className="sam-sv-side">
+          <a className="btn sam-btn-lg sam-only-wide" href={`/cetak/samapta/${test.tes_id}?siswa=${student.siswa_id}`}>
+            <Icon name="print" />
+            Cetak blangko saya
+          </a>
+          <details className="card sam-card sam-more">
+            <summary>
+              <b>Cara nilai dihitung</b>
+              <SamIcon name="down" />
+            </summary>
+            <HowCalculated entry={entry} settings={settings} />
+          </details>
+        </div>
       </div>
     </div>
   );

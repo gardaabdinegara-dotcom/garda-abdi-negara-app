@@ -1,254 +1,104 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { randomUUID } from "node:crypto";
-import { ajukanPresensi, simpanSesi } from "@/app/actions/akademik";
-import { AcademicTabs, AttendanceBadge, fmtPercent, requirePart, SessionFields, SessionStatusBadge } from "@/components/akademik";
-import { ActionForm, Field, SubmitButton } from "@/components/form";
-import { monthLabel } from "@/components/report-document";
-import { Icon } from "@/components/icon";
-import { Badge, Empty, Notice, PageHead } from "@/components/ui";
-import { disciplineLabel, SESSION_TYPE_LABEL } from "@/lib/core/akademik";
-import { formatDate } from "@/lib/format";
-import { loadSchedule, type FamilyAttendance, type MySession, type SessionCard } from "@/lib/server/akademik";
+import { AcademicTabs, requirePart } from "@/components/akademik";
+import {
+  CreateSessionButton,
+  EditSessionFields,
+  EmptyDay,
+  FamilyPresensi,
+  NearbyCard,
+  PresensiHead,
+  RecapMini,
+  RecapTab,
+  ScheduleTab,
+  SessionStrip,
+  SessionWorkspaceView,
+  type PresensiTab,
+} from "@/components/presensi";
+import { LiveRefresh } from "@/components/presensi-client";
+import { Empty } from "@/components/ui";
+import { loadPresensi } from "@/lib/server/akademik";
+import { presensiQr } from "@/lib/server/qr-presensi";
 import { requireActor } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Presensi" };
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
-function shiftDay(date: string, days: number) {
-  const d = new Date(`${date}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+const one = (value: string | string[] | undefined) => (typeof value === "string" ? value : undefined);
 
-export default async function SchedulePage({ searchParams }: { searchParams: Search }) {
+/**
+ * Presensi, opsi A "Layar hari ini".
+ * Staf: tab Hari ini (sesi berjalan, QR, pengajuan, kartu siswa), Jadwal (per tanggal), dan Rekap (bulanan).
+ * Siswa/wali: sesi yang sedang dibuka, status, rekap bulan ini, dan riwayat.
+ */
+export default async function PresensiPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor();
   requirePart(actor, "presensi");
   const params = await searchParams;
-  const data = await loadSchedule(actor, params.tanggal);
+  const data = await loadPresensi(actor, { sesi: one(params.sesi), tanggal: one(params.tanggal), bulan: one(params.bulan) });
 
   if (data.kind === "family") {
+    const wali = actor.user.peran === "WALI";
     return (
-      <div className="page">
-        <PageHead eyebrow="Kehadiran" title="Presensi" description={actor.user.peran === "WALI" ? "Kehadiran anak yang ditautkan ke akun Anda." : "Ajukan kehadiran saat sesi dibuka dan lihat rekap bulan ini."} />
+      <div className="page pr">
+        <PresensiHead />
         <AcademicTabs actor={actor} current="presensi" />
         {data.family.length === 0 ? <Empty title="Belum tertaut">Minta admin menautkan data siswa ke akun Anda.</Empty> : null}
         {data.family.map((item) => (
-          <FamilyAttendanceView key={item.student.siswa_id} item={item} canSubmit={actor.user.peran === "SISWA"} showName={actor.user.peran === "WALI"} />
+          <FamilyPresensi key={item.student.siswa_id} item={item} canSubmit={actor.user.peran === "SISWA"} showName={wali} clock={data.clock} />
         ))}
       </div>
     );
   }
 
-  const { date, clock } = data;
+  const tab: PresensiTab = params.tab === "jadwal" ? "jadwal" : params.tab === "rekap" ? "rekap" : "hari";
+  const { clock, selected } = data;
+  const isAdmin = actor.user.peran === "OWNER" || actor.user.peran === "ADMIN";
+  const canCreate = !(actor.user.peran === "PENGAJAR" && data.classes.length === 0);
+  const live = selected && selected.session.status === "AKTIF" && selected.session.canManage && selected.session.tanggal === clock.today;
+  const qr = tab === "hari" && live ? await presensiQr(selected.session.sesi_id) : null;
+  const createDate = tab === "jadwal" && data.schedule.date >= clock.today ? data.schedule.date : clock.today;
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow="Kehadiran"
-        title="Presensi"
-        description="Buka sesi pada harinya, tampilkan QR atau catat kehadiran, lalu tutup sesi. Siswa tanpa catatan dihitung alfa."
-        actions={
-          <a className="btn btn-secondary" href={`/akademik/ekspor-presensi?bulan=${date.slice(0, 7)}`}>
-            Ekspor CSV {monthLabel(date.slice(0, 7))}
-          </a>
+    <div className="page pr">
+      <PresensiHead
+        tab={tab}
+        create={
+          canCreate ? (
+            <CreateSessionButton key={`${tab}:${selected?.session.sesi_id ?? ""}:${createDate}`} classes={data.classes} teachers={data.teachers} date={createDate} />
+          ) : null
         }
       />
       <AcademicTabs actor={actor} current="presensi" />
-      <form method="get" className="day-nav" aria-label="Pilih tanggal">
-        <Link className="btn btn-secondary btn-sm" href={`/akademik?tanggal=${shiftDay(date, -1)}`} aria-label="Hari sebelumnya">
-          ←
-        </Link>
-        <input type="date" name="tanggal" defaultValue={date} aria-label="Tanggal" />
-        <button type="submit" className="btn btn-secondary btn-sm">
-          Tampilkan
-        </button>
-        <Link className="btn btn-secondary btn-sm" href={`/akademik?tanggal=${shiftDay(date, 1)}`} aria-label="Hari berikutnya">
-          →
-        </Link>
-        {date !== clock.today ? (
-          <Link className="btn btn-ghost btn-sm" href="/akademik">
-            Hari ini
-          </Link>
-        ) : null}
-      </form>
-      <div className="grid-main">
-        <div className="stack">
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>{date === clock.today ? "Sesi hari ini" : `Sesi ${formatDate(date, "long")}`}</h2>
-                <p>{formatDate(date, "long")}</p>
-              </div>
-              <Badge>{data.sessions.length}</Badge>
-            </div>
-            {data.sessions.length === 0 ? <Empty title="Tidak ada sesi">Buat sesi baru dengan form di samping.</Empty> : <SessionList sessions={data.sessions} />}
-          </section>
-          {data.upcoming.length ? (
-            <section className="card">
-              <div className="card-head">
-                <h2>Akan datang</h2>
-              </div>
-              <SessionList sessions={data.upcoming} withDate />
-            </section>
-          ) : null}
-        </div>
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Buat sesi</h2>
-              <p>Pilih semua siswa aktif, atau satu kelas bila ada. Peserta dibekukan saat sesi dibuka.</p>
-            </div>
-          </div>
-          {actor.user.peran === "PENGAJAR" && data.classes.length === 0 ? (
-            <Notice>Belum ada kelas yang ditautkan ke akun Anda.</Notice>
+      {tab === "hari" ? (
+        <>
+          <SessionStrip items={data.strip} selectedId={selected?.session.sesi_id ?? null} today={clock.today} />
+          {selected ? (
+            <>
+              {selected.session.status === "AKTIF" ? <LiveRefresh seconds={20} /> : null}
+              <SessionWorkspaceView
+                ws={selected}
+                clock={clock}
+                isAdmin={isAdmin}
+                qr={qr}
+                editFields={selected.session.canManage ? <EditSessionFields ws={selected} classes={data.classes} teachers={data.teachers} /> : null}
+                side={
+                  <>
+                    <NearbyCard items={data.nearby} today={clock.today} />
+                    <RecapMini recap={data.recap} today={clock.today} />
+                  </>
+                }
+              />
+            </>
           ) : (
-            <ActionForm action={simpanSesi} operationId={randomUUID()} className="stack">
-              <SessionFields classes={data.classes} teachers={data.teachers} date={date} />
-              <div className="form-actions">
-                <SubmitButton>Simpan sesi</SubmitButton>
-              </div>
-            </ActionForm>
+            <EmptyDay next={data.nearby} today={clock.today} canCreate={canCreate} />
           )}
-        </section>
-      </div>
-    </div>
-  );
-}
-
-function SessionList({ sessions, withDate = false }: { sessions: SessionCard[]; withDate?: boolean }) {
-  return (
-    <div className="item-list">
-      {sessions.map((s) => (
-        <div className="item" key={s.sesi_id}>
-          <div className="item-main">
-            <Link href={`/akademik/sesi/${s.sesi_id}`} className="cell-title">
-              {withDate ? `${formatDate(s.tanggal)} · ` : ""}
-              {s.jam_mulai}–{s.jam_selesai} · {s.nama}
-            </Link>
-            <span className="cell-sub">
-              {s.kelas} · {SESSION_TYPE_LABEL[s.jenis]} · {s.pengajar}
-            </span>
-          </div>
-          <div className="row">
-            {s.menunggu ? <Badge tone="warning">{s.menunggu} menunggu</Badge> : null}
-            {s.status !== "AKAN_DATANG" ? (
-              <Badge tone="info">
-                {s.hadir}/{s.peserta} hadir
-              </Badge>
-            ) : (
-              <Badge>{s.peserta} siswa</Badge>
-            )}
-            <SessionStatusBadge status={s.status} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function FamilyAttendanceView({ item, canSubmit, showName }: { item: FamilyAttendance; canSubmit: boolean; showName: boolean }) {
-  const { summary } = item;
-  return (
-    <>
-      {showName ? <h2 className="section-title">{item.student.nama}</h2> : null}
-      <section className="card">
-        <div className="card-head">
-          <h2>Hari ini</h2>
-        </div>
-        {item.today.length === 0 ? <Empty title="Tidak ada sesi hari ini" /> : item.today.map((s) => <TodaySession key={s.sesi_id} session={s} canSubmit={canSubmit} />)}
-      </section>
-      <div className="grid-stats compact">
-        <section className="card stat">
-          <span className="stat-label">Kehadiran bulan ini</span>
-          <span className="stat-value">{fmtPercent(summary.persen)}</span>
-          <span className="stat-sub">{disciplineLabel(summary.persen)}</span>
-        </section>
-        <section className="card stat">
-          <span className="stat-label">Hadir</span>
-          <span className="stat-value">
-            {summary.hadir}
-            <small>/ {summary.total}</small>
-          </span>
-          <span className="stat-sub">{summary.terlambat}× terlambat</span>
-        </section>
-        <section className="card stat">
-          <span className="stat-label">Izin · Sakit · Alfa</span>
-          <span className="stat-value">
-            {summary.izin}·{summary.sakit}·{summary.alfa}
-          </span>
-          <span className="stat-sub">Tanpa catatan = alfa</span>
-        </section>
-      </div>
-      <section className="card">
-        <div className="card-head">
-          <h2>Riwayat</h2>
-        </div>
-        {item.history.length === 0 ? (
-          <Empty title="Belum ada sesi selesai" />
-        ) : (
-          <div className="item-list">
-            {item.history.map((s) => (
-              <div className="item" key={s.sesi_id}>
-                <div className="item-main">
-                  <b>{s.nama}</b>
-                  <span className="cell-sub">
-                    {formatDate(s.tanggal)} · {s.jam_mulai} · {s.kelas}
-                  </span>
-                </div>
-                <AttendanceBadge status={s.record && s.record.status !== "KOSONG" ? s.record.status : "ALFA"} late={s.record?.terlambat} />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </>
-  );
-}
-
-function TodaySession({ session, canSubmit }: { session: MySession; canSubmit: boolean }) {
-  const record = session.record && session.record.status !== "KOSONG" ? session.record : null;
-  return (
-    <div className="item">
-      <div className="item-main">
-        <b>
-          {session.jam_mulai}–{session.jam_selesai} · {session.nama}
-        </b>
-        <span className="cell-sub">
-          {session.kelas} · {SESSION_TYPE_LABEL[session.jenis]}
-        </span>
-      </div>
-      {record ? (
-        <AttendanceBadge status={record.status} late={record.terlambat} />
-      ) : session.status === "AKTIF" ? (
-        <Badge tone="success">Dibuka</Badge>
+        </>
+      ) : tab === "jadwal" ? (
+        <ScheduleTab schedule={data.schedule} today={clock.today} />
       ) : (
-        <SessionStatusBadge status={session.status} />
+        <RecapTab recap={data.recap} today={clock.today} />
       )}
-      {record?.status === "MENUNGGU" ? <p className="item-edit muted">Menunggu pengesahan pengajar.</p> : null}
-      {canSubmit && !record && session.status === "AKTIF" ? (
-        <ActionForm action={ajukanPresensi} operationId={randomUUID()} className="item-edit form-grid three">
-          <input type="hidden" name="sesi_id" value={session.sesi_id} />
-          <Field
-            label="Status"
-            name="status_diajukan"
-            type="select"
-            defaultValue="HADIR"
-            options={[
-              { value: "HADIR", label: "Hadir" },
-              { value: "IZIN", label: "Izin" },
-              { value: "SAKIT", label: "Sakit" },
-            ]}
-          />
-          <Field label="Keterangan" name="catatan" placeholder="Wajib untuk izin/sakit" />
-          <div className="form-actions">
-            <SubmitButton pendingLabel="Mengirim…">
-              <Icon name="check" />
-              Ajukan
-            </SubmitButton>
-          </div>
-        </ActionForm>
-      ) : null}
     </div>
   );
 }

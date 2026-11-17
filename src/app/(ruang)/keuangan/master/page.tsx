@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CheckField, Field, SubmitButton } from "@/components/form";
-import { FinanceForm, FinanceTabs, KIND_LABEL, MoneyField, rp } from "@/components/keuangan";
-import { monthLabel } from "@/components/report-document";
-import { ActiveBadge, Badge, Empty, PageHead } from "@/components/ui";
+import { FinanceForm, KeuanganHead, KeuanganSubHead, KIND_LABEL, MoneyField, rp } from "@/components/keuangan";
+import { bulanLabel as monthLabel } from "@/lib/keuangan/dompet";
+import { ActiveBadge, Badge, Empty } from "@/components/ui";
 import { endOfMonth, finance, num, reconciliationFor, text, type Row } from "@/lib/keuangan/domain";
 import { formatDate } from "@/lib/format";
 import { loadFinance } from "@/lib/server/keuangan";
@@ -70,11 +70,11 @@ export default async function MasterPage({ searchParams }: { searchParams: Searc
   const closed = data.closed.includes(month);
 
   return (
-    <div className="page">
-      <PageHead eyebrow="Keuangan" title="Akun & periode" description="Akun kas/bank, kategori transaksi, pencocokan saldo, dan tutup buku bulanan. Khusus pemilik." />
-      <FinanceTabs current="master" owner={data.owner} />
+    <div className="page kg-page">
+      <KeuanganHead current="master" />
+      <KeuanganSubHead title="Akun & periode" description="Akun kas dan bank, kategori, pencocokan saldo, dan tutup buku bulanan. Khusus pemilik." />
       <div className="grid-2">
-        <section className="card">
+        <section className="card" id="akun">
           <div className="card-head">
             <h2>Akun kas & bank</h2>
           </div>
@@ -114,7 +114,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Searc
           </FinanceForm>
         </section>
 
-        <section className="card">
+        <section className="card" id="kategori">
           <div className="card-head">
             <h2>Kategori transaksi</h2>
           </div>
@@ -158,7 +158,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Searc
         </section>
       </div>
 
-      <section className="card">
+      <section className="card" id="tutup-bulan">
         <div className="card-head">
           <div>
             <h2>Pencocokan saldo & tutup buku</h2>
@@ -232,7 +232,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Searc
         {data.closed.length ? <p className="muted">Bulan tertutup: {data.closed.sort().map(monthLabel).join(", ")}.</p> : null}
       </section>
 
-      <section className="card">
+      <section className="card" id="cadangan">
         <div className="card-head">
           <div>
             <h2>Cadangan data</h2>

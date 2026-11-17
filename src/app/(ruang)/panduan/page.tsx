@@ -31,13 +31,13 @@ const SECTIONS: Section[] = [
         <Link href="/siswa">Siswa</Link>: tambah satu per satu atau impor dari daftar nama. Akun siswa langsung dibuat (username = kode siswa, mis. gan-0001).
       </>,
       <>
-        <Link href="/keuangan">Keuangan → Ringkasan</Link>: tekan <b>Siapkan akun & kategori</b>. Akun kas dan bank serta kategori pemasukan/pengeluaran langsung dibuat dan siap masuk laporan. Isi saldo awal kas dan bank di <Link href="/keuangan/master">Akun & periode</Link>.
+        <Link href="/keuangan">Keuangan</Link>: tekan <b>Siapkan akun & kategori</b>. Akun kas dan bank serta kategori pemasukan/pengeluaran langsung dibuat dan siap masuk laporan. Isi saldo awal kas dan bank di <Link href="/keuangan/lainnya">Keuangan → Lainnya</Link> → Akun & saldo awal.
       </>,
       <>
         Ingin melihat semua fitur berjalan dulu? <Link href="/pengaturan/pratinjau">Pengaturan → Mode pratinjau</Link> memakai data contoh tanpa menyentuh data asli.
       </>,
       <>
-        Sekali saja: <Link href="/keuangan/penyesuaian">Penyesuaian laporan</Link> → verifikasi saldo awal neraca, agar laporan berstatus siap diperiksa.
+        Sekali saja: <Link href="/keuangan/lainnya">Keuangan → Lainnya</Link> → Penyesuaian laporan → verifikasi saldo awal neraca, agar laporan berstatus siap diperiksa.
       </>,
     ],
   },
@@ -47,13 +47,13 @@ const SECTIONS: Section[] = [
     roles: ["OWNER", "ADMIN", "PENGAJAR"],
     steps: [
       <>
-        <b>Sebelum latihan</b>: <Link href="/akademik">Presensi</Link> → <b>Buat sesi</b>. Pilih peserta <b>Semua siswa aktif</b> (atau satu kelas).
+        <b>Sebelum latihan</b>: <Link href="/akademik">Presensi</Link> → tombol <b>+</b> (Buat sesi). Pilih peserta <b>Semua siswa aktif</b> (atau satu kelas).
       </>,
       <>
-        <b>Saat mulai</b>: buka sesinya → <b>Buka sesi</b>, lalu tampilkan QR. Siswa memindai dan menekan <b>Ajukan hadir</b>. QR berganti otomatis tiap 10 menit, jadi foto QR lama tidak berlaku.
+        <b>Saat mulai</b>: di layar <b>Hari ini</b>, pilih sesinya → <b>Buka sesi</b>, lalu <b>Tampilkan QR</b> (layar penuh). Siswa memindai dan menekan <b>Ajukan hadir</b>. QR berganti otomatis tiap 10 menit, jadi foto QR lama tidak berlaku.
       </>,
       <>
-        Tekan <b>Sahkan semua</b> untuk pengajuan yang menunggu (tidak perlu bila QR langsung sah dinyalakan). Siswa tanpa HP dicatat lewat <b>Catat / ubah</b> pada namanya.
+        Tekan <b>Sahkan semua</b> untuk pengajuan yang menunggu (tidak perlu bila QR langsung sah dinyalakan). Siswa tanpa HP: ketuk kartunya untuk mengganti status (Hadir → Izin → Sakit → Alfa); tahan lama untuk jam masuk atau catatan.
       </>,
       <>
         <b>Selesai</b>: <b>Tutup sesi</b>. Siswa yang belum tercatat dihitung alfa. Rekap bulanan bisa diunduh sebagai CSV.
@@ -67,10 +67,10 @@ const SECTIONS: Section[] = [
     intro: "Garjas A = nilai lari 12 menit. Garjas B = rata-rata nilai pull up (putra) atau chinning (putri), sit up, push up, dan shuttle run. Hasil akhir = (A + B) / 2. Renang dicatat tanpa nilai.",
     steps: [
       <>
-        <Link href="/samapta">Tes Samapta</Link> → <b>Buat sesi tes</b>. Semua siswa aktif otomatis jadi peserta.
+        <Link href="/samapta">Tes Samapta</Link> → <b>Tes baru</b>. Semua siswa aktif otomatis jadi peserta.
       </>,
       <>
-        Di lapangan, buka tes → <b>Isi per pos</b>. Pilih pos (tensi, tinggi/berat, lari, pull up, sit up, push up, shuttle, renang), lalu isi tiap siswa. Setiap baris tersimpan sendiri.
+        Di lapangan, ketuk <b>Lanjut isi</b> atau salah satu kotak pos. Mode lapangan menampilkan satu siswa per layar dengan papan angka besar; tekan <b>Simpan & lanjut</b> untuk siswa berikutnya. Semua tersimpan otomatis.
       </>,
       <>
         Nilai (0–100) diisi manual dari tabel nilai resmi. IMT, rata-rata B, hasil akhir, dan klasifikasi dihitung otomatis.
@@ -90,13 +90,13 @@ const SECTIONS: Section[] = [
     intro: "Pembayaran siswa diurus langsung (tunai atau transfer). Di aplikasi, owner cukup mencatat setiap uang masuk dan keluar; laporan keuangan dibuat otomatis.",
     steps: [
       <>
-        <b>Uang masuk</b>: <Link href="/keuangan/transaksi">Keuangan → Pemasukan & pengeluaran</Link> → jenis <b>Pemasukan</b>, kategori mis. <b>Pembayaran bimbel siswa</b>, tulis nama/kode siswa di keterangan.
+        <b>Uang masuk</b>: <Link href="/keuangan">Keuangan</Link> → tombol <b>Uang masuk</b>, isi nominal di papan angka, kategori mis. <b>Pembayaran bimbel siswa</b>, tulis nama/kode siswa di keterangan.
       </>,
       <>
-        <b>Uang keluar</b>: jenis <b>Pengeluaran</b>, pilih kategori (honor, sewa, operasional, ATK, dan lain-lain) agar laba rugi rapi. Pindah uang kas ke bank lewat <b>Transfer antar akun</b>.
+        <b>Uang keluar</b>: tombol <b>Uang keluar</b>, pilih kategori (honor, sewa, operasional, ATK, dan lain-lain) agar laba rugi rapi. Pindah uang kas ke bank lewat tombol <b>Pindah</b>.
       </>,
       <>
-        <b>Salah catat</b>: tekan <b>Ubah / hapus</b> pada barisnya. Saldo dan laporan langsung menyesuaikan; jejak perubahannya tetap tersimpan.
+        <b>Salah catat</b>: ketuk barisnya di Riwayat untuk mengubah atau menghapus. Saldo dan laporan langsung menyesuaikan; jejak perubahannya tetap tersimpan.
       </>,
       <>
         <b>Laporan</b>: <Link href="/keuangan/laporan">Keuangan → Laporan</Link> → pilih periode → buku kas, laba rugi, atau neraca. Unduh PDF atau CSV.
@@ -116,13 +116,13 @@ const SECTIONS: Section[] = [
         <b>Akun</b>: Pengaturan → Akun → pilih akun → ubah data, <b>Reset PIN</b> bila lupa PIN, atau <b>Hapus akun</b>.
       </>,
       <>
-        <b>Presensi</b>: di halaman sesi, <b>Catat / ubah</b> pada nama siswa (pilih Belum dicatat untuk menghapus catatan). Sesi yang sudah selesai tetap bisa diubah nama/jamnya. Sesi salah input: <b>Hapus sesi</b>.
+        <b>Presensi</b>: ketuk kartu siswa untuk mengganti status (sampai kembali ke Belum untuk menghapus catatan). Sesi yang sudah selesai tetap bisa diubah nama/jamnya. Sesi salah input: <b>Hapus sesi</b>.
       </>,
       <>
-        <b>Tes Samapta</b>: kosongkan isian untuk menghapus nilai yang salah. Tes yang salah input: tab <b>Data tes</b> → <b>Hapus tes</b>.
+        <b>Tes Samapta</b>: kosongkan isian untuk menghapus nilai yang salah. Tes yang salah input: buka hasil tes → <b>Hapus tes</b>.
       </>,
       <>
-        <b>Keuangan</b>: <b>Ubah / hapus</b> pada baris transaksi; akun kas/bank dan kategori diubah atau dinonaktifkan di <Link href="/keuangan/master">Akun & periode</Link>.
+        <b>Keuangan</b>: ketuk baris transaksi untuk ubah atau hapus; akun kas/bank dan kategori diatur di <Link href="/keuangan/lainnya">Keuangan → Lainnya</Link>.
       </>,
     ],
   },
@@ -135,7 +135,7 @@ const SECTIONS: Section[] = [
         <Link href="/akademik">Presensi</Link>: unduh rekap CSV bulan ini dan hubungi siswa yang kehadirannya di bawah 75%.
       </>,
       <>
-        <Link href="/keuangan/master">Akun & periode</Link> (owner): cocokkan saldo kas dan rekening, lalu <b>Tutup bulan</b> bila semua cocok.
+        <Link href="/keuangan/lainnya">Keuangan → Lainnya</Link> → Pencocokan & tutup bulan (owner): cocokkan saldo kas dan rekening, lalu <b>Tutup bulan</b> bila semua cocok.
       </>,
       <>
         <Link href="/keuangan/laporan">Laporan</Link>: unduh PDF laba rugi, neraca, dan buku kas. Unduh juga cadangan data (owner).

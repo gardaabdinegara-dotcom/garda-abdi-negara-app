@@ -1,5 +1,5 @@
-// Komponen bersama Tes Samapta: kartu hasil, rincian materi, badan & tensi, grafik perbandingan, dan donat klasifikasi.
-// Grafik memakai atribut SVG dan kelas CSS (tanpa style inline) karena CSP melarang style inline.
+// Komponen bersama Tes Samapta (desain "mode lapangan per pos"): kotak pos, kartu hasil, rincian nilai,
+// sebaran klasifikasi, dan kemajuan pos. Lebar batang memakai <meter> atau atribut SVG, bukan style inline (CSP).
 import Link from "next/link";
 import {
   KLASIFIKASI,
@@ -13,14 +13,17 @@ import {
 } from "@/lib/core/samapta";
 import type { SamaptaEntry } from "@/lib/server/samapta";
 import {
+  deltaText,
+  deltaTone,
+  diff,
   fmt,
   KLAS_TONE,
   klasRanges,
   materiOf,
+  POS_TILE,
   renangText,
-  type CompareGroup,
 } from "@/app/(ruang)/samapta/samapta-ui";
-import { Icon } from "./icon";
+import { SamIcon } from "./samapta-icon";
 import { Badge } from "./ui";
 
 export function SamaptaStatusBadge({ status }: { status: SamaptaStatus }) {
@@ -31,273 +34,271 @@ export function KlasBadge({ klas }: { klas: Klasifikasi | null }) {
   return klas ? <Badge tone={KLAS_TONE[klas]}>{klas}</Badge> : <Badge>Belum lengkap</Badge>;
 }
 
-const IMT_TONE: Record<string, "success" | "warning" | "danger"> = { Normal: "success", Kurus: "warning", Gemuk: "warning", Obesitas: "danger" };
-
-/** Tiga kartu hasil (Garjas A, Garjas B, hasil akhir), plus peringkat bila diberikan. */
-export function ResultCards({ entry, rank }: { entry: SamaptaEntry; rank?: { rank: number | null; total: number } }) {
-  const { score, result } = entry;
-  const nilaiB = [result.pull_nilai, result.situp_nilai, result.pushup_nilai, result.shuttle_nilai];
-  const rumusB = nilaiB.every((v) => v !== null) ? `(${nilaiB.map((v) => fmt(v)).join(" + ")}) ÷ 4` : "Menunggu 4 materi B";
+/** Selisih bertanda panah, hijau naik dan merah turun. */
+export function Delta({ value, suffix, digits = 2 }: { value: number | null; suffix?: string; digits?: number }) {
+  if (value === null) return null;
   return (
-    <div className={`sam-res-grid${rank ? " four" : ""}`}>
-      <div className="sam-res">
-        <span>Garjas A · lari 12 menit</span>
-        <b>{fmt(score.garjasA)}</b>
-        <small>{result.lari_jarak !== null ? `${fmt(result.lari_jarak, 0)} meter` : "Belum diisi"}</small>
-      </div>
-      <div className="sam-res">
-        <span>Garjas B · rata-rata 4 materi</span>
-        <b>{fmt(score.garjasB)}</b>
-        <small>{rumusB}</small>
-      </div>
-      <div className="sam-res is-main">
-        <span>Hasil akhir · (A + B) ÷ 2</span>
-        <b>{fmt(score.akhir)}</b>
-        <KlasBadge klas={score.klas} />
-      </div>
-      {rank ? (
-        <div className="sam-res">
-          <span>Peringkat</span>
-          <b>{rank.rank ?? "-"}</b>
-          <small>{rank.rank ? `dari ${rank.total} peserta` : "Muncul setelah hasil akhir lengkap"}</small>
-        </div>
-      ) : null}
+    <span className={`sam-d is-${deltaTone(value)}`}>
+      {deltaText(value, digits)}
+      {suffix ? ` ${suffix}` : ""}
+    </span>
+  );
+}
+
+/** Delapan kotak pos: sisa siswa per pos. Ketuk kotak untuk masuk mode lapangan pos itu. */
+export function StationTiles({ tesId, progress, peserta }: { tesId: string; progress: Record<Pos, number>; peserta: number }) {
+  return (
+    <div className="sam-tiles">
+      {POS.map((pos) => {
+        const n = progress[pos] ?? 0;
+        const left = Math.max(0, peserta - n);
+        const done = left === 0;
+        return (
+          <Link
+            key={pos}
+            href={`/samapta/${tesId}/pos/${pos}`}
+            className={`sam-tile${done ? "" : " is-part"}`}
+            aria-label={`${POS_TILE[pos]}: ${n} dari ${peserta} terisi${done ? "" : `, ${left} belum`}`}
+          >
+            <span className="sam-tile-main">
+              <b>{POS_TILE[pos]}</b>
+              <span>
+                {n}/{peserta}
+                {done ? "" : ` · ${left} belum`}
+              </span>
+            </span>
+            {done ? (
+              <span className="sam-tile-ok">
+                <SamIcon name="tick" />
+              </span>
+            ) : (
+              <span className="sam-tile-cnt">{left}</span>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
 }
 
-/** Tabel rincian: materi, hasil, nilai. Label Pull Up/Chinning mengikuti jenis kelamin. */
-export function BreakdownTable({ entry }: { entry: SamaptaEntry }) {
-  const renang = renangText(entry.result);
+/** Batang sebaran klasifikasi (SVG) dan legenda, dengan pembanding tes sebelumnya. */
+export function KlasStack({ klas, prev, prevName }: { klas: Record<Klasifikasi, number>; prev?: Record<Klasifikasi, number> | null; prevName?: string }) {
+  const total = KLASIFIKASI.reduce((sum, k) => sum + klas[k], 0);
+  const used = KLASIFIKASI.filter((k) => klas[k] > 0);
+  const gap = used.length > 1 ? 0.8 : 0;
+  let x = 0;
   return (
-    <div className="table-wrap">
-      <table className="data sam-rinci">
-        <thead>
-          <tr>
-            <th>Materi</th>
-            <th>Hasil</th>
-            <th className="num">Nilai</th>
-          </tr>
-        </thead>
-        <tbody>
-          {materiOf(entry.result, entry.score.pullLabel).map((m) => (
-            <tr key={m.key}>
-              <td>{m.label}</td>
-              <td>{m.hasil === "-" ? <span className="muted">Belum diisi</span> : m.hasil}</td>
-              <td className="num">
-                <b>{fmt(m.nilai)}</b>
-              </td>
-            </tr>
-          ))}
-          <tr>
-            <td>Renang dasar 50 m</td>
-            <td>{renang ?? <span className="muted">Belum diisi</span>}</td>
-            <td className="num">
-              <span className="muted small">Ketangkasan</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="sam-klas">
+      <div className="sam-dist">
+        <svg viewBox="0 0 100 12" preserveAspectRatio="none" role="img" aria-label={`Sebaran: ${KLASIFIKASI.map((k) => `${k} ${klas[k]}`).join(", ")}`}>
+          {total > 0
+            ? KLASIFIKASI.map((k, i) => {
+                if (!klas[k]) return null;
+                const w = (klas[k] / total) * (100 - gap * (used.length - 1));
+                const rect = <rect key={k} className={`sam-k${i + 1}`} x={x} y={0} width={w} height={12} />;
+                x += w + gap;
+                return rect;
+              })
+            : null}
+        </svg>
+      </div>
+      <dl className="sam-lgd">
+        {KLASIFIKASI.map((k, i) => (
+          <div key={k}>
+            <dt>
+              <i className={`sam-sw sam-k${i + 1}`} aria-hidden="true" />
+              {k}
+            </dt>
+            <dd>
+              <b>{klas[k]}</b>
+              {prev ? (
+                <em>
+                  {prevName}: {prev[k]}
+                </em>
+              ) : null}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
 
-/** Tinggi/berat, IMT, tensi, riwayat kesehatan, dan keterangan. */
-export function BodyFacts({ entry }: { entry: SamaptaEntry }) {
-  const { result, score } = entry;
-  const tensiDone = result.tensi.some((t) => t !== "");
-  const riwayat = result.riwayat.filter((r) => r.trim() !== "");
+/** Kemajuan tiap pos (batang <meter>); ketuk untuk membuka mode lapangan pos itu. */
+export function PosBars({ tesId, progress, peserta, query = "" }: { tesId: string; progress: Record<Pos, number>; peserta: number; query?: string }) {
   return (
-    <dl className="sam-kv">
-      <div>
-        <dt>Tinggi / berat</dt>
-        <dd>
-          {result.tinggi_cm !== null ? `${fmt(result.tinggi_cm, 1)} cm` : "-"} / {result.berat_kg !== null ? `${fmt(result.berat_kg, 1)} kg` : "-"}
-        </dd>
+    <div className="sam-posbars">
+      {POS.map((pos) => {
+        const n = progress[pos] ?? 0;
+        const part = n < peserta;
+        return (
+          <Link key={pos} href={`/samapta/${tesId}/pos/${pos}${query}`} className="sam-posbar">
+            <span>
+              <b>{POS_INFO[pos].short}</b>
+              <em>
+                {n}/{peserta}
+              </em>
+            </span>
+            <meter className={`sam-meter${part ? " is-part" : ""}`} min={0} max={Math.max(peserta, 1)} value={n} aria-label={`${POS_TILE[pos]} ${n} dari ${peserta}`} />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Kartu hasil utama: hasil akhir besar, klasifikasi, selisih dari tes sebelumnya, Garjas A dan B. */
+export function ResultHero({
+  entry,
+  label,
+  peserta,
+  prev,
+}: {
+  entry: SamaptaEntry;
+  label: string;
+  peserta: number;
+  prev: { entry: SamaptaEntry; name: string; month: string } | null;
+}) {
+  const { score } = entry;
+  const d = diff(prev?.entry.score.akhir, score.akhir);
+  return (
+    <section className="sam-rhero" aria-label="Hasil akhir">
+      <div className="sam-rhero-top">
+        <span>{label}</span>
+        {score.klas ? <span className="sam-hpill">{score.klas}</span> : <span className="sam-hpill">Belum lengkap</span>}
       </div>
-      <div>
-        <dt>IMT</dt>
-        <dd className="row sam-gap6">
-          {fmt(score.imt, 1)}
-          {score.imtKlas ? <Badge tone={IMT_TONE[score.imtKlas] ?? "neutral"}>{score.imtKlas}</Badge> : null}
-        </dd>
+      <div className="sam-rhero-main">
+        <b className="sam-rhero-big">{fmt(score.akhir)}</b>
+        {d !== null && prev ? (
+          <span className="sam-rhero-d">
+            {deltaText(d)} dari {prev.name}
+          </span>
+        ) : null}
       </div>
-      <div>
-        <dt>Tensi I / II / III</dt>
-        <dd className="sam-nums">{result.tensi.map((t) => t || "-").join(" · ")}</dd>
-      </div>
-      <div>
-        <dt>Riwayat kesehatan 6 bulan</dt>
-        <dd>{riwayat.length ? riwayat.join("; ") : tensiDone ? "Tidak ada" : "-"}</dd>
-      </div>
-      {result.keterangan ? (
+      <p className="sam-rhero-rank">
+        {score.akhir === null
+          ? "Hasil akhir muncul setelah semua materi Garjas A dan B terisi."
+          : entry.rank && prev
+            ? `Peringkat ${entry.rank} dari ${peserta} peserta`
+            : ""}
+      </p>
+      <div className="sam-rhero-ab">
         <div>
-          <dt>Keterangan</dt>
-          <dd>{result.keterangan}</dd>
+          <b>{fmt(score.garjasA)}</b>
+          <span>Garjas A</span>
         </div>
-      ) : null}
-    </dl>
+        <div>
+          <b>{fmt(score.garjasB)}</b>
+          <span>Garjas B</span>
+        </div>
+        {prev ? (
+          <div>
+            <b>{fmt(prev.entry.score.akhir)}</b>
+            <span>
+              {prev.name}
+              {prev.month ? ` (${prev.month})` : ""}
+            </span>
+          </div>
+        ) : (
+          <div>
+            <b>
+              {entry.rank ?? "-"}
+              {entry.rank ? <small> / {peserta}</small> : null}
+            </b>
+            <span>Peringkat</span>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
-/** Batang berujung bulat di atas, rata di garis dasar. */
-function barPath(x: number, y: number, w: number, h: number, r = 4) {
-  const rr = Math.min(r, w / 2, h);
-  const base = y + h;
-  return `M${x},${base}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${base}Z`;
-}
+const MATERI_POS = { lari: "lari", pull: "pull", situp: "situp", pushup: "pushup", shuttle: "shuttle" } as const;
+const MATERI_LABEL: Record<string, string> = { lari: "Lari 12 menit", shuttle: "Shuttle run" };
 
 /**
- * Grafik batang berpasangan 0–100: tes sebelumnya (abu, konteks) dan tes ini (hijau, ditonjolkan).
- * Angka hanya ditulis di batang tes ini; angka lengkap ada di tabel di bawah grafik.
+ * Rincian nilai per materi dibanding tes sebelumnya. Dengan `edit`, tiap baris punya tautan "Ubah"
+ * ke mode lapangan pos itu, dan tensi serta badan tampil sebagai dua baris.
  */
-export function CompareBars({ groups, labelA, labelB, title }: { groups: CompareGroup[]; labelA: string; labelB: string; title: string }) {
-  const width = 360;
-  const height = 196;
-  const left = 24;
-  const top = 22;
-  const base = 158;
-  const groupW = (width - left) / Math.max(groups.length, 1);
-  const barW = Math.min(20, (groupW - 12) / 2);
-  const scale = (v: number) => ((base - top) * Math.max(0, Math.min(100, v))) / 100;
-  const summary = groups.map((g) => `${g.label} ${fmt(g.a)} lalu ${fmt(g.b)}`).join(", ");
-  return (
-    <figure className="sam-figure">
-      <svg className="sam-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${title}: ${summary}`}>
-        {[0, 50, 100].map((v) => (
-          <g key={v}>
-            <line className={v === 0 ? "sam-axis" : "sam-grid"} x1={left} x2={width} y1={base - scale(v)} y2={base - scale(v)} />
-            <text className="sam-tick" x={left - 6} y={base - scale(v) + 3.5} textAnchor="end">
-              {v}
-            </text>
-          </g>
-        ))}
-        {groups.map((g, i) => {
-          const cx = left + groupW * (i + 0.5);
-          const xa = cx - barW - 1;
-          const xb = cx + 1;
-          const ha = g.a === null ? 0 : Math.max(2, scale(g.a));
-          const hb = g.b === null ? 0 : Math.max(2, scale(g.b));
-          return (
-            <g key={g.label}>
-              {g.a !== null ? (
-                <path className="sam-bar-a" d={barPath(xa, base - ha, barW, ha)}>
-                  <title>{`${labelA} · ${g.label}: ${fmt(g.a)}`}</title>
-                </path>
-              ) : null}
-              {g.b !== null ? (
-                <path className="sam-bar-b" d={barPath(xb, base - hb, barW, hb)}>
-                  <title>{`${labelB} · ${g.label}: ${fmt(g.b)}`}</title>
-                </path>
-              ) : null}
-              <text className="sam-val" x={xb + barW / 2} y={base - hb - 5} textAnchor="middle">
-                {g.b === null ? "-" : fmt(Math.round(g.b), 0)}
-              </text>
-              <text className="sam-lbl" x={cx} y={base + 18} textAnchor="middle">
-                {g.label}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      <figcaption className="sam-legend">
-        <span>
-          <i className="sam-dot sam-dot-a" aria-hidden="true" />
-          {labelA}
-        </span>
-        <span>
-          <i className="sam-dot sam-dot-b" aria-hidden="true" />
-          {labelB}
-        </span>
-      </figcaption>
-      <details className="sam-numbers">
-        <summary>Lihat angkanya</summary>
-        <div className="table-wrap">
-          <table className="data">
-            <thead>
-              <tr>
-                <th>Materi</th>
-                <th className="num">{labelA}</th>
-                <th className="num">{labelB}</th>
-                <th className="num">Selisih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {groups.map((g) => {
-                const d = g.a !== null && g.b !== null ? Math.round((g.b - g.a) * 100) / 100 : null;
-                return (
-                  <tr key={g.label}>
-                    <td>{g.label}</td>
-                    <td className="num">{fmt(g.a)}</td>
-                    <td className="num">{fmt(g.b)}</td>
-                    <td className="num">{d === null ? "-" : `${d > 0 ? "+" : ""}${fmt(d)}`}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </details>
-    </figure>
-  );
-}
+export function RincianList({ entry, prev, prevName, edit }: { entry: SamaptaEntry; prev: SamaptaEntry | null; prevName: string; edit?: (pos: Pos) => string }) {
+  const { result, score } = entry;
+  const cur = materiOf(result, score.pullLabel);
+  const old = prev ? materiOf(prev.result, score.pullLabel) : null;
+  const renang = renangText(result);
+  const tensi = result.tensi.filter((t) => t !== "");
+  const riwayat = result.riwayat.filter((r) => r.trim() !== "");
+  const badan = [
+    result.tinggi_cm !== null ? `${fmt(result.tinggi_cm, 1)} cm` : "",
+    result.berat_kg !== null ? `${fmt(result.berat_kg, 1)} kg` : "",
+  ].filter(Boolean);
+  const imt = score.imt !== null ? `IMT ${fmt(score.imt, 1)} ${score.imtKlas}` : "";
+  const editLink = (pos: Pos, what: string) =>
+    edit ? (
+      <Link className="sam-ubah" href={edit(pos)} aria-label={`Ubah ${what}`}>
+        <SamIcon name="edit" />
+      </Link>
+    ) : null;
 
-/** Donat sebaran klasifikasi dengan warna tetap per kelas dan batas dari pengaturan. */
-export function KlasDonut({ klas, settings, unit = "siswa" }: { klas: Record<Klasifikasi, number>; settings: Pick<SamaptaSettings, "baik_sekali" | "baik" | "cukup">; unit?: string }) {
-  const ranges = klasRanges(settings);
-  const total = KLASIFIKASI.reduce((sum, k) => sum + klas[k], 0);
-  const r = 46;
-  const c = 2 * Math.PI * r;
-  const used = KLASIFIKASI.filter((k) => klas[k] > 0).length;
-  const gap = used > 1 ? 2 : 0;
-  let offset = 0;
   return (
-    <div className="sam-donut">
-      <svg viewBox="0 0 120 120" width="128" height="128" role="img" aria-label={`Sebaran klasifikasi: ${KLASIFIKASI.map((k) => `${k} ${klas[k]}`).join(", ")}`}>
-        <circle className="ring-track" cx="60" cy="60" r={r} fill="none" strokeWidth="16" />
-        {total > 0
-          ? KLASIFIKASI.map((k, i) => {
-              const len = (klas[k] / total) * c;
-              const el =
-                len > 0 ? (
-                  <circle
-                    key={k}
-                    className={`sam-arc sam-k${i + 1}`}
-                    cx="60"
-                    cy="60"
-                    r={r}
-                    fill="none"
-                    strokeWidth="16"
-                    strokeDasharray={`${Math.max(0, len - gap)} ${c - Math.max(0, len - gap)}`}
-                    strokeDashoffset={-offset}
-                    transform="rotate(-90 60 60)"
-                  >
-                    <title>{`${k}: ${klas[k]} ${unit}`}</title>
-                  </circle>
-                ) : null;
-              offset += len;
-              return el;
-            })
-          : null}
-        <text className="donut-total" x="60" y="62" textAnchor="middle">
-          {total}
-        </text>
-        <text className="donut-unit" x="60" y="80" textAnchor="middle">
-          {unit}
-        </text>
-      </svg>
-      <ul className="legend">
-        {ranges.map((range, i) => (
-          <li key={range.klas}>
-            <span className={`sam-dot sam-k${i + 1}`} aria-hidden="true" />
-            <span>
-              {range.klas} <small className="muted">{range.teks}</small>
-            </span>
-            <b>{klas[range.klas]}</b>
+    <ul className="sam-rinc">
+      {cur.map((m, i) => {
+        const before = old?.[i];
+        const d = diff(before?.nilai, m.nilai);
+        const label = MATERI_LABEL[m.key] ?? (m.key === "pull" ? m.short : m.label);
+        return (
+          <li key={m.key}>
+            <div className="sam-rinc-main">
+              <b>{label}</b>
+              <span>
+                {m.hasil === "-" ? "Belum diisi" : m.hasil.replace(" detik", " dtk")}
+                {before && before.hasil !== "-" ? ` · ${prevName} ${before.hasil.replace(" detik", "").replace(" kali", "")}` : ""}
+              </span>
+            </div>
+            {d !== null ? <Delta value={d} digits={2} /> : null}
+            <span className={`sam-nl${m.nilai === null ? " is-empty" : ""}`}>{fmt(m.nilai)}</span>
+            {editLink(MATERI_POS[m.key], label)}
           </li>
-        ))}
-      </ul>
-    </div>
+        );
+      })}
+      <li>
+        <div className="sam-rinc-main">
+          <b>Renang 50 m</b>
+          <span>{renang ?? "Belum diisi"}</span>
+        </div>
+        <span className="sam-nl is-empty" title="Renang tidak masuk nilai akhir">
+          -
+        </span>
+        {editLink("renang", "renang")}
+      </li>
+      {edit ? (
+        <>
+          <li>
+            <div className="sam-rinc-main">
+              <b>Tensi</b>
+              <span>
+                {tensi.length ? result.tensi.map((t) => t || "-").join(" · ") : "Belum diisi"}
+                {tensi.length ? ` · riwayat: ${riwayat.length ? riwayat.join("; ") : "tidak ada"}` : ""}
+              </span>
+            </div>
+            {editLink("tensi", "tensi")}
+          </li>
+          <li>
+            <div className="sam-rinc-main">
+              <b>Tinggi & berat</b>
+              <span>{badan.length ? [badan.join(", "), imt].filter(Boolean).join(" · ") : "Belum diisi"}</span>
+            </div>
+            {editLink("badan", "tinggi dan berat")}
+          </li>
+        </>
+      ) : (
+        <li>
+          <div className="sam-rinc-main">
+            <b>Tensi & badan</b>
+            <span>{[tensi[0] ?? "", badan.join(", "), imt].filter(Boolean).join(" · ") || "Belum diisi"}</span>
+          </div>
+        </li>
+      )}
+    </ul>
   );
 }
 
@@ -337,54 +338,31 @@ export function HowCalculated({ entry, settings }: { entry: SamaptaEntry; settin
   );
 }
 
-/** Chip kemajuan per pos, mis. "Lari 11/11". Tiap chip membuka isian pos itu. */
-export function PosChips({
-  tesId,
-  progress,
-  peserta,
-  current,
-  belum = false,
-  label = "Pilih pos",
-}: {
-  tesId: string;
-  progress: Record<Pos, number>;
-  peserta: number;
-  current?: Pos;
-  belum?: boolean;
-  label?: string;
-}) {
+/** Data badan dan tensi dalam bentuk daftar pendek. */
+export function BodyFacts({ entry }: { entry: SamaptaEntry }) {
+  const { result, score } = entry;
+  const tensiDone = result.tensi.some((t) => t !== "");
+  const riwayat = result.riwayat.filter((r) => r.trim() !== "");
   return (
-    <nav className="sam-chips" aria-label={label}>
-      {POS.map((pos) => {
-        const n = progress[pos] ?? 0;
-        const state = peserta > 0 && n >= peserta ? "is-done" : n > 0 ? "is-part" : "is-none";
-        return (
-          <Link
-            key={pos}
-            href={`/samapta/${tesId}?tab=pos&pos=${pos}${belum ? "&belum=1" : ""}`}
-            className={`sam-chip ${state}`}
-            aria-current={current === pos ? "page" : undefined}
-            title={POS_INFO[pos].label}
-          >
-            {state === "is-done" ? <Icon name="check" className="icon sam-chip-icon" /> : null}
-            <span>{POS_INFO[pos].short}</span>
-            <b>
-              {n}/{peserta}
-            </b>
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
-/** Tautan ke halaman cetak (dibuat terpisah); memakai <a> biasa karena halaman cetak berdiri sendiri. */
-export function PrintLink({ href, children, variant = "secondary", size }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" | "ghost"; size?: "sm" }) {
-  const classes = ["btn", variant !== "primary" ? `btn-${variant}` : "", size ? `btn-${size}` : ""].filter(Boolean).join(" ");
-  return (
-    <a className={classes} href={href}>
-      <Icon name="print" />
-      {children}
-    </a>
+    <dl className="sam-kv">
+      <div>
+        <dt>Tinggi / berat</dt>
+        <dd>
+          {result.tinggi_cm !== null ? `${fmt(result.tinggi_cm, 1)} cm` : "-"} / {result.berat_kg !== null ? `${fmt(result.berat_kg, 1)} kg` : "-"}
+        </dd>
+      </div>
+      <div>
+        <dt>IMT</dt>
+        <dd>{score.imt !== null ? `${fmt(score.imt, 1)} · ${score.imtKlas}` : "-"}</dd>
+      </div>
+      <div>
+        <dt>Tensi I · II · III</dt>
+        <dd>{result.tensi.map((t) => t || "-").join(" · ")}</dd>
+      </div>
+      <div>
+        <dt>Riwayat kesehatan</dt>
+        <dd>{riwayat.length ? riwayat.join("; ") : tensiDone ? "Tidak ada" : "-"}</dd>
+      </div>
+    </dl>
   );
 }

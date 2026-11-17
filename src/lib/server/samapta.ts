@@ -118,7 +118,7 @@ export async function loadSamaptaTest(actor: Actor, tesId: string) {
   const previousTest = m.tests.find((x) => x.tes_id !== test.tes_id && x.status !== "DIBATALKAN" && (x.tanggal < test.tanggal || (x.tanggal === test.tanggal && x.tes_id < test.tes_id)));
   const previous = previousTest ? { test: previousTest, entries: entriesOf(previousTest, m) } : null;
   const nonParticipants = m.students.filter((s) => s.aktif && !test.peserta_ids.includes(s.siswa_id)).sort((a, b) => a.kode_siswa.localeCompare(b.kode_siswa));
-  return { settings: m.settings, test, entries, summary: summarize(test, entries), previous, nonParticipants };
+  return { settings: m.settings, test, entries, summary: summarize(test, entries), previous, nonParticipants, tests: m.tests };
 }
 
 export interface StudentHistoryItem {

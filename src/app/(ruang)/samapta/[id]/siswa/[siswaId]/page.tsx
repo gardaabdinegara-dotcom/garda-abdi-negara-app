@@ -5,13 +5,13 @@ import { randomUUID } from "node:crypto";
 import { simpanPosSamapta } from "@/app/actions/samapta";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { BodyFacts, BreakdownTable, CompareBars, PrintLink, ResultCards, SamaptaStatusBadge } from "@/components/samapta";
-import { Notice, PageHead } from "@/components/ui";
-import { canManageSamapta, POS_INFO } from "@/lib/core/samapta";
+import { ResultHero, RincianList } from "@/components/samapta";
+import { SamIcon } from "@/components/samapta-icon";
+import { canManageSamapta, POS_INFO, TEST_STATUS_LABEL, type Pos } from "@/lib/core/samapta";
 import { formatDate } from "@/lib/format";
 import { loadSamaptaResult } from "@/lib/server/samapta";
 import { requireActor } from "@/lib/server/session";
-import { compareGroups, jkLabel, missingPos, progressSentence, shortDate, shortTestName } from "../../../samapta-ui";
+import { jkLabel, mediumDate, missingPos, monthShort, progressSentence, shortTestName } from "../../../samapta-ui";
 
 export const metadata: Metadata = { title: "Hasil samapta siswa" };
 
@@ -24,110 +24,106 @@ export default async function SamaptaStudentPage({ params }: { params: Promise<{
   const s = entry.student;
   const locked = test.status !== "BERJALAN";
   const missing = missingPos(entry.result);
-  const identity = [s.kode_siswa, s.jalur_target || null, jkLabel(s.jenis_kelamin), entry.usia !== null ? `${entry.usia} tahun` : null, s.asal_sekolah || null].filter(Boolean).join(" · ");
+  const identity = [s.kode_siswa, jkLabel(s.jenis_kelamin), entry.usia !== null ? `${entry.usia} tahun` : null, s.jalur_target || null, s.asal_sekolah || null].filter(Boolean).join(" · ");
   const ttl = [s.tempat_lahir, s.tanggal_lahir ? formatDate(s.tanggal_lahir, "long") : ""].filter(Boolean).join(", ");
+  const prevName = previous ? shortTestName(previous.test.nama) : "";
+  const edit = locked ? undefined : (pos: Pos) => `/samapta/${test.tes_id}/pos/${pos}?siswa=${s.siswa_id}&semua=1&dari=s-${s.siswa_id}`;
 
   return (
-    <div className="page">
-      <PageHead
-        back={{ href: `/samapta/${test.tes_id}?tab=hasil`, label: `Hasil ${test.nama}` }}
-        eyebrow={`${test.nama} · ${formatDate(test.tanggal, "long")}`}
-        title={s.nama}
-        description={identity}
-        actions={
-          <>
-            {!locked && missing[0] ? (
-              <Link className="btn btn-secondary" href={`/samapta/${test.tes_id}?tab=pos&pos=${missing[0]}`}>
-                <Icon name="run" />
-                Isi {POS_INFO[missing[0]].short}
-              </Link>
-            ) : null}
-            <PrintLink variant="primary" href={`/cetak/samapta/${test.tes_id}?siswa=${s.siswa_id}`}>
-              Cetak blangko
-            </PrintLink>
-          </>
-        }
-      />
-      <ResultCards entry={entry} rank={{ rank: entry.rank, total: peserta }} />
-      <div className="grid-main">
-        <div className="stack sam-col">
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Rincian materi</h2>
-                <p>
-                  {missing.length ? `Belum diisi: ${missing.map((p) => POS_INFO[p].short).join(", ")}.` : "Semua pos sudah terisi."}
-                </p>
-              </div>
-            </div>
-            <BreakdownTable entry={entry} />
-          </section>
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Tes sebelumnya dibanding tes ini</h2>
-                <p>{previous ? `${previous.test.nama} (${formatDate(previous.test.tanggal)}) dan ${test.nama}.` : "Belum ada tes sebelumnya untuk siswa ini."}</p>
-              </div>
-            </div>
-            {previous ? (
-              <>
-                <CompareBars
-                  title="Nilai per materi"
-                  groups={compareGroups(previous.entry, entry)}
-                  labelA={`${shortTestName(previous.test.nama)} · ${shortDate(previous.test.tanggal)}`}
-                  labelB={`${shortTestName(test.nama)} · ${shortDate(test.tanggal)}`}
-                />
-                <p className="sam-sentence">{progressSentence(previous.entry, entry)}</p>
-              </>
-            ) : (
-              <p className="muted">Grafik perkembangan muncul setelah siswa mengikuti dua tes.</p>
-            )}
-          </section>
+    <div className="page sam-page">
+      <header className="sam-dhead">
+        <div className="sam-dhead-main">
+          <Link className="sam-crumb" href={`/samapta/${test.tes_id}`}>
+            <SamIcon name="left" />
+            Hasil {test.nama}
+          </Link>
+          <div className="sam-dtitle">
+            <h1>{s.nama}</h1>
+            <span className={`sam-spill is-${test.status.toLowerCase()}`}>{TEST_STATUS_LABEL[test.status]}</span>
+          </div>
+          <p className="sam-dmeta">{identity}</p>
         </div>
-        <div className="stack sam-col">
-          <section className="card">
-            <div className="card-head">
-              <h2>Data siswa</h2>
-              <SamaptaStatusBadge status={test.status} />
-            </div>
-            <dl className="facts">
-              <dt>Kode / jalur</dt>
-              <dd>
-                {s.kode_siswa} / {s.jalur_target || "-"}
-              </dd>
-              <dt>Jenis kelamin</dt>
-              <dd>{s.jenis_kelamin === "P" ? "Perempuan (Chinning)" : s.jenis_kelamin === "L" ? "Laki-laki (Pull Up)" : "-"}</dd>
-              <dt>Tempat, tanggal lahir</dt>
-              <dd>{ttl || "-"}</dd>
-              <dt>Usia saat tes</dt>
-              <dd>{entry.usia !== null ? `${entry.usia} tahun` : "-"}</dd>
-              <dt>Asal sekolah</dt>
-              <dd>{s.asal_sekolah || "-"}</dd>
+        <div className="sam-dact">
+          {!locked && missing[0] ? (
+            <Link className="btn btn-secondary" href={edit!(missing[0])}>
+              <SamIcon name="field" />
+              Isi {POS_INFO[missing[0]].short}
+            </Link>
+          ) : null}
+          <a className="btn" href={`/cetak/samapta/${test.tes_id}?siswa=${s.siswa_id}`}>
+            <Icon name="print" />
+            Cetak blangko
+          </a>
+        </div>
+      </header>
+
+      <div className="sam-sv">
+        <div className="sam-sv-main">
+          <ResultHero
+            entry={entry}
+            label={`${test.nama} · ${mediumDate(test.tanggal)}`}
+            peserta={peserta}
+            prev={previous ? { entry: previous.entry, name: prevName, month: monthShort(previous.test.tanggal) } : null}
+          />
+          <div className="sam-sec-t">
+            <h2>Rincian nilai</h2>
+            <span>{previous ? `dibanding ${prevName}` : "belum ada tes sebelumnya"}</span>
+          </div>
+          <section className="card sam-card sam-card-tight">
+            <RincianList entry={entry} prev={previous?.entry ?? null} prevName={prevName} edit={edit} />
+          </section>
+          {previous ? <p className="sam-sentence">{progressSentence(previous.entry, entry)}</p> : null}
+          {locked ? (
+            <p className="sam-note">
+              <SamIcon name="lock" />
+              Tes sudah ditandai selesai, jadi isian dikunci. Buka lagi di halaman hasil bila perlu koreksi.
+            </p>
+          ) : missing.length ? (
+            <p className="sam-note">Belum diisi: {missing.map((p) => POS_INFO[p].short).join(", ")}.</p>
+          ) : null}
+        </div>
+
+        <div className="sam-sv-side">
+          <section className="card sam-card">
+            <h2>Data siswa</h2>
+            <dl className="sam-kv">
+              <div>
+                <dt>Kode / jalur</dt>
+                <dd>
+                  {s.kode_siswa} / {s.jalur_target || "-"}
+                </dd>
+              </div>
+              <div>
+                <dt>Jenis kelamin</dt>
+                <dd>{s.jenis_kelamin === "P" ? "Perempuan (Chinning)" : s.jenis_kelamin === "L" ? "Laki-laki (Pull up)" : "-"}</dd>
+              </div>
+              <div>
+                <dt>Tempat, tanggal lahir</dt>
+                <dd>{ttl || "-"}</dd>
+              </div>
+              <div>
+                <dt>Usia saat tes</dt>
+                <dd>{entry.usia !== null ? `${entry.usia} tahun` : "-"}</dd>
+              </div>
+              <div>
+                <dt>Asal sekolah</dt>
+                <dd>{s.asal_sekolah || "-"}</dd>
+              </div>
             </dl>
           </section>
-          <section className="card">
-            <div className="card-head">
-              <h2>Badan & tensi</h2>
-            </div>
-            <BodyFacts entry={entry} />
-          </section>
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Keterangan</h2>
-                <p>Catatan untuk hasil tes ini, mis. izin saat renang.</p>
-              </div>
+          <section className="card sam-card">
+            <div>
+              <h2>Keterangan</h2>
+              <p className="sam-sub">Catatan untuk hasil tes ini, mis. izin saat renang.</p>
             </div>
             <ActionForm action={simpanPosSamapta} operationId={randomUUID()} className="stack">
               <input type="hidden" name="tes_id" value={test.tes_id} />
               <input type="hidden" name="siswa_id" value={s.siswa_id} />
               <input type="hidden" name="pos" value="keterangan" />
               <Field label="Keterangan" name="keterangan" type="textarea" defaultValue={entry.result.keterangan} hint="Maksimal 200 karakter." disabled={locked} />
-              {locked ? (
-                <Notice tone="warning">Tes sudah ditandai selesai. Buka lagi tes ini untuk mengubah keterangan.</Notice>
-              ) : (
+              {locked ? null : (
                 <div className="form-actions">
-                  <SubmitButton>Simpan keterangan</SubmitButton>
+                  <SubmitButton size="sm">Simpan keterangan</SubmitButton>
                 </div>
               )}
             </ActionForm>

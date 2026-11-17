@@ -62,7 +62,8 @@ export async function simpanSesi(_prev: ActionState, formData: FormData): Promis
   } catch (error) {
     return failure(error);
   }
-  redirect(`/akademik/sesi/${createdId}`);
+  // Sesi baru langsung terpilih di layar Presensi.
+  redirect(`/akademik?sesi=${encodeURIComponent(createdId)}`);
 }
 
 export async function ubahStatusSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -322,7 +323,7 @@ export async function revisiRapor(_prev: ActionState, formData: FormData): Promi
   }
 }
 
-/** Menghapus sesi yang salah input (owner/admin) lalu kembali ke jadwal tanggal itu. */
+/** Menghapus sesi yang salah input (owner/admin) lalu kembali ke tab Jadwal pada tanggal itu. */
 export async function hapusSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();
   const tanggal = String(formData.get("tanggal") ?? "");
@@ -338,5 +339,5 @@ export async function hapusSesi(_prev: ActionState, formData: FormData): Promise
   } catch (error) {
     return failure(error);
   }
-  redirect(/^\d{4}-\d{2}-\d{2}$/.test(tanggal) ? `/akademik?tanggal=${tanggal}` : "/akademik");
+  redirect(/^\d{4}-\d{2}-\d{2}$/.test(tanggal) ? `/akademik?tab=jadwal&tanggal=${tanggal}` : "/akademik");
 }

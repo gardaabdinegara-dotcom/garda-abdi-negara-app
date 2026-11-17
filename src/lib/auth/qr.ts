@@ -11,6 +11,20 @@ export function createQrToken(sesiId: string, now = Date.now()): { token: string
   return { token: `${payload}.${signFor("qr", payload)}`, expires };
 }
 
+/** Token tetap sah sekian menit setelah QR berganti, agar siswa yang baru memindai sempat mengirim. */
+export const QR_GRACE_MINUTES = 5;
+
+/**
+ * QR layar penuh: berganti tiap QR_MINUTES mengikuti jam dinding (mis. 16.10, 16.20).
+ * Dalam satu jendela tokennya sama persis, jadi layar boleh dimuat ulang tanpa mengganti QR.
+ */
+export function rotatingQrToken(sesiId: string, now = Date.now()): { token: string; rotatesAt: number } {
+  const period = QR_MINUTES * 60_000;
+  const start = Math.floor(now / period) * period;
+  const { token } = createQrToken(sesiId, start + QR_GRACE_MINUTES * 60_000);
+  return { token, rotatesAt: start + period };
+}
+
 /** Mengembalikan ID sesi bila token sah dan belum kedaluwarsa. */
 export function readQrToken(token: string | undefined | null, now = Date.now()): string | null {
   if (!token) return null;

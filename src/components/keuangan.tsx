@@ -1,33 +1,160 @@
 import { randomUUID } from "node:crypto";
+import Link from "next/link";
 import { jalankanKeuangan } from "@/app/actions/keuangan";
 import type { ReportDocument } from "@/lib/keuangan/report-document";
 import type { InvoiceStatus } from "@/lib/keuangan/ringkasan";
-import type { Row } from "@/lib/keuangan/domain";
+import { text, type Row } from "@/lib/keuangan/domain";
 import { FITUR } from "@/lib/core/fitur";
+import type { FinanceData } from "@/lib/server/keuangan";
 import { ActionForm, Field } from "./form";
-import { Badge, Tabs } from "./ui";
+import { KgIcon, type KgIconName } from "./keuangan-ikon";
+import { bulanLabel as monthLabel } from "@/lib/keuangan/dompet";
+import { Badge } from "./ui";
 
-export type FinancePart = "ringkasan" | "tagihan" | "transaksi" | "laporan" | "biaya" | "master" | "penyesuaian";
+export type FinancePart = "ringkasan" | "tagihan" | "transaksi" | "laporan" | "biaya" | "master" | "penyesuaian" | "lainnya";
 
 /** Rupiah dengan pemisah ribuan; nilai negatif diberi tanda minus. */
 export const rp = (value: number | null | undefined) =>
   value === null || value === undefined ? "-" : `${value < 0 ? "−" : ""}Rp${Math.abs(value).toLocaleString("id-ID")}`;
 
-export function FinanceTabs({ current, owner }: { current: FinancePart; owner: boolean }) {
+const TAB_OF: Record<FinancePart, string> = {
+  ringkasan: "transaksi",
+  transaksi: "transaksi",
+  tagihan: "tagihan",
+  laporan: "laporan",
+  biaya: "lainnya",
+  master: "lainnya",
+  penyesuaian: "lainnya",
+  lainnya: "lainnya",
+};
+
+/** Tiga tab Keuangan: Transaksi (dompet), Laporan, Lainnya. Tagihan hanya muncul bila fiturnya dinyalakan. */
+export function FinanceTabs({ current }: { current: FinancePart; owner?: boolean }) {
+  const tab = TAB_OF[current];
   const items = [
-    { key: "ringkasan", href: "/keuangan", label: "Ringkasan" },
+    { key: "transaksi", href: "/keuangan", label: "Transaksi" },
     ...(FITUR.tagihan ? [{ key: "tagihan", href: "/keuangan/tagihan", label: "Tagihan" }] : []),
-    { key: "transaksi", href: "/keuangan/transaksi", label: FITUR.tagihan ? "Transaksi" : "Pemasukan & pengeluaran" },
     { key: "laporan", href: "/keuangan/laporan", label: "Laporan" },
-    ...(FITUR.tagihan ? [{ key: "biaya", href: "/keuangan/biaya", label: "Tarif & biaya" }] : []),
-    ...(owner
+    { key: "lainnya", href: "/keuangan/lainnya", label: "Lainnya" },
+  ];
+  return (
+    <nav className="kg-tabs" aria-label="Bagian keuangan">
+      {items.map((item) => (
+        <Link key={item.key} href={item.href} aria-current={item.key === tab ? "page" : undefined}>
+          {item.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+/** Kepala halaman Keuangan yang ringkas: judul, tiga tab, dan isian samping (mis. pilihan bulan). */
+export function KeuanganHead({ current, aside }: { current: FinancePart; aside?: React.ReactNode }) {
+  return (
+    <header className="kg-head">
+      <h1>Keuangan</h1>
+      <FinanceTabs current={current} />
+      {aside ? <div className="kg-head-aside">{aside}</div> : null}
+    </header>
+  );
+}
+
+/** Judul bagian di bawah tab Lainnya, dengan tautan kembali. */
+export function KeuanganSubHead({ title, description, back = { href: "/keuangan/lainnya", label: "Lainnya" } }: { title: string; description?: React.ReactNode; back?: { href: string; label: string } }) {
+  return (
+    <div className="kg-subhead">
+      <Link href={back.href} className="kg-back">
+        <KgIcon name="left" size="s" />
+        {back.label}
+      </Link>
+      <h2>{title}</h2>
+      {description ? <p>{description}</p> : null}
+    </div>
+  );
+}
+
+/** Pilihan bulan ringkas: panah sebelum/sesudah dan nama bulan. */
+export function MonthSwitch({ month, prevHref, nextHref, className }: { month: string; prevHref: string; nextHref?: string; className?: string }) {
+  return (
+    <nav className={`kg-mon ${className ?? ""}`} aria-label="Pilih bulan">
+      <Link href={prevHref} className="kg-mon-btn" aria-label="Bulan sebelumnya">
+        <KgIcon name="left" size="s" />
+      </Link>
+      <b>{monthLabel(month)}</b>
+      {nextHref ? (
+        <Link href={nextHref} className="kg-mon-btn" aria-label="Bulan berikutnya">
+          <KgIcon name="right" size="s" />
+        </Link>
+      ) : (
+        <span className="kg-mon-btn off" aria-hidden="true">
+          <KgIcon name="right" size="s" />
+        </span>
+      )}
+    </nav>
+  );
+}
+
+const IN_KINDS = ["PENERIMAAN_LAIN", "MODAL_MASUK", "PINJAMAN_MASUK"];
+
+/** Menu jarang dipakai di tab Lainnya (juga kartu samping di laptop). Bagian pemilik disembunyikan dari peran lain. */
+export function LainnyaDaftar({ data }: { data: FinanceData }) {
+  const active = (r: Row) => r.aktif === true || r.aktif === "true" || r.aktif === "TRUE";
+  const accounts = data.state.Akun.filter(active).map((a) => text(a, "nama_akun"));
+  const categories = data.state.Kategori.filter(active).map((k) => text(k, "jenis_yang_diizinkan").split(","));
+  const masuk = categories.filter((kinds) => kinds.some((k) => IN_KINDS.includes(k))).length;
+  const keluar = categories.length - masuk;
+  const closed = [...data.closed].sort();
+  const items: { href: string; icon: KgIconName; title: string; sub: string; owner?: boolean; download?: boolean }[] = [
+    { href: "/keuangan/master#akun", icon: "wallet", title: "Akun & saldo awal", sub: accounts.length ? accounts.join(", ") : "Belum ada akun", owner: true },
+    { href: "/keuangan/master#kategori", icon: "tag", title: "Kategori", sub: `${masuk} uang masuk, ${keluar} uang keluar`, owner: true },
+    {
+      href: "/keuangan/master#tutup-bulan",
+      icon: "lock",
+      title: "Pencocokan & tutup bulan",
+      sub: closed.length ? `${monthLabel(closed[closed.length - 1]!)} sudah ditutup` : "Belum ada bulan yang ditutup",
+      owner: true,
+    },
+    { href: "/keuangan/laporan?lanjutan=1#lanjutan", icon: "file", title: "Laporan lanjutan", sub: "Aset, omzet & pajak, pemeriksaan" },
+    { href: "/keuangan/penyesuaian", icon: "slider", title: "Penyesuaian laporan", sub: "Untuk pembukuan rapi, opsional", owner: true },
+    ...(FITUR.tagihan
       ? [
-          { key: "master", href: "/keuangan/master", label: "Akun & periode" },
-          { key: "penyesuaian", href: "/keuangan/penyesuaian", label: "Penyesuaian laporan" },
+          { href: "/keuangan/tagihan", icon: "file" as const, title: "Tagihan siswa", sub: "Cicilan dan kuitansi" },
+          { href: "/keuangan/biaya", icon: "tag" as const, title: "Tarif & biaya", sub: "Tarif program dan ketentuan biaya", owner: true },
         ]
       : []),
+    { href: "/keuangan/cadangan", icon: "dl", title: "Cadangan data", sub: "Unduh salinan JSON", owner: true, download: true },
   ];
-  return <Tabs items={items} current={current} label="Bagian keuangan" />;
+  return (
+    <div className="kg-sets">
+      {items
+        .filter((item) => !item.owner || data.owner)
+        .map((item) =>
+          item.download ? (
+            <a key={item.href} href={item.href} className="kg-set">
+              <span className="kg-set-ic">
+                <KgIcon name={item.icon} size="s" />
+              </span>
+              <span className="kg-set-main">
+                <b>{item.title}</b>
+                <span>{item.sub}</span>
+              </span>
+              <KgIcon name="dl" size="s" className="kg-set-go" />
+            </a>
+          ) : (
+            <Link key={item.href} href={item.href} className="kg-set">
+              <span className="kg-set-ic">
+                <KgIcon name={item.icon} size="s" />
+              </span>
+              <span className="kg-set-main">
+                <b>{item.title}</b>
+                <span>{item.sub}</span>
+              </span>
+              <KgIcon name="right" size="s" className="kg-set-go" />
+            </Link>
+          ),
+        )}
+    </div>
+  );
 }
 
 const INVOICE_TONE: Record<InvoiceStatus, "success" | "warning" | "danger" | "neutral"> = {
@@ -122,8 +249,8 @@ export function ReportTables({ model }: { model: ReportDocument }) {
             <table className="data finance-table">
               <thead>
                 <tr>
-                  {table.columns.map((c) => (
-                    <th key={c.label} className={c.numeric ? "num" : undefined}>
+                  {table.columns.map((c, ci) => (
+                    <th key={`${c.label}-${ci}`} className={c.numeric ? "num" : undefined}>
                       {c.label}
                     </th>
                   ))}

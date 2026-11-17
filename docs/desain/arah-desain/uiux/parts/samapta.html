@@ -1,0 +1,669 @@
+<style>
+/* ===== Tes Samapta: 3 opsi (semua CSS di bawah .m-samapta) ===== */
+.m-samapta .i-back{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E")}
+.m-samapta .i-close{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
+.m-samapta .i-check{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E")}
+.m-samapta .i-print{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z'/%3E%3C/svg%3E")}
+.m-samapta .i-plus{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E")}
+.m-samapta .i-search{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E")}
+.m-samapta .i-more{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='5' cy='12' r='1.7' fill='black'/%3E%3Ccircle cx='12' cy='12' r='1.7' fill='black'/%3E%3Ccircle cx='19' cy='12' r='1.7' fill='black'/%3E%3C/svg%3E")}
+.m-samapta .i-lock{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E")}
+.m-samapta .i-arrow{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E")}
+.m-samapta .i-right{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")}
+.m-samapta .i-left{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E")}
+.m-samapta .i-down{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+.m-samapta .i-bksp{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 5H9l-6 7 6 7h12zM12 9.5l5 5M17 9.5l-5 5'/%3E%3C/svg%3E")}
+.m-samapta .i-home{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/%3E%3C/svg%3E")}
+.m-samapta .i-presensi{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11.5 11.5 14 16 9.5M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z'/%3E%3C/svg%3E")}
+.m-samapta .i-lari{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2M7 21l3-4 2 2 2-6 4 2M10 9l3-2 3 3 3 1M8 13l2-4'/%3E%3C/svg%3E")}
+.m-samapta .i-dompet{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v3M3 7.5V18a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5'/%3E%3C/svg%3E")}
+.m-samapta .i-filter{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16l-6 8v6l-4-2v-4z'/%3E%3C/svg%3E")}
+.m-samapta .i-trash{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13'/%3E%3C/svg%3E")}
+.m-samapta .i-list{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01'/%3E%3C/svg%3E")}
+.m-samapta .i-enter{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 5v7a3 3 0 0 1-3 3H5M9 11l-4 4 4 4'/%3E%3C/svg%3E")}
+.m-samapta .i-tabel{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M9 4v16'/%3E%3C/svg%3E")}
+.m-samapta .i-field{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20V6l8-3 8 3v14M4 12h16M12 3v17'/%3E%3C/svg%3E")}
+.m-samapta .i-unlock{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 7.5-2'/%3E%3C/svg%3E")}
+.m-samapta .i-cloud{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.5 1.5A3.3 3.3 0 0 1 17.5 18zM9.5 13.5l2 2 3.5-3.5'/%3E%3C/svg%3E")}
+
+.m-samapta .ic{display:inline-block;width:18px;height:18px;flex:none;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;vertical-align:-4px;font-style:normal}
+.m-samapta .hp-nav i.ic{display:block;margin:0 auto 3px;width:19px;height:19px}
+.m-samapta .frames{gap:28px}
+.m-samapta .hp-bar{min-height:64px}
+.m-samapta .hp-bar .tt{flex:1;min-width:0;line-height:1.25}
+.m-samapta .hp-bar .tt b{display:block;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-samapta .hp-bar .tt small{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-samapta .tap{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--soft);color:var(--ink);flex:none}
+.m-samapta .tap.plain{background:transparent}
+.m-samapta .hb{min-height:44px;padding:0 14px;border-radius:14px;font-size:13px}
+.m-samapta .up{color:var(--primary);font-weight:800;font-size:11.5px;white-space:nowrap}
+.m-samapta .dn{color:var(--red);font-weight:800;font-size:11.5px;white-space:nowrap}
+.m-samapta .sec-t{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:4px}
+.m-samapta .sec-t b{font-size:13.5px}
+.m-samapta .av.xl{width:54px;height:54px;font-size:17px}
+.m-samapta .av.sm{width:28px;height:28px;font-size:10.5px}
+.m-samapta .dk-side .dk-user{margin-top:auto;display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;background:var(--soft);font-size:12px;line-height:1.25}
+.m-samapta .dk-side .dk-user b{display:block;font-size:12.5px}.m-samapta .dk-side .dk-user span:not(.av){color:var(--muted)}
+.m-samapta .dk-side .dk-user .av{background:var(--primary);color:var(--on-primary);width:30px;height:30px;font-size:11px}
+.m-samapta .dk-body{gap:12px}
+.m-samapta .dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.m-samapta .dhead .title{font-size:24px}
+.m-samapta .dist{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:2px}
+.m-samapta .dist i{display:block;height:100%}
+.m-samapta .k1{background:var(--primary)}.m-samapta .k2{background:var(--blue)}.m-samapta .k3{background:var(--orange)}.m-samapta .k4{background:var(--red)}
+.m-samapta .lgd{display:grid;grid-template-columns:auto 1fr auto auto;gap:5px 8px;align-items:center;font-size:12.5px}
+.m-samapta .lgd i.sw{width:10px;height:10px;border-radius:3px;display:block}
+.m-samapta .lgd b{text-align:right;font-variant-numeric:tabular-nums}
+.m-samapta .lgd em{font-style:normal;font-size:11px;color:var(--muted);text-align:right;min-width:52px}
+.m-samapta .saved{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--primary);background:var(--psoft);padding:7px 10px;border-radius:99px;white-space:nowrap}
+.m-samapta .saved .ic{width:14px;height:14px}
+.m-samapta .ttl-sm{font-size:15px;font-weight:800}
+.m-samapta .hp .anno::after{right:8px}
+.m-samapta .lastsv{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);border:1.5px dashed var(--line);border-radius:12px;padding:9px 12px}
+.m-samapta .lastsv .ic{width:15px;height:15px;color:var(--primary)}
+.m-samapta .lastsv b{color:var(--ink)}
+
+/* ---------- Opsi A ---------- */
+.m-samapta .hero .pill{background:#ffffff24;color:#fff}
+.m-samapta .hero .btn{background:#f4f6ec;color:#2f3b1a}
+.m-samapta .hero .bar{background:#ffffff2b;margin:6px 0 12px}
+.m-samapta .hero .bar i{background:#dfe9c2}
+.m-samapta .a-h{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:8px 0 1px}
+.m-samapta .a-hero .row.spread{font-size:12.5px}
+.m-samapta .a-hero .btn span{font-weight:600;opacity:.75}
+.m-samapta .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m-samapta .st{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 10px 8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.m-samapta .st .main{flex:1;min-width:0}
+.m-samapta .st b{display:block;font-size:13.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-samapta .st .main span{font-size:11.5px;color:var(--muted)}
+.m-samapta .st .ok{width:24px;height:24px;border-radius:50%;background:var(--psoft);color:var(--primary);display:grid;place-items:center;flex:none}
+.m-samapta .st .ok .ic{width:14px;height:14px}
+.m-samapta .st.part{background:var(--osoft);border-color:transparent}
+.m-samapta .st.part .main span{color:var(--gold);font-weight:700}
+.m-samapta .st .cnt{min-width:26px;height:26px;border-radius:99px;background:var(--gold);color:var(--surface);font-size:12.5px;font-weight:800;display:grid;place-items:center;padding:0 7px;flex:none}
+.m-samapta .lnk{display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 12px}
+.m-samapta .lnk .main{flex:1;min-width:0}.m-samapta .lnk .main b{display:block;font-size:13.5px}.m-samapta .lnk .main span{font-size:12px;color:var(--muted)}
+.m-samapta .lnk .badge-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--soft);color:var(--muted);flex:none}
+.m-samapta .lnk .badge-ic.g{background:var(--psoft);color:var(--primary)}
+/* mode lapangan */
+.m-samapta .fm-top{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.m-samapta .fm-top .tt{flex:1;min-width:0;line-height:1.25}
+.m-samapta .fm-top .tt b{display:block;font-size:16px}
+.m-samapta .fm-top .tt small{font-size:11.5px;color:var(--muted)}
+.m-samapta .fm-body{gap:12px;padding:12px 14px 10px}
+.m-samapta .fm-ctl{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.m-samapta .fm-ctl .chip{min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.m-samapta .fm-ctl .chip .ic{width:15px;height:15px}
+.m-samapta .fm-ctl .jump{min-height:40px;display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:12.5px;padding:0 6px 0 12px;border-radius:99px;background:var(--soft)}
+.m-samapta .dots{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:center}
+.m-samapta .dots i{height:8px;border-radius:99px;background:var(--primary);opacity:.75}
+.m-samapta .dots i.e{background:var(--line);opacity:1}
+.m-samapta .dots i.cur{background:var(--orange);opacity:1;height:14px}
+.m-samapta .who{display:flex;align-items:center;gap:12px;padding:14px}
+.m-samapta .who .nm{flex:1;min-width:0}
+.m-samapta .who .nm b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+.m-samapta .who .nm span{font-size:12.5px;color:var(--muted)}
+.m-samapta .who .prev{text-align:right;font-size:11px;color:var(--muted);line-height:1.35;border-left:1px solid var(--line);padding-left:10px}
+.m-samapta .who .prev b{display:block;font-size:13px;color:var(--ink)}
+.m-samapta .big{border:2px solid var(--line);border-radius:16px;padding:8px 12px 6px;background:var(--surface);min-height:88px;display:flex;flex-direction:column;justify-content:space-between}
+.m-samapta .big label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.m-samapta .big .v{font-size:38px;font-weight:800;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;align-items:center}
+.m-samapta .big .v small{font-size:14px;font-weight:700;color:var(--muted);margin-left:5px;letter-spacing:0}
+.m-samapta .big .v.ph{color:var(--muted);opacity:.5;font-weight:700}
+.m-samapta .big.on{border-color:var(--primary);box-shadow:0 0 0 4px var(--psoft)}
+.m-samapta .caret{display:inline-block;width:3px;height:.85em;background:var(--primary);margin-left:2px;border-radius:2px}
+.m-samapta .fm-pad{padding:10px 14px 14px;background:var(--surface);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.m-samapta .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m-samapta .kp span{height:58px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums}
+.m-samapta .kp span.fn{background:transparent;border:1.5px solid var(--line);font-size:22px}
+.m-samapta .kp span.fn .ic{width:24px;height:24px}
+.m-samapta .fm-act{display:grid;grid-template-columns:60px 1fr;gap:8px}
+.m-samapta .fm-act .btn{min-height:58px}
+.m-samapta .fm-next{text-align:center;font-size:11.5px;color:var(--muted)}
+/* variasi pos */
+.m-samapta .a-var{width:330px;flex:none;display:flex;flex-direction:column;gap:10px;padding:16px}
+.m-samapta .vr{border-top:1px solid var(--line);padding-top:10px}
+.m-samapta .vr h4{font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.m-samapta .vr h4 span{font-size:11px;font-weight:600;color:var(--muted)}
+.m-samapta .mis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m-samapta .mis.two{grid-template-columns:1fr 1fr}
+.m-samapta .mi{border:1.5px solid var(--line);border-radius:10px;padding:4px 8px 5px;background:var(--surface);min-width:0}
+.m-samapta .mi i{display:block;font-style:normal;font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.m-samapta .mi b{font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.m-samapta .mi b small{font-size:11px;color:var(--muted);margin-left:2px}
+.m-samapta .mi.auto{background:var(--soft);border-style:dashed}
+.m-samapta .mi.on{border-color:var(--primary)}
+.m-samapta .kmini{display:flex;gap:4px;margin-top:6px}
+.m-samapta .kmini span{flex:1;height:26px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-size:12px;font-weight:800}
+.m-samapta .kmini span.hl{background:var(--psoft);color:var(--primary);box-shadow:inset 0 0 0 1.5px var(--primary)}
+.m-samapta .gy{display:flex;gap:4px}
+.m-samapta .gy span{flex:1;text-align:center;padding:7px 0;border-radius:9px;border:1.5px solid var(--line);font-size:12px;font-weight:700}
+.m-samapta .gy span.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+/* tampilan siswa */
+.m-samapta .sv-big{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.m-samapta .sv-ab{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+.m-samapta .sv-ab div{background:#ffffff1a;border-radius:12px;padding:7px 10px}
+.m-samapta .sv-ab b{display:block;font-size:17px}
+.m-samapta .sv-ab span{font-size:10.5px;color:#d9dfc8}
+.m-samapta .sv-up{display:inline-flex;align-items:center;gap:4px;background:#ffffff26;color:#fff;font-weight:800;font-size:12px;padding:3px 9px;border-radius:99px}
+.m-samapta .rinc{padding:6px 14px}
+.m-samapta .rinc .item{padding:6px 0;gap:10px}
+.m-samapta .rinc .val{text-align:right;line-height:1.25}
+.m-samapta .rinc .val b{display:block;font-size:13.5px}
+.m-samapta .nl{width:40px;height:32px;border-radius:9px;background:var(--psoft);color:var(--primary);display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+.m-samapta .nl.m{background:var(--soft);color:var(--muted)}
+/* desktop A */
+.m-samapta .popw{position:relative}
+.m-samapta .pop{position:absolute;right:0;top:calc(100% + 8px);width:290px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -12px #0005;padding:6px;z-index:5;display:flex;flex-direction:column;gap:2px}
+.m-samapta .pop .po{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px}
+.m-samapta .pop .po:first-child{background:var(--psoft)}
+.m-samapta .pop .po .badge-ic{width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;flex:none;color:var(--ink)}
+.m-samapta .pop .po .main{flex:1;min-width:0}
+.m-samapta .pop .po b{display:block;font-size:13px}.m-samapta .pop .po span{font-size:11.5px;color:var(--muted)}
+.m-samapta .stp{display:inline-flex;align-items:center;gap:3px;background:var(--soft);border-radius:10px;padding:3px}
+.m-samapta .stp i{font-style:normal;width:26px;height:26px;border-radius:8px;background:var(--surface);display:grid;place-items:center;font-weight:800}
+.m-samapta .stp b{min-width:26px;text-align:center;font-size:13px}
+.m-samapta .tabs{display:flex;gap:6px;align-items:center}
+.m-samapta .tabs .chip{display:inline-flex;align-items:center;gap:6px}
+.m-samapta .tabs .chip .ic{width:14px;height:14px}
+.m-samapta .kpi b{font-size:22px}
+.m-samapta .kpi b small{font-size:12px;font-weight:700;color:var(--muted);margin-left:4px}
+.m-samapta .kpi .up,.m-samapta .kpi .dn{display:block;margin-top:2px}
+.m-samapta .a-grid{display:grid;grid-template-columns:minmax(0,1fr) 262px;gap:12px;align-items:start}
+.m-samapta .rk{font-size:12.5px;font-variant-numeric:tabular-nums}
+.m-samapta .rk th{white-space:nowrap}
+.m-samapta .rk td{padding:7px 5px}
+.m-samapta .rk th{padding:8px 5px}
+.m-samapta .rk .nmc{white-space:nowrap}
+.m-samapta .rk td.r,.m-samapta .rk th.r{text-align:right}
+.m-samapta .rk .no{width:24px;height:24px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-weight:800;font-size:11.5px}
+.m-samapta .rk tr.top .no{background:var(--osoft);color:var(--gold)}
+.m-samapta .rk .nmc b{display:block;font-size:13px}.m-samapta .rk .nmc span{font-size:11px;color:var(--muted)}
+.m-samapta .rk .pill{font-size:10.5px;padding:2px 8px}
+.m-samapta .rk .ak{font-weight:800;font-size:13.5px}
+.m-samapta .rk tr.x td{background:var(--psoft);border-bottom:0}
+.m-samapta .rk tr.xd td{background:var(--psoft);padding:0 8px 10px}
+.m-samapta .rk .pr{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line);background:var(--surface)}
+.m-samapta .rk .pr .ic{width:15px;height:15px}
+.m-samapta .xd-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-left:30px}
+.m-samapta .xd-g .w2{grid-column:span 2}
+.m-samapta .xd-g div{background:var(--surface);border-radius:10px;padding:6px 8px;line-height:1.3;min-width:0}
+.m-samapta .xd-g i{display:flex;justify-content:space-between;gap:4px;font-style:normal;font-size:10.5px;color:var(--muted);font-weight:700}
+.m-samapta .xd-g b{font-size:12.5px;white-space:nowrap}
+.m-samapta .xd-g em{font-style:normal;font-size:10.5px}
+.m-samapta .xd-act{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+.m-samapta .bina .item{padding:8px 0}
+.m-samapta .bina .item .main b{font-size:13px}
+.m-samapta .bina .item > b{font-size:14px}
+.m-samapta .bina em{font-style:normal;font-weight:800;color:var(--gold)}
+.m-samapta .bina em.kt1{color:var(--red)}
+.m-samapta .fin{background:var(--soft);border-color:transparent}
+.m-samapta .linkr{color:var(--red);font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.m-samapta .linkr .ic{width:14px;height:14px}
+.m-samapta .posbars{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:11.5px}
+.m-samapta .posbars div span{display:flex;justify-content:space-between;margin-bottom:3px}
+.m-samapta .posbars .bar{height:5px}
+.m-samapta .posbars .bar.o i{background:var(--orange)}
+
+/* ---------- Opsi B ---------- */
+.m-samapta .lk-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.m-samapta .lk{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+.m-samapta .lk th,.m-samapta .lk td{height:30px;padding:0 5px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.m-samapta .lk thead th{background:var(--surface);font-size:10.5px;color:var(--muted);font-weight:700;height:auto;padding:5px 6px}
+.m-samapta .lk thead tr.h1 th{font-size:11.5px;color:var(--ink);font-weight:800;padding-top:8px;border-bottom:0}
+.m-samapta .lk thead tr.h1 th span{display:block;font-size:10px;color:var(--muted);font-weight:700}
+.m-samapta .lk .nm{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;border-right:1px solid var(--line);font-weight:700;color:var(--ink)}
+.m-samapta .lk .nm small{font-weight:700;color:var(--muted);margin-left:4px;font-size:10px}
+.m-samapta .lk .no{color:var(--muted);font-size:11px;width:22px}
+.m-samapta .lk .gs{border-left:1px solid var(--line)}
+.m-samapta .lk td.n{color:var(--muted)}
+.m-samapta .lk td.e{background:var(--osoft);color:var(--gold);font-weight:800}
+.m-samapta .lk tr.cur td{background:var(--psoft)}
+.m-samapta .lk td.act{box-shadow:inset 0 0 0 2px var(--primary);background:var(--surface)!important;font-weight:800;color:var(--ink)}
+.m-samapta .lk td.cmp,.m-samapta .lk th.cmp{background:var(--soft)}
+.m-samapta .lk thead th.cmp{color:var(--ink)}
+.m-samapta .lk td.ak{font-weight:800}
+.m-samapta .lk .pill{font-size:10px;padding:2px 7px}
+.m-samapta .lk tfoot td{font-weight:800;background:var(--soft);border-bottom:0;height:32px}
+.m-samapta .lk tfoot td.nm{background:var(--soft)}
+.m-samapta .lk tbody tr:last-child td{border-bottom:1px solid var(--line)}
+.m-samapta .hbar{display:block;height:4px;border-radius:99px;background:var(--soft);margin:4px 8px 0;overflow:hidden}
+.m-samapta .hbar i{display:block;height:100%;background:var(--primary)}
+.m-samapta .hbar.o i{background:var(--orange)}
+.m-samapta .seg.in{display:inline-flex}
+.m-samapta .seg.in span{flex:none;padding:7px 12px}
+.m-samapta .tb{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.m-samapta .tb .sp{flex:1}
+.m-samapta .tb .chip{display:inline-flex;align-items:center;gap:6px}
+.m-samapta .tb .chip .ic{width:14px;height:14px}
+.m-samapta .srch{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--surface);color:var(--muted);font-size:12.5px;min-width:130px}
+.m-samapta .srch .ic{width:15px;height:15px}
+.m-samapta .b-sum{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center}
+.m-samapta .b-sum .kv b{display:block;font-size:22px;font-weight:800}
+.m-samapta .b-sum .kv span{font-size:11.5px;color:var(--muted)}
+/* B ponsel */
+.m-samapta .p0{padding:0;gap:0}
+.m-samapta .pad{padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);border-bottom:1px solid var(--line)}
+.m-samapta .hscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.m-samapta .hscroll .chip{flex:none;min-height:38px;display:inline-flex;align-items:center;gap:6px}
+.m-samapta .hscroll .chip small{font-size:11px;font-weight:800;opacity:.75}
+.m-samapta .lk.ph{font-size:13px}
+.m-samapta .lk.ph th,.m-samapta .lk.ph td{height:44px}
+.m-samapta .lk.ph thead th{height:auto}
+.m-samapta .lk.ph .nm{min-width:124px;max-width:124px;overflow:hidden;text-overflow:ellipsis}
+.m-samapta .lk.ph .nm small{display:block;margin:0}
+.m-samapta .lk.ph td.c{min-width:56px}
+.m-samapta .lk-edit{background:var(--surface);border-top:1px solid var(--line);padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 -12px 24px -18px #0006}
+.m-samapta .lk-edit .r{display:grid;grid-template-columns:1fr 1fr 56px;gap:8px}
+.m-samapta .big.sm{min-height:58px;padding:5px 10px 4px;border-radius:12px}
+.m-samapta .big.sm .v{font-size:24px}
+.m-samapta .lk-edit .btn{min-height:58px;padding:0}
+.m-samapta .note-b{font-size:12px;color:var(--muted);text-align:center;padding:12px}
+.m-samapta .rkp td.r{text-align:right}
+.m-samapta .rkp .rk-n{width:24px;height:24px;border-radius:8px;background:var(--soft);display:inline-grid;place-items:center;font-weight:800;font-size:11px}
+.m-samapta .rkp .akc{text-align:right;line-height:1.2}
+.m-samapta .rkp .akc b{display:block;font-size:13.5px}
+.m-samapta .rkp .akc .up,.m-samapta .rkp .akc .dn{font-size:10.5px}
+.m-samapta .lgi span{display:inline-flex;align-items:center;gap:4px}.m-samapta .lgi i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.m-samapta .mini3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m-samapta .mini3 div{background:var(--soft);border-radius:12px;padding:7px 10px}
+.m-samapta .mini3 b{display:block;font-size:17px;font-weight:800}
+.m-samapta .mini3 span{font-size:10.5px;color:var(--muted)}
+.m-samapta .tl{display:flex;flex-direction:column}
+.m-samapta .tl .t{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.m-samapta .tl .t:last-child{border-bottom:0}
+.m-samapta .tl .t .main{flex:1;min-width:0}
+.m-samapta .tl .t .main b{display:block;font-size:14px}
+.m-samapta .tl .t .main span{font-size:12px;color:var(--muted)}
+.m-samapta .sheet h3{font-size:17px;font-weight:800}
+.m-samapta .sheet .input{min-height:46px;display:flex;align-items:center;justify-content:space-between}
+.m-samapta .sheet .input em{font-style:normal;font-size:11px;color:var(--muted);font-weight:700}
+.m-samapta .infob{display:flex;gap:8px;align-items:flex-start;background:var(--psoft);color:var(--primary);border-radius:12px;padding:10px 12px;font-size:12.5px;font-weight:600}
+
+/* ---------- Opsi C ---------- */
+.m-samapta .ring{--p:100;--rc:var(--primary);width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:repeating-conic-gradient(from -2deg,var(--surface) 0 4deg,transparent 4deg 45deg),conic-gradient(var(--rc) calc(var(--p) * 1%),var(--line) 0)}
+.m-samapta .ring.o{--rc:var(--orange)}
+.m-samapta .ring b{width:31px;height:31px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--ink)}
+.m-samapta .ring b .ic{width:15px;height:15px;color:var(--primary)}
+.m-samapta .ring.sm{width:34px;height:34px}.m-samapta .ring.sm b{width:25px;height:25px;font-size:10px}
+.m-samapta .ring.sm b .ic{width:13px;height:13px}
+.m-samapta .cl .item{gap:12px;padding:8px 0;min-height:58px}
+.m-samapta .cl .item .main b{font-size:14px}
+.m-samapta .cl .item .main span.o{color:var(--gold);font-weight:700}
+.m-samapta .cl .rt{text-align:right;line-height:1.25}
+.m-samapta .cl .rt b{display:block;font-size:14px;font-variant-numeric:tabular-nums}
+.m-samapta .cl .rt .pill{font-size:10.5px;padding:2px 7px}
+.m-samapta .cl .chev{color:var(--muted)}
+.m-samapta .grp{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;padding:10px 0 2px}
+.m-samapta .inp{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:14px;padding:0 12px;min-height:46px;background:var(--surface);color:var(--muted);font-size:14px}
+.m-samapta .chips{display:flex;gap:6px}
+.m-samapta .chips .chip{min-height:38px;display:inline-flex;align-items:center}
+.m-samapta .sumr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m-samapta .sumr div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:7px 10px;min-width:0}
+.m-samapta .sumr b{display:block;font-size:18px;font-weight:800;white-space:nowrap}
+.m-samapta .sumr b.wait{font-size:13px;color:var(--muted);padding:3px 0}
+.m-samapta .sumr span{font-size:10.5px;color:var(--muted)}
+.m-samapta .cs{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.m-samapta .cs-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 12px;border-bottom:1px solid var(--line)}
+.m-samapta .cs-row:last-child{border-bottom:0}
+.m-samapta .cs-row .lb{flex:1;min-width:0;font-weight:700;font-size:13px}
+.m-samapta .cs-row .vl{font-size:12.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.m-samapta .cs-row .vl b{color:var(--ink)}
+.m-samapta .cs-row.todo .lb{color:var(--muted)}
+.m-samapta .ck{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--psoft);color:var(--primary);flex:none}
+.m-samapta .ck .ic{width:13px;height:13px}
+.m-samapta .ck.no{background:transparent;border:2px dashed var(--line)}
+.m-samapta .ck.now{background:var(--primary);color:var(--on-primary)}
+.m-samapta .cs-open{padding:10px 12px 12px;background:var(--psoft);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.m-samapta .cs-open .hd{display:flex;align-items:center;gap:10px}
+.m-samapta .cs-open .hd .lb{flex:1;font-weight:800;font-size:14px}
+.m-samapta .cs-open .big{min-height:72px}
+.m-samapta .cs-open .big .v{font-size:30px}
+.m-samapta .botbar{display:grid;grid-template-columns:52px 1fr;gap:8px;padding:10px 12px 12px;background:var(--surface);border-top:1px solid var(--line)}
+.m-samapta .botbar .btn{min-height:52px}
+.m-samapta .opt{display:flex;align-items:center;gap:12px;min-height:58px;padding:8px 12px;border:1px solid var(--line);border-radius:14px}
+.m-samapta .opt .main{flex:1;min-width:0}
+.m-samapta .opt .main b{display:block;font-size:13.5px}
+.m-samapta .opt .main span{font-size:11.5px;color:var(--muted)}
+.m-samapta .opt.on{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary);background:var(--psoft)}
+.m-samapta .rad{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none}
+.m-samapta .opt.on .rad{border:6px solid var(--primary)}
+.m-samapta .c-dk{display:grid;grid-template-columns:262px minmax(0,1fr);gap:12px;align-items:start}
+.m-samapta .c-list{padding:10px;display:flex;flex-direction:column;gap:8px}
+.m-samapta .c-list .scroll{max-height:470px;overflow:auto;margin:0 -4px;padding:0 4px}
+.m-samapta .c-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:10px}
+.m-samapta .c-row.on{background:var(--psoft)}
+.m-samapta .c-row .rk-n{width:18px;font-size:11px;font-weight:800;color:var(--muted);text-align:right;flex:none}
+.m-samapta .c-row .main{flex:1;min-width:0;line-height:1.2}
+.m-samapta .c-row .main b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-samapta .c-row .main span{font-size:10.5px;color:var(--muted)}
+.m-samapta .c-row .main span.o{color:var(--gold);font-weight:700}
+.m-samapta .c-row .v{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.m-samapta .c-card{display:flex;flex-direction:column;gap:10px}
+.m-samapta .c-hd{display:flex;align-items:center;gap:12px}
+.m-samapta .c-hd .main{flex:1;min-width:0}
+.m-samapta .c-hd .main b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.m-samapta .c-hd .main span{font-size:12.5px;color:var(--muted)}
+.m-samapta .c-res{display:grid;grid-template-columns:1.25fr 1fr 1fr 1.1fr;gap:8px}
+.m-samapta .c-res > div{border-radius:14px;padding:10px 12px;background:var(--soft)}
+.m-samapta .c-res > div.hero{background:var(--hero);padding:10px 12px}
+.m-samapta .c-res b{display:block;font-size:24px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+.m-samapta .c-res span{font-size:11px;color:var(--muted)}
+.m-samapta .c-res .hero span{color:#d9dfc8}
+.m-samapta .c-res .hero .pill{background:#ffffff24;color:#fff;margin-top:2px}
+.m-samapta .c-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m-samapta .cst{border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.m-samapta .cst h5{margin:0;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.m-samapta .cst h5 .ck{width:18px;height:18px}.m-samapta .cst h5 .ck .ic{width:11px;height:11px}
+.m-samapta .cst h5 em{margin-left:auto;font-style:normal}
+.m-samapta .cst .fis{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.m-samapta .cst .fis.two{grid-template-columns:1.3fr 1fr}
+.m-samapta .fi{border:1.5px solid var(--line);border-radius:9px;padding:2px 7px 3px;min-width:0;line-height:1.25}
+.m-samapta .fi i{display:block;font-style:normal;font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.m-samapta .fi b{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.m-samapta .fi.auto{background:var(--soft);border-style:dashed}
+.m-samapta .cst .was{font-size:11px;color:var(--muted)}
+
+</style>
+<section class="modul m-samapta" data-modul="samapta">
+<div class="g-opsi-nav">
+  <button data-opsi="A"><b>A · Mode lapangan per pos <i class="rek">Saran</i></b><span>Pilih pos, isi satu siswa per layar dengan tombol angka besar</span></button>
+  <button data-opsi="B"><b>B · Lembar kerja</b><span>Tabel siswa × pos seperti Excel, A, B, dan akhir langsung terhitung</span></button>
+  <button data-opsi="C"><b>C · Kartu siswa</b><span>Pilih siswa, isi 8 pos di satu kartu, hasilnya langsung tampil</span></button>
+</div>
+<article class="opsi" data-opsi="A">
+<div class="ringkas">
+  <div><h3>Mode lapangan per pos</h3><p>Di lapangan Anda memegang HP dan memanggil siswa satu per satu di tiap pos. Layar isian hanya berisi satu nama, dua kotak angka besar, dan papan angka; tersimpan sendiri lalu pindah ke siswa berikutnya. Hasil, peringkat, dan cetak dikumpulkan di satu halaman. <b>Saya sarankan ini</b> karena mengisi nilai di lapangan adalah pekerjaan paling sering dan paling repot; opsi ini membuatnya paling cepat dan paling kecil peluang salah ketik.</p></div>
+  <div><h4>KELEBIHAN</h4><ul><li>Saat mengisi tidak ada yang perlu digulir; nama besar mudah dibaca di bawah terik.</li><li>Papan angka sendiri: ada koma dan garis miring (tensi), tidak tertutup keyboard HP.</li><li>Tombol "Hanya yang belum" dan garis titik menunjukkan sisa siswa.</li><li>Daftar tes jadi satu kartu dengan 8 kotak pos; tidak ada deretan chip.</li></ul></div>
+  <div><h4>PERTIMBANGAN</h4><ul><li>Melihat 24 siswa sekaligus perlu membuka daftar (ketuk "Siswa 13/24").</li><li>Papan angka buatan sendiri perlu diuji lebih teliti di beberapa HP.</li><li>Buat tes tetap lewat lembar bawah singkat (contoh di opsi B).</li></ul></div>
+</div>
+<div class="frames">
+<div class="hp">
+  <div class="hp-bar"><div class="logo"></div><b>Tes Samapta</b><span class="btn sec hb"><i class="ic i-plus"></i>Tes baru</span></div>
+  <div class="hp-body">
+    <div class="hero a-hero">
+      <div class="row spread"><span class="pill">Berjalan</span><span>Minggu, 15 Nov · 07.00</span></div>
+      <div class="a-h">Tes Samapta II</div>
+      <div class="small muted">Lap. Syekh Yusuf · 24 peserta</div>
+      <div class="row spread small" style="margin-top:12px"><b>185 dari 192 isian</b><span>96%</span></div>
+      <div class="bar"><i style="width:96.4%"></i></div>
+      <button class="btn lg block">Lanjut isi: Push up <span>· 1 belum</span><i class="ic i-arrow"></i></button>
+    </div>
+    <div class="sec-t"><b>Pilih pos</b><span class="xs muted">5 dari 8 pos lengkap</span></div>
+    <div class="st-grid"><div class="st"><div class="main"><b>Tensi</b><span>24/24</span></div><span class="ok"><i class="ic i-check"></i></span></div><div class="st"><div class="main"><b>Tinggi &amp; berat</b><span>24/24</span></div><span class="ok"><i class="ic i-check"></i></span></div><div class="st"><div class="main"><b>Lari 12 menit</b><span>24/24</span></div><span class="ok"><i class="ic i-check"></i></span></div><div class="st"><div class="main"><b>Pull up / Chin</b><span>24/24</span></div><span class="ok"><i class="ic i-check"></i></span></div><div class="st"><div class="main"><b>Sit up</b><span>24/24</span></div><span class="ok"><i class="ic i-check"></i></span></div><div class="st part anno" data-anno="Ketuk = mode lapangan"><div class="main"><b>Push up</b><span>23/24 · 1 belum</span></div><span class="cnt">1</span></div><div class="st part" data-anno="Ketuk = mode lapangan"><div class="main"><b>Shuttle run</b><span>22/24 · 2 belum</span></div><span class="cnt">2</span></div><div class="st part" data-anno="Ketuk = mode lapangan"><div class="main"><b>Renang 50 m</b><span>20/24 · 4 belum</span></div><span class="cnt">4</span></div></div>
+    <div class="card lnk"><span class="badge-ic g"><i class="ic i-tabel"></i></span><div class="main"><b>Hasil sementara</b><span>Rata-rata 70,34 · 22 dari 24 siswa</span></div><i class="ic i-right"></i></div>
+    <div class="card lnk"><span class="badge-ic"><i class="ic i-lock"></i></span><div class="main"><b>Tes Samapta I</b><span>18 Okt · selesai · rata-rata 68,42</span></div><i class="ic i-right"></i></div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+</div>
+<div class="hp">
+  <div class="fm-top"><span class="tap"><i class="ic i-close"></i></span><div class="tt"><b>Shuttle run 6×10 m</b><small>Tes Samapta II · 22/24 terisi</small></div><span class="saved"><i class="ic i-check"></i>Tersimpan</span></div>
+  <div class="hp-body fm-body">
+    <div class="fm-ctl"><span class="chip on"><i class="ic i-filter"></i>Hanya yang belum · 2</span><span class="jump">Siswa 13/24 <i class="ic i-down"></i></span></div>
+    <div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="e"></i><i></i><i></i></div>
+    <div class="card who"><div class="av xl">RM</div><div class="nm"><b>Rizal Mahendra</b><span>Putra · no. 13</span></div><div class="prev">Tes I<b>18,2 dtk</b>nilai 74</div></div>
+    <div class="grid2"><div class="big"><label>Waktu</label><div class="v">17,8<small>dtk</small></div></div><div class="big on"><label>Nilai</label><div class="v">7<i class="caret"></i></div></div></div>
+    <div class="lastsv"><i class="ic i-cloud"></i><span>Baru tersimpan: <b>Kevin Halim</b> · 20,3 dtk · nilai 52</span></div>
+  </div>
+  <div class="fm-pad">
+    <div class="kp anno" data-anno="Papan angka besar"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span class="fn">,</span><span>0</span><span class="fn"><i class="ic i-bksp"></i></span></div>
+    <div class="fm-act"><span class="btn sec"><i class="ic i-left"></i></span><span class="btn lg">Simpan &amp; lanjut <i class="ic i-arrow"></i></span></div>
+    <div class="fm-next">Berikutnya yang belum: <b>Reza Kurnia</b> (no. 22)</div>
+  </div>
+</div>
+<div class="hp">
+  <div class="hp-bar"><div class="logo"></div><b>Tes Samapta</b><span class="av">AP</span></div>
+  <div class="hp-body">
+    <div class="hero">
+      <div class="row spread"><span class="small muted">Tes Samapta II · 15 Nov 2026</span><span class="pill">Baik Sekali</span></div>
+      <div class="row" style="margin-top:10px;align-items:flex-end;gap:10px"><div class="sv-big">86,25</div><span class="sv-up">▲ 6,75 dari Tes I</span></div>
+      <div class="sv-ab"><div><b>87</b><span>Garjas A</span></div><div><b>85,5</b><span>Garjas B</span></div><div><b>79,5</b><span>Tes I (Okt)</span></div></div>
+    </div>
+    <div class="sec-t"><b>Rincian nilai</b><span class="xs muted">dibanding Tes I</span></div>
+    <div class="card rinc"><div class="list"><div class="item"><div class="main"><b>Lari 12 menit</b><span>2.470 m · Tes I 2.400 m</span></div><span class="up">▲ 7</span><span class="nl">87</span></div><div class="item"><div class="main"><b>Pull up</b><span>15 kali · Tes I 14</span></div><span class="up">▲ 4</span><span class="nl">86</span></div><div class="item"><div class="main"><b>Sit up</b><span>41 kali · Tes I 37</span></div><span class="up">▲ 8</span><span class="nl">88</span></div><div class="item"><div class="main"><b>Push up</b><span>42 kali · Tes I 38</span></div><span class="up">▲ 8</span><span class="nl">87</span></div><div class="item"><div class="main"><b>Shuttle run</b><span>17,4 dtk · Tes I 18,0</span></div><span class="up">▲ 6</span><span class="nl">81</span></div><div class="item"><div class="main"><b>Renang 50 m</b><span>Gaya dada · 52,3 dtk</span></div><span class="nl m">-</span></div><div class="item"><div class="main"><b>Tensi &amp; badan</b><span>120/80 · 172 cm, 64 kg · IMT 21,6 Normal</span></div></div></div></div>
+    <button class="btn lg block"><i class="ic i-print"></i>Cetak blangko saya</button>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Tagihan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+</div>
+<div class="card a-var">
+  <div><div class="ttl-sm">Isian tiap pos di mode lapangan</div><div class="small muted" style="margin-top:2px">Kotak menyesuaikan pos. Papan angka ikut berubah.</div></div>
+  <div class="vr"><h4>Tensi <span>3 kali ukur</span></h4>
+    <div class="mis"><div class="mi"><i>I</i><b>120/80</b></div><div class="mi"><i>II</i><b>118/78</b></div><div class="mi on"><i>III</i><b>122/8<span class="caret" style="height:14px;vertical-align:-2px"></span></b></div></div>
+    <div class="kmini"><span>7</span><span>8</span><span>9</span><span class="hl">/</span><span>0</span></div>
+    <div class="xs muted" style="margin-top:6px">Riwayat kesehatan: ketuk <b>Tidak ada</b> atau tulis singkat.</div></div>
+  <div class="vr"><h4>Tinggi &amp; berat <span>IMT otomatis</span></h4>
+    <div class="mis"><div class="mi"><i>Tinggi</i><b>172<small>cm</small></b></div><div class="mi"><i>Berat</i><b>64<small>kg</small></b></div><div class="mi auto"><i>IMT</i><b>21,6</b></div></div></div>
+  <div class="vr"><h4>Lari 12 menit <span>= Garjas A</span></h4>
+    <div class="mis two"><div class="mi"><i>Jarak</i><b>2.470<small>m</small></b></div><div class="mi"><i>Nilai</i><b>87</b></div></div></div>
+  <div class="vr"><h4>Pull up / Chinning <span>otomatis dari L/P</span></h4>
+    <div class="mis two"><div class="mi"><i>Jumlah</i><b>15<small>kali</small></b></div><div class="mi"><i>Nilai</i><b>86</b></div></div></div>
+  <div class="vr"><h4>Renang 50 m <span>tanpa nilai</span></h4>
+    <div class="gy"><span>Bebas</span><span class="on">Dada</span><span>Punggung</span></div>
+    <div class="mis two" style="margin-top:6px"><div class="mi"><i>Waktu</i><b>52,3<small>dtk</small></b></div><div class="mi auto"><i>Nilai</i><b class="muted">-</b></div></div></div>
+</div>
+<div class="dk"><nav class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a class="">Beranda</a><a class="">Presensi</a><a class="on">Tes Samapta</a><a class="">Keuangan</a><a class="">Siswa</a><a class="">Pengaturan</a><a class="">Panduan</a><div class="dk-user"><span class="av">PG</span><div><b>Pemilik Garda</b><span>Owner</span></div></div></nav><div class="dk-body">
+<div class="dhead">
+  <div><div class="eyebrow">Tes Samapta</div><div class="row" style="gap:10px"><div class="title">Tes Samapta II</div><span class="pill o">Berjalan</span></div>
+    <div class="small muted">Minggu, 15 Nov 2026 · 07.00 · Lap. Syekh Yusuf · 24 peserta</div></div>
+  <div class="row"><span class="btn sec"><i class="ic i-field"></i>Mode lapangan</span>
+    <span class="popw anno" data-anno="Cetak: 1 tombol, 3 pilihan"><span class="btn"><i class="ic i-print"></i>Cetak blangko <i class="ic i-down"></i></span>
+      <div class="pop">
+        <div class="po"><span class="badge-ic"><i class="ic i-list"></i></span><div class="main"><b>Semua peserta</b><span>24 lembar, 1 siswa per halaman</span></div></div>
+        <div class="po"><span class="badge-ic"><i class="ic i-check"></i></span><div class="main"><b>Pilih siswa</b><span>centang nama yang mau dicetak</span></div></div>
+        <div class="po"><span class="badge-ic"><i class="ic i-print"></i></span><div class="main"><b>Blangko kosong</b><span>untuk diisi tangan</span></div><span class="stp"><i>-</i><b>10</b><i>+</i></span></div>
+      </div></span></div>
+</div>
+<div class="tabs"><span class="chip on">Tes Samapta II · berjalan</span><span class="chip"><i class="ic i-lock"></i>Tes Samapta I · 18 Okt</span><span class="btn ghost sm"><i class="ic i-plus"></i>Tes baru</span></div>
+<div class="grid4">
+  <div class="kpi"><span>Rata-rata hasil akhir</span><b>70,34</b><span class="up">▲ 1,91 dari Tes I</span></div>
+  <div class="kpi"><span>Baik Sekali</span><b>5<small>siswa</small></b><span class="muted xs">Tes I: 0 siswa</span></div>
+  <div class="kpi"><span>Perlu pembinaan</span><b>4<small>siswa</small></b><span class="muted xs">Cukup 3 · Kurang 1</span></div>
+  <div class="kpi"><span>Hasil akhir lengkap</span><b>22<small>/ 24</small></b><span class="muted xs">7 isian belum, 4 siswa</span></div>
+</div>
+<div class="a-grid">
+  <div class="card" style="padding:12px 12px 6px">
+    <div class="head"><div><h3>Peringkat hasil akhir</h3><div class="sub">Ketuk nama untuk rincian. Hasil akhir = (A + B) ÷ 2.</div></div><span class="btn ghost sm">Lihat semua 24 <i class="ic i-right"></i></span></div>
+    <table class="tbl rk"><thead><tr><th>#</th><th>Nama</th><th class="r">A</th><th class="r">B</th><th class="r">Akhir</th><th>Klasifikasi</th><th class="r">vs Tes I</th></tr></thead>
+    <tbody><tr class="top x"><td><span class="no">1</span></td><td class="nmc"><b>Arif Pratama</b><span>putra</span></td><td class="r">87</td><td class="r">85,5</td><td class="r ak">86,25</td><td><span class="pill">Baik Sekali</span></td><td class="r"><span class="up">▲ 6,75</span></td></tr><tr class="xd"><td colspan="7">
+  <div class="xd-g">
+    <div><i>Lari 12 mnt<em class="up">▲7</em></i><b>2.470 m · 87</b></div>
+    <div><i>Pull up<em class="up">▲4</em></i><b>15 kali · 86</b></div>
+    <div><i>Sit up<em class="up">▲8</em></i><b>41 kali · 88</b></div>
+    <div><i>Push up<em class="up">▲8</em></i><b>42 kali · 87</b></div>
+    <div><i>Shuttle run<em class="up">▲6</em></i><b>17,4 dtk · 81</b></div>
+    <div><i>Renang 50 m</i><b>Dada · 52,3 dtk</b></div>
+    <div class="w2"><i>Tensi I · II · III<em>IMT 21,6 Normal</em></i><b>120/80 · 118/78 · 122/80</b></div>
+  </div>
+  <div class="xd-act"><span class="btn sm sec" style="background:var(--surface)">Ubah isian</span><span class="btn sm sec" style="background:var(--surface)"><i class="ic i-print"></i>Cetak blangko Arif</span></div>
+</td></tr><tr class="top"><td><span class="no">2</span></td><td class="nmc"><b>Dimas Anggara</b><span>putra</span></td><td class="r">85</td><td class="r">83</td><td class="r ak">84</td><td><span class="pill">Baik Sekali</span></td><td class="r"><span class="up">▲ 3,75</span></td></tr><tr class="top"><td><span class="no">3</span></td><td class="nmc"><b>Fajar Ramadhan</b><span>putra</span></td><td class="r">84</td><td class="r">82,75</td><td class="r ak">83,38</td><td><span class="pill">Baik Sekali</span></td><td class="r"><span class="up">▲ 5,63</span></td></tr><tr class=""><td><span class="no">4</span></td><td class="nmc"><b>Galih Saputra</b><span>putra</span></td><td class="r">82</td><td class="r">82</td><td class="r ak">82</td><td><span class="pill">Baik Sekali</span></td><td class="r"><span class="up">▲ 5,5</span></td></tr><tr class=""><td><span class="no">5</span></td><td class="nmc"><b>Nanda Putri</b><span>putri</span></td><td class="r">80</td><td class="r">83</td><td class="r ak">81,5</td><td><span class="pill">Baik Sekali</span></td><td class="r"><span class="up">▲ 4,25</span></td></tr><tr class=""><td><span class="no">6</span></td><td class="nmc"><b>Bagus Setiawan</b><span>putra</span></td><td class="r">78</td><td class="r">79,75</td><td class="r ak">78,88</td><td><span class="pill b">Baik</span></td><td class="r"><span class="up">▲ 4,38</span></td></tr><tr class=""><td><span class="no">7</span></td><td class="nmc"><b>Oktavia Sari</b><span>putri</span></td><td class="r">79</td><td class="r">77,75</td><td class="r ak">78,38</td><td><span class="pill b">Baik</span></td><td class="r"><span class="up">▲ 3,38</span></td></tr><tr class=""><td><span class="no">8</span></td><td class="nmc"><b>Hendra Kurniawan</b><span>putra</span></td><td class="r">76</td><td class="r">77,5</td><td class="r ak">76,75</td><td><span class="pill b">Baik</span></td><td class="r"><span class="up">▲ 3,5</span></td></tr><tr class=""><td><span class="no">9</span></td><td class="nmc"><b>Ilham Maulana</b><span>putra</span></td><td class="r">77</td><td class="r">74,25</td><td class="r ak">75,63</td><td><span class="pill b">Baik</span></td><td class="r"><span class="up">▲ 3,13</span></td></tr><tr class=""><td><span class="no">10</span></td><td class="nmc"><b>Joko Prasetyo</b><span>putra</span></td><td class="r">74</td><td class="r">75</td><td class="r ak">74,5</td><td><span class="pill b">Baik</span></td><td class="r"><span class="dn">▼ 0,75</span></td></tr></tbody></table>
+  </div>
+  <div class="stack" style="gap:12px">
+    <div class="card"><h3>Sebaran klasifikasi</h3><div class="sub" style="margin-bottom:10px">22 siswa punya hasil akhir</div><div class="dist"><i class="k1" style="width:22.73%"></i><i class="k2" style="width:59.09%"></i><i class="k3" style="width:13.64%"></i><i class="k4" style="width:4.55%"></i></div><div class="lgd" style="margin-top:10px"><i class="sw k1"></i><span>Baik Sekali</span><b>5</b><em>Tes I: 0</em><i class="sw k2"></i><span>Baik</span><b>13</b><em>Tes I: 18</em><i class="sw k3"></i><span>Cukup</span><b>3</b><em>Tes I: 5</em><i class="sw k4"></i><span>Kurang</span><b>1</b><em>Tes I: 0</em></div></div>
+    <div class="card bina"><h3>Perlu pembinaan</h3><div class="sub">Akhir ≤ 60 · materi terendah</div><div class="list"><div class="item"><span class="av sm">FH</span><div class="main"><b>Fikri Haikal</b><span><em class="kt1">Kurang</em> · Shuttle 35</span></div><b class="n">39,38</b></div><div class="item"><span class="av sm">AL</span><div class="main"><b>Ayu Lestari</b><span><em class="kt0">Cukup</em> · Shuttle 46</span></div><b class="n">49,5</b></div><div class="item"><span class="av sm">KH</span><div class="main"><b>Kevin Halim</b><span><em class="kt0">Cukup</em> · Shuttle 52</span></div><b class="n">54,88</b></div><div class="item"><span class="av sm">AS</span><div class="main"><b>Andi Saputra</b><span><em class="kt0">Cukup</em> · Shuttle 56</span></div><b class="n">58</b></div></div></div>
+    <div class="card"><div class="head"><h3>Kemajuan pos</h3><span class="xs muted">185/192</span></div><div class="posbars" style="margin-top:8px"><div><span><b>Tensi</b><em class="muted" style="font-style:normal">24/24</em></span><div class="bar"><i style="width:100.0%"></i></div></div><div><span><b>Badan</b><em class="muted" style="font-style:normal">24/24</em></span><div class="bar"><i style="width:100.0%"></i></div></div><div><span><b>Lari</b><em class="muted" style="font-style:normal">24/24</em></span><div class="bar"><i style="width:100.0%"></i></div></div><div><span><b>Pull</b><em class="muted" style="font-style:normal">24/24</em></span><div class="bar"><i style="width:100.0%"></i></div></div><div><span><b>Sit</b><em class="muted" style="font-style:normal">24/24</em></span><div class="bar"><i style="width:100.0%"></i></div></div><div><span><b>Push</b><em class="muted" style="font-style:normal">23/24</em></span><div class="bar o"><i style="width:95.8%"></i></div></div><div><span><b>Shuttle</b><em class="muted" style="font-style:normal">22/24</em></span><div class="bar o"><i style="width:91.7%"></i></div></div><div><span><b>Renang</b><em class="muted" style="font-style:normal">20/24</em></span><div class="bar o"><i style="width:83.3%"></i></div></div></div></div>
+    <div class="card fin"><h3>Selesaikan tes</h3><div class="sub" style="margin:2px 0 10px">Isian dikunci. Bisa dibuka lagi kapan saja.</div>
+      <div class="row spread"><span class="btn sec sm" style="background:var(--surface)"><i class="ic i-lock"></i>Tandai selesai</span><span class="linkr"><i class="ic i-trash"></i>Hapus tes</span></div></div>
+  </div>
+</div></div></div>
+</div>
+</article>
+<article class="opsi" data-opsi="B">
+<div class="ringkas">
+  <div><h3>Lembar kerja</h3><p>Semua isian dalam satu tabel: baris siswa, kolom pos, nama tetap terlihat saat digeser. Ketik lalu Enter turun ke siswa berikutnya. Garjas A, rata-rata B, hasil akhir, dan klasifikasi terhitung di kolom kanan. Paling pas bila Anda menyalin blangko kertas ke laptop.</p></div>
+  <div><h4>KELEBIHAN</h4><ul><li>Semua angka terlihat sekaligus; salah ketik mudah ditemukan.</li><li>Paling cepat untuk menyalin dari kertas memakai keyboard.</li><li>Peringkat cukup diurutkan dari tabel yang sama.</li></ul></div>
+  <div><h4>PERTIMBANGAN</h4><ul><li>Di HP sel kecil dan harus geser ke samping; kurang nyaman di lapangan.</li><li>Terasa seperti Excel; bisa membingungkan bila jarang dipakai.</li><li>Tensi, badan, dan renang ada di tampilan terpisah agar tabel tidak terlalu lebar.</li></ul></div>
+</div>
+<div class="frames">
+<div class="hp">
+  <div class="hp-bar"><div class="logo"></div><b>Tes Samapta</b><span class="tap"><i class="ic i-plus"></i></span></div>
+  <div class="hp-body">
+    <div class="card" style="padding:4px 14px"><div class="tl">
+      <div class="t"><span class="ring o" style="--p:96"><b>96%</b></span><div class="main"><b>Tes Samapta II</b><span>Min, 15 Nov · 7 isian belum</span></div><span class="pill o">Berjalan</span></div>
+      <div class="t"><span class="ring"><b><i class="ic i-check"></i></b></span><div class="main"><b>Tes Samapta I</b><span>Min, 18 Okt · rata-rata 68,42</span></div><span class="pill m"><i class="ic i-lock"></i>Selesai</span></div>
+    </div></div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+  <div class="scrim"></div>
+  <div class="sheet stack" style="gap:10px">
+    <div class="head"><h3>Tes baru</h3><span class="tap plain"><i class="ic i-close"></i></span></div>
+    <div class="field"><label>Nama tes</label><div class="input">Tes Samapta III</div></div>
+    <div class="grid2"><div class="field"><label>Tanggal</label><div class="input">Min, 13 Des 2026</div></div><div class="field"><label>Jam mulai</label><div class="input">07.00</div></div></div>
+    <div class="field"><label>Tempat</label><div class="input">Lap. Syekh Yusuf <em>bawaan</em></div></div>
+    <div class="infob"><i class="ic i-check"></i><span>24 siswa aktif otomatis jadi peserta. Bisa diubah nanti.</span></div>
+    <button class="btn lg block">Buat tes</button>
+  </div>
+</div>
+<div class="hp">
+  <div class="hp-bar"><span class="tap plain"><i class="ic i-back"></i></span><div class="tt"><b>Tes Samapta II</b><small>Min, 15 Nov · 185/192 isian</small></div><span class="saved"><i class="ic i-check"></i>Tersimpan</span></div>
+  <div class="hp-body p0">
+    <div class="pad">
+      <div class="seg"><span class="on">Isi nilai</span><span>Hasil</span></div>
+      <div class="hscroll"><span class="chip">Lari <small>24/24</small></span><span class="chip">Pull/Chin <small>24/24</small></span><span class="chip">Sit up <small>24/24</small></span><span class="chip on">Push up <small>23/24</small></span><span class="chip">Shuttle <small>22/24</small></span><span class="chip">Renang <small>20/24</small></span><span class="chip">Tensi <small>24/24</small></span><span class="chip">Badan <small>24/24</small></span></div>
+      <div class="row spread"><span class="chip on" style="display:inline-flex;align-items:center;gap:6px;min-height:36px"><i class="ic i-filter"></i>Yang belum · 4 siswa</span><span class="xs muted">geser tabel ke samping ›</span></div>
+    </div>
+    <div class="lk-wrap" style="border-radius:0;border-width:0 0 1px">
+      <table class="lk ph"><thead>
+        <tr class="h1"><th class="nm" rowspan="2" style="vertical-align:bottom">Siswa</th><th colspan="2" class="gs">Push up<span>23/24</span></th><th colspan="2" class="gs">Shuttle<span>22/24</span></th><th colspan="2" class="gs">Renang<span>20/24</span></th></tr>
+        <tr><th class="gs">Jml</th><th>Nilai</th><th class="gs">Dtk</th><th>Nilai</th><th class="gs">Gaya</th><th>Dtk</th></tr>
+      </thead><tbody><tr><td class="nm">Kevin Halim<small>no. 11 · putra</small></td><td class="c gs">28</td><td class="c">57</td><td class="c gs">20,3</td><td class="c">52</td><td class="c e gs">·</td><td class="c e">·</td></tr><tr><td class="nm">Rizal Mahendra<small>no. 13 · putra</small></td><td class="c gs">37</td><td class="c">76</td><td class="c gs e">·</td><td class="c e">·</td><td class="c e gs">·</td><td class="c e">·</td></tr><tr class="cur"><td class="nm">Reza Kurnia<small>no. 22 · putra</small></td><td class="c act gs">36<i class="caret"></i></td><td class="c e">·</td><td class="c gs e">·</td><td class="c e">·</td><td class="c e gs">·</td><td class="c e">·</td></tr><tr><td class="nm">Ayu Lestari<small>no. 23 · putri</small></td><td class="c gs">19</td><td class="c">50</td><td class="c gs">21,9</td><td class="c">46</td><td class="c e gs">·</td><td class="c e">·</td></tr></tbody></table>
+    </div>
+    <div class="note-b">20 siswa lain sudah lengkap · <b>Tampilkan semua</b></div>
+  </div>
+  <div class="lk-edit anno" data-anno="Ketuk sel, isi di bawah">
+    <div class="row spread small"><b>Reza Kurnia · Push up</b><span class="xs muted">Enter = turun ke baris berikut</span></div>
+    <div class="r"><div class="big sm on"><label>Jumlah</label><div class="v">36<i class="caret"></i></div></div><div class="big sm"><label>Nilai</label><div class="v ph">0-100</div></div><span class="btn"><i class="ic i-enter"></i></span></div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+</div>
+<div class="hp">
+  <div class="hp-bar"><span class="tap plain"><i class="ic i-back"></i></span><div class="tt"><b>Tes Samapta II</b><small>Hasil · diurutkan dari akhir</small></div><span class="tap"><i class="ic i-print"></i></span></div>
+  <div class="hp-body p0">
+    <div class="pad">
+      <div class="seg"><span>Isi nilai</span><span class="on">Hasil</span></div>
+      <div class="mini3"><div><b>70,34</b><span>rata-rata · <span class="up">▲1,91</span></span></div><div><b>5</b><span>Baik Sekali</span></div><div><b>4</b><span>perlu pembinaan</span></div></div>
+      <div class="dist"><i class="k1" style="width:22.73%"></i><i class="k2" style="width:59.09%"></i><i class="k3" style="width:13.64%"></i><i class="k4" style="width:4.55%"></i></div>
+      <div class="row xs muted lgi" style="gap:10px"><span><i class="k1"></i>BS 5</span><span><i class="k2"></i>Baik 13</span><span><i class="k3"></i>Cukup 3</span><span><i class="k4"></i>Kurang 1</span><span>2 belum lengkap</span></div>
+    </div>
+    <div class="lk-wrap" style="border-radius:0;border-width:0">
+      <table class="lk ph rkp"><thead><tr><th>#</th><th class="nm" style="position:static">Nama</th><th class="r">A</th><th class="r">B</th><th class="r">Akhir</th><th>Klas</th></tr></thead>
+      <tbody><tr><td><span class="rk-n">1</span></td><td class="nm">Arif Pratama</td><td class="r">87</td><td class="r">85,5</td><td class="akc"><b>86,25</b><span class="up">▲ 6,75</span></td><td><span class="pill">Baik Sekali</span></td></tr><tr><td><span class="rk-n">2</span></td><td class="nm">Dimas Anggara</td><td class="r">85</td><td class="r">83</td><td class="akc"><b>84</b><span class="up">▲ 3,75</span></td><td><span class="pill">Baik Sekali</span></td></tr><tr><td><span class="rk-n">3</span></td><td class="nm">Fajar Ramadhan</td><td class="r">84</td><td class="r">82,75</td><td class="akc"><b>83,38</b><span class="up">▲ 5,63</span></td><td><span class="pill">Baik Sekali</span></td></tr><tr><td><span class="rk-n">4</span></td><td class="nm">Galih Saputra</td><td class="r">82</td><td class="r">82</td><td class="akc"><b>82</b><span class="up">▲ 5,5</span></td><td><span class="pill">Baik Sekali</span></td></tr><tr><td><span class="rk-n">5</span></td><td class="nm">Nanda Putri</td><td class="r">80</td><td class="r">83</td><td class="akc"><b>81,5</b><span class="up">▲ 4,25</span></td><td><span class="pill">Baik Sekali</span></td></tr><tr><td><span class="rk-n">6</span></td><td class="nm">Bagus Setiawan</td><td class="r">78</td><td class="r">79,75</td><td class="akc"><b>78,88</b><span class="up">▲ 4,38</span></td><td><span class="pill b">Baik</span></td></tr><tr><td><span class="rk-n">7</span></td><td class="nm">Oktavia Sari</td><td class="r">79</td><td class="r">77,75</td><td class="akc"><b>78,38</b><span class="up">▲ 3,38</span></td><td><span class="pill b">Baik</span></td></tr><tr><td><span class="rk-n">8</span></td><td class="nm">Hendra Kurniawan</td><td class="r">76</td><td class="r">77,5</td><td class="akc"><b>76,75</b><span class="up">▲ 3,5</span></td><td><span class="pill b">Baik</span></td></tr><tr><td><span class="rk-n">9</span></td><td class="nm">Ilham Maulana</td><td class="r">77</td><td class="r">74,25</td><td class="akc"><b>75,63</b><span class="up">▲ 3,13</span></td><td><span class="pill b">Baik</span></td></tr><tr><td><span class="rk-n">10</span></td><td class="nm">Joko Prasetyo</td><td class="r">74</td><td class="r">75</td><td class="akc"><b>74,5</b><span class="dn">▼ 0,75</span></td><td><span class="pill b">Baik</span></td></tr><tr><td><span class="rk-n">11</span></td><td class="nm">Lutfi Hakim</td><td class="r">73</td><td class="r">72,75</td><td class="akc"><b>72,88</b><span class="up">▲ 3,88</span></td><td><span class="pill b">Baik</span></td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+</div>
+<div class="dk"><nav class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a class="">Beranda</a><a class="">Presensi</a><a class="on">Tes Samapta</a><a class="">Keuangan</a><a class="">Siswa</a><a class="">Pengaturan</a><a class="">Panduan</a><div class="dk-user"><span class="av">PG</span><div><b>Pemilik Garda</b><span>Owner</span></div></div></nav><div class="dk-body">
+<div class="dhead">
+  <div><div class="eyebrow">Tes Samapta · lembar kerja</div><div class="row" style="gap:10px"><div class="title">Tes Samapta II</div><span class="pill o">Berjalan</span><span class="saved anno" data-anno="Tiap sel tersimpan sendiri"><i class="ic i-check"></i>Semua tersimpan</span></div>
+    <div class="small muted">Minggu, 15 Nov 2026 · 07.00 · Lap. Syekh Yusuf · 24 peserta · 185/192 isian</div></div>
+  <div class="row"><span class="btn sec"><i class="ic i-lock"></i>Tandai selesai</span><span class="btn"><i class="ic i-print"></i>Cetak <i class="ic i-down"></i></span><span class="btn sec" style="padding:11px"><i class="ic i-more"></i></span></div>
+</div>
+<div class="tb">
+  <div class="seg in"><span class="on">Nilai Garjas</span><span>Tensi &amp; badan</span><span>Renang</span></div>
+  <span class="chip"><i class="ic i-filter"></i>Yang belum · 4</span>
+  <span class="srch"><i class="ic i-search"></i>Cari siswa</span>
+  <span class="sp"></span>
+  <span class="xs muted">Enter turun · Tab ke kanan</span>
+</div>
+<div class="lk-wrap">
+<table class="lk"><thead>
+  <tr class="h1"><th rowspan="2" class="no" style="vertical-align:bottom">No</th><th rowspan="2" class="nm" style="vertical-align:bottom">Siswa</th>
+    <th colspan="2" class="gs">Lari 12 mnt<span>24/24</span><i class="hbar"><i style="width:100.0%"></i></i></th><th colspan="2" class="gs">Pull up / Chin<span>24/24</span><i class="hbar"><i style="width:100.0%"></i></i></th><th colspan="2" class="gs">Sit up<span>24/24</span><i class="hbar"><i style="width:100.0%"></i></i></th><th colspan="2" class="gs">Push up<span>23/24</span><i class="hbar o"><i style="width:95.8%"></i></i></th><th colspan="2" class="gs">Shuttle run<span>22/24</span><i class="hbar o"><i style="width:91.7%"></i></i></th>
+    <th colspan="4" class="cmp gs">Hasil otomatis<span>A · rata-rata B · (A+B)÷2</span></th></tr>
+  <tr><th class="gs">Meter</th><th>Nilai</th><th class="gs">Kali</th><th>Nilai</th><th class="gs">Kali</th><th>Nilai</th><th class="gs">Kali</th><th>Nilai</th><th class="gs">Detik</th><th>Nilai</th>
+    <th class="cmp gs">A</th><th class="cmp">B</th><th class="cmp">Akhir</th><th class="cmp">Klasifikasi</th></tr>
+</thead><tbody><tr><td class="no">1</td><td class="nm">Arif Pratama<small>L</small></td><td class="gs">2.470</td><td class="">87</td><td class="gs">15</td><td class="">86</td><td class="gs">41</td><td class="">88</td><td class="gs">42</td><td class="">87</td><td class="gs">17,4</td><td class="">81</td><td class="cmp gs">87</td><td class="cmp">85,5</td><td class="cmp ak">86,25</td><td class="cmp"><span class="pill">Baik Sekali</span></td></tr><tr><td class="no">2</td><td class="nm">Bagus Setiawan<small>L</small></td><td class="gs">2.370</td><td class="">78</td><td class="gs">14</td><td class="">80</td><td class="gs">37</td><td class="">79</td><td class="gs">40</td><td class="">82</td><td class="gs">17,7</td><td class="">78</td><td class="cmp gs">78</td><td class="cmp">79,75</td><td class="cmp ak">78,88</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">3</td><td class="nm">Dimas Anggara<small>L</small></td><td class="gs">2.450</td><td class="">85</td><td class="gs">15</td><td class="">84</td><td class="gs">40</td><td class="">86</td><td class="gs">39</td><td class="">80</td><td class="gs">17,3</td><td class="">82</td><td class="cmp gs">85</td><td class="cmp">83</td><td class="cmp ak">84</td><td class="cmp"><span class="pill">Baik Sekali</span></td></tr><tr><td class="no">4</td><td class="nm">Nanda Putri<small>P</small></td><td class="gs">2.190</td><td class="">80</td><td class="gs">40</td><td class="">84</td><td class="gs">38</td><td class="">82</td><td class="gs">33</td><td class="">85</td><td class="gs">18,4</td><td class="">81</td><td class="cmp gs">80</td><td class="cmp">83</td><td class="cmp ak">81,5</td><td class="cmp"><span class="pill">Baik Sekali</span></td></tr><tr><td class="no">5</td><td class="nm">Oktavia Sari<small>P</small></td><td class="gs">2.180</td><td class="">79</td><td class="gs">36</td><td class="">76</td><td class="gs">37</td><td class="">80</td><td class="gs">30</td><td class="">78</td><td class="gs">18,8</td><td class="">77</td><td class="cmp gs">79</td><td class="cmp">77,75</td><td class="cmp ak">78,38</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">6</td><td class="nm">Fajar Ramadhan<small>L</small></td><td class="gs">2.440</td><td class="">84</td><td class="gs">14</td><td class="">82</td><td class="gs">40</td><td class="">85</td><td class="gs">41</td><td class="">84</td><td class="gs">17,5</td><td class="">80</td><td class="cmp gs">84</td><td class="cmp">82,75</td><td class="cmp ak">83,38</td><td class="cmp"><span class="pill">Baik Sekali</span></td></tr><tr><td class="no">7</td><td class="nm">Galih Saputra<small>L</small></td><td class="gs">2.420</td><td class="">82</td><td class="gs">14</td><td class="">83</td><td class="gs">37</td><td class="">80</td><td class="gs">41</td><td class="">84</td><td class="gs">17,4</td><td class="">81</td><td class="cmp gs">82</td><td class="cmp">82</td><td class="cmp ak">82</td><td class="cmp"><span class="pill">Baik Sekali</span></td></tr><tr><td class="no">8</td><td class="nm">Hendra Kurniawan<small>L</small></td><td class="gs">2.350</td><td class="">76</td><td class="gs">13</td><td class="">78</td><td class="gs">36</td><td class="">77</td><td class="gs">39</td><td class="">80</td><td class="gs">18</td><td class="">75</td><td class="cmp gs">76</td><td class="cmp">77,5</td><td class="cmp ak">76,75</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">9</td><td class="nm">Ilham Maulana<small>L</small></td><td class="gs">2.360</td><td class="">77</td><td class="gs">12</td><td class="">74</td><td class="gs">35</td><td class="">76</td><td class="gs">36</td><td class="">75</td><td class="gs">18,3</td><td class="">72</td><td class="cmp gs">77</td><td class="cmp">74,25</td><td class="cmp ak">75,63</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">10</td><td class="nm">Joko Prasetyo<small>L</small></td><td class="gs">2.330</td><td class="">74</td><td class="gs">12</td><td class="">75</td><td class="gs">34</td><td class="">74</td><td class="gs">38</td><td class="">78</td><td class="gs">18,2</td><td class="">73</td><td class="cmp gs">74</td><td class="cmp">75</td><td class="cmp ak">74,5</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">11</td><td class="nm">Kevin Halim<small>L</small></td><td class="gs">2.120</td><td class="">55</td><td class="gs">7</td><td class="">56</td><td class="gs">25</td><td class="">54</td><td class="gs">28</td><td class="">57</td><td class="gs">20,3</td><td class="">52</td><td class="cmp gs">55</td><td class="cmp">54,75</td><td class="cmp ak">54,88</td><td class="cmp"><span class="pill o">Cukup</span></td></tr><tr><td class="no">12</td><td class="nm">Lutfi Hakim<small>L</small></td><td class="gs">2.320</td><td class="">73</td><td class="gs">11</td><td class="">72</td><td class="gs">35</td><td class="">75</td><td class="gs">36</td><td class="">74</td><td class="gs">18,5</td><td class="">70</td><td class="cmp gs">73</td><td class="cmp">72,75</td><td class="cmp ak">72,88</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">13</td><td class="nm">Rizal Mahendra<small>L</small></td><td class="gs">2.340</td><td class="">75</td><td class="gs">12</td><td class="">73</td><td class="gs">34</td><td class="">74</td><td class="gs">37</td><td class="">76</td><td class="gs e">·</td><td class="e">·</td><td class="cmp gs">75</td><td class="cmp n">-</td><td class="cmp n">-</td><td class="cmp"><span class="pill m">Belum</span></td></tr><tr><td class="no">14</td><td class="nm">Nur Fadillah<small>P</small></td><td class="gs">2.110</td><td class="">72</td><td class="gs">35</td><td class="">74</td><td class="gs">34</td><td class="">73</td><td class="gs">27</td><td class="">71</td><td class="gs">19,3</td><td class="">72</td><td class="cmp gs">72</td><td class="cmp">72,5</td><td class="cmp ak">72,25</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">15</td><td class="nm">Raka Wijaya<small>L</small></td><td class="gs">2.280</td><td class="">70</td><td class="gs">11</td><td class="">71</td><td class="gs">33</td><td class="">72</td><td class="gs">35</td><td class="">73</td><td class="gs">18,6</td><td class="">69</td><td class="cmp gs">70</td><td class="cmp">71,25</td><td class="cmp ak">70,63</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">16</td><td class="nm">Sandi Purnomo<small>L</small></td><td class="gs">2.270</td><td class="">69</td><td class="gs">11</td><td class="">70</td><td class="gs">32</td><td class="">68</td><td class="gs">34</td><td class="">71</td><td class="gs">18,9</td><td class="">66</td><td class="cmp gs">69</td><td class="cmp">68,75</td><td class="cmp ak">68,88</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">17</td><td class="nm">Taufik Hidayat<small>L</small></td><td class="gs">2.260</td><td class="">68</td><td class="gs">10</td><td class="">66</td><td class="gs">33</td><td class="">70</td><td class="gs">33</td><td class="">69</td><td class="gs">19</td><td class="">65</td><td class="cmp gs">68</td><td class="cmp">67,5</td><td class="cmp ak">67,75</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">18</td><td class="nm">Wahyu Nugroho<small>L</small></td><td class="gs">2.240</td><td class="">66</td><td class="gs">10</td><td class="">67</td><td class="gs">30</td><td class="">65</td><td class="gs">33</td><td class="">68</td><td class="gs">19,1</td><td class="">64</td><td class="cmp gs">66</td><td class="cmp">66</td><td class="cmp ak">66</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">19</td><td class="nm">Yoga Pradana<small>L</small></td><td class="gs">2.220</td><td class="">64</td><td class="gs">9</td><td class="">65</td><td class="gs">29</td><td class="">63</td><td class="gs">32</td><td class="">66</td><td class="gs">19,3</td><td class="">62</td><td class="cmp gs">64</td><td class="cmp">64</td><td class="cmp ak">64</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">20</td><td class="nm">Zaki Firmansyah<small>L</small></td><td class="gs">2.190</td><td class="">62</td><td class="gs">9</td><td class="">64</td><td class="gs">28</td><td class="">60</td><td class="gs">30</td><td class="">63</td><td class="gs">19,4</td><td class="">61</td><td class="cmp gs">62</td><td class="cmp">62</td><td class="cmp ak">62</td><td class="cmp"><span class="pill b">Baik</span></td></tr><tr><td class="no">21</td><td class="nm">Andi Saputra<small>L</small></td><td class="gs">2.150</td><td class="">58</td><td class="gs">8</td><td class="">60</td><td class="gs">27</td><td class="">57</td><td class="gs">29</td><td class="">59</td><td class="gs">19,9</td><td class="">56</td><td class="cmp gs">58</td><td class="cmp">58</td><td class="cmp ak">58</td><td class="cmp"><span class="pill o">Cukup</span></td></tr><tr class="cur"><td class="no">22</td><td class="nm">Reza Kurnia<small>L</small></td><td class="gs">2.300</td><td class="">71</td><td class="gs">11</td><td class="">70</td><td class="gs">33</td><td class="">72</td><td class="gs act">36<i class="caret"></i></td><td class="e">·</td><td class="gs e">·</td><td class="e">·</td><td class="cmp gs">71</td><td class="cmp n">-</td><td class="cmp n">-</td><td class="cmp"><span class="pill m">Belum</span></td></tr><tr><td class="no">23</td><td class="nm">Ayu Lestari<small>P</small></td><td class="gs">1.880</td><td class="">50</td><td class="gs">25</td><td class="">52</td><td class="gs">22</td><td class="">48</td><td class="gs">19</td><td class="">50</td><td class="gs">21,9</td><td class="">46</td><td class="cmp gs">50</td><td class="cmp">49</td><td class="cmp ak">49,5</td><td class="cmp"><span class="pill o">Cukup</span></td></tr><tr><td class="no">24</td><td class="nm">Fikri Haikal<small>L</small></td><td class="gs">1.950</td><td class="">40</td><td class="gs">3</td><td class="">42</td><td class="gs">18</td><td class="">38</td><td class="gs">19</td><td class="">40</td><td class="gs">22</td><td class="">35</td><td class="cmp gs">40</td><td class="cmp">38,75</td><td class="cmp ak">39,38</td><td class="cmp"><span class="pill r">Kurang</span></td></tr></tbody><tfoot><tr><td></td><td class="nm">Rata-rata</td><td class="gs"></td><td>70,6</td><td class="gs"></td><td>71</td><td class="gs"></td><td>70,7</td><td class="gs"></td><td>71,7</td><td class="gs"></td><td>68,1</td><td class="cmp gs">70,6</td><td class="cmp">70,3</td><td class="cmp">70,34</td><td class="cmp"></td></tr></tfoot></table></div>
+<div class="card b-sum">
+  <div class="kv"><span>Rata-rata hasil akhir</span><b>70,34</b><span class="up">▲ 1,91 dari Tes I</span></div>
+  <div><div class="dist"><i class="k1" style="width:22.73%"></i><i class="k2" style="width:59.09%"></i><i class="k3" style="width:13.64%"></i><i class="k4" style="width:4.55%"></i></div><div class="row small" style="gap:14px;margin-top:8px"><span><b>5</b> Baik Sekali</span><span><b>13</b> Baik</span><span><b>3</b> Cukup</span><span><b>1</b> Kurang</span><span class="muted">2 belum lengkap</span></div></div>
+  <div class="small" style="max-width:220px"><b>Perlu pembinaan:</b> <span class="muted">Fikri Haikal, Ayu Lestari, Kevin Halim, Andi Saputra</span></div>
+</div></div></div>
+</div>
+</article>
+<article class="opsi" data-opsi="C">
+<div class="ringkas">
+  <div><h3>Kartu siswa</h3><p>Mulai dari siswa, bukan dari pos. Daftar siswa memakai cincin kemajuan 8 pos; buka satu siswa, isi pos yang belum, dan A, B, hasil akhir langsung muncul di kartu yang sama, lengkap dengan perbandingan Tes I dan tombol cetak blangko.</p></div>
+  <div><h4>KELEBIHAN</h4><ul><li>Mudah melengkapi siswa yang tertinggal atau susulan.</li><li>Hasil, perbandingan tes lalu, dan cetak ada di satu kartu.</li><li>Cincin kemajuan langsung menunjukkan siapa yang belum lengkap.</li></ul></div>
+  <div><h4>PERTIMBANGAN</h4><ul><li>Bila tes berjalan per pos (semua siswa sit up dulu), Anda harus membuka 24 kartu bergantian.</li><li>Kartu cukup panjang di HP; pos yang sudah terisi dilipat.</li><li>Peringkat seluruh peserta bukan tampilan utama.</li></ul></div>
+</div>
+<div class="frames">
+<div class="hp">
+  <div class="hp-bar"><span class="tap plain"><i class="ic i-back"></i></span><div class="tt"><b>Tes Samapta II</b><small>Min, 15 Nov · 185/192 isian</small></div><span class="tap"><i class="ic i-more"></i></span></div>
+  <div class="hp-body">
+    <div class="inp"><i class="ic i-search"></i>Cari nama siswa</div>
+    <div class="chips"><span class="chip on">Semua 24</span><span class="chip">Belum lengkap 4</span><span class="chip">Peringkat</span></div>
+    <div class="card cl anno" data-anno="Cincin = pos terisi dari 8" style="padding:2px 14px">
+      <div class="grp">Belum lengkap</div>
+      <div class="list"><div class="item"><span class="ring o" style="--p:62.5"><b>5/8</b></span><div class="main"><b>Reza Kurnia</b><span class="o">kurang: Push up, Shuttle, Renang</span></div><span class="chev"><i class="ic i-right"></i></span></div><div class="item"><span class="ring o" style="--p:75.0"><b>6/8</b></span><div class="main"><b>Rizal Mahendra</b><span class="o">kurang: Shuttle, Renang</span></div><span class="chev"><i class="ic i-right"></i></span></div><div class="item"><span class="ring o" style="--p:87.5"><b>7/8</b></span><div class="main"><b>Kevin Halim</b><span class="o">kurang: Renang</span></div><span class="chev"><i class="ic i-right"></i></span></div><div class="item"><span class="ring o" style="--p:87.5"><b>7/8</b></span><div class="main"><b>Ayu Lestari</b><span class="o">kurang: Renang</span></div><span class="chev"><i class="ic i-right"></i></span></div></div>
+      <div class="grp">Sudah lengkap · 20</div>
+      <div class="list"><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Arif Pratama</b><span>no. 1 · putra</span></div><div class="rt"><b>86,25</b><span class="pill">Baik Sekali</span></div></div><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Bagus Setiawan</b><span>no. 2 · putra</span></div><div class="rt"><b>78,88</b><span class="pill b">Baik</span></div></div><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Dimas Anggara</b><span>no. 3 · putra</span></div><div class="rt"><b>84</b><span class="pill">Baik Sekali</span></div></div><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Nanda Putri</b><span>no. 4 · putri</span></div><div class="rt"><b>81,5</b><span class="pill">Baik Sekali</span></div></div><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Oktavia Sari</b><span>no. 5 · putri</span></div><div class="rt"><b>78,38</b><span class="pill b">Baik</span></div></div><div class="item"><span class="ring" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Fajar Ramadhan</b><span>no. 6 · putra</span></div><div class="rt"><b>83,38</b><span class="pill">Baik Sekali</span></div></div></div>
+    </div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+</div>
+<div class="hp">
+  <div class="hp-bar"><span class="tap plain"><i class="ic i-back"></i></span><div class="av">RK</div><div class="tt"><b>Reza Kurnia</b><small>Putra · no. 22 · 5/8 pos</small></div><span class="saved"><i class="ic i-check"></i>Tersimpan</span></div>
+  <div class="hp-body">
+    <div class="sumr"><div><span>Garjas A</span><b>71</b></div><div><span>Garjas B</span><b class="wait">2 dari 4</b></div><div><span>Hasil akhir</span><b class="wait">menunggu</b></div></div>
+    <div class="cs">
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Tensi</span><span class="vl"><b>120/78</b> · 120/80 · 122/80</span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Tinggi &amp; berat</span><span class="vl"><b>170 cm · 63 kg</b> · IMT 21,8</span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Lari 12 menit</span><span class="vl">2.300 m · <b>71</b></span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Pull up</span><span class="vl">11 kali · <b>70</b></span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Sit up</span><span class="vl">33 kali · <b>72</b></span></div>
+      <div class="cs-open anno" data-anno="Pos yang sedang diisi">
+        <div class="hd"><span class="ck now"><i class="ic i-right"></i></span><span class="lb">Push up</span><span class="xs muted">Tes I: 33 kali · 68</span></div>
+        <div class="grid2"><div class="big on"><label>Jumlah</label><div class="v">36<i class="caret"></i><small>kali</small></div></div><div class="big"><label>Nilai</label><div class="v ph">0-100</div></div></div>
+      </div>
+      <div class="cs-row todo"><span class="ck no"></span><span class="lb">Shuttle run 6×10 m</span><span class="vl">belum</span></div>
+      <div class="cs-row todo"><span class="ck no"></span><span class="lb">Renang 50 m</span><span class="vl">belum</span></div>
+    </div>
+  </div>
+  <div class="botbar"><span class="btn sec"><i class="ic i-list"></i></span><span class="btn lg">Lanjut: Shuttle run <i class="ic i-arrow"></i></span></div>
+</div>
+<div class="hp">
+  <div class="hp-bar"><span class="tap plain"><i class="ic i-back"></i></span><div class="av">AP</div><div class="tt"><b>Arif Pratama</b><small>Putra · no. 1 · 8 dari 8 pos</small></div><span class="tap"><i class="ic i-print"></i></span></div>
+  <div class="hp-body">
+    <div class="c-res" style="grid-template-columns:1.3fr 1fr 1fr"><div class="hero"><span>Hasil akhir</span><b>86,25</b><span class="pill">Baik Sekali</span></div><div><span>Garjas A</span><b>87</b><span class="up">▲ 7</span></div><div><span>Garjas B</span><b>85,5</b><span class="up">▲ 6,5</span></div></div>
+    <div class="cs">
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Lari 12 menit</span><span class="vl">2.470 m · <b>87</b></span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Pull up</span><span class="vl">15 kali · <b>86</b></span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Sit up</span><span class="vl">41 kali · <b>88</b></span></div>
+      <div class="cs-row"><span class="ck"><i class="ic i-check"></i></span><span class="lb">Push up</span><span class="vl">42 kali · <b>87</b></span></div>
+    </div>
+  </div>
+  <div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div>
+  <div class="scrim"></div>
+  <div class="sheet stack" style="gap:8px">
+    <div class="head"><h3 class="ttl-sm" style="font-size:17px">Cetak blangko A4</h3><span class="tap plain"><i class="ic i-close"></i></span></div>
+    <div class="opt on"><span class="rad"></span><div class="main"><b>Blangko Arif Pratama</b><span>1 lembar, terisi</span></div></div>
+    <div class="opt"><span class="rad"></span><div class="main"><b>Semua peserta Tes Samapta II</b><span>24 lembar, terisi</span></div></div>
+    <div class="opt"><span class="rad"></span><div class="main"><b>Blangko kosong</b><span>untuk diisi tangan</span></div><span class="stp"><i>-</i><b>10</b><i>+</i></span></div>
+    <button class="btn lg block"><i class="ic i-print"></i>Cetak</button>
+  </div>
+</div>
+<div class="dk"><nav class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a class="">Beranda</a><a class="">Presensi</a><a class="on">Tes Samapta</a><a class="">Keuangan</a><a class="">Siswa</a><a class="">Pengaturan</a><a class="">Panduan</a><div class="dk-user"><span class="av">PG</span><div><b>Pemilik Garda</b><span>Owner</span></div></div></nav><div class="dk-body">
+<div class="dhead">
+  <div><div class="eyebrow">Tes Samapta · kartu siswa</div><div class="row" style="gap:10px"><div class="title">Tes Samapta II</div><span class="pill o">Berjalan</span></div>
+    <div class="small muted">Minggu, 15 Nov 2026 · Lap. Syekh Yusuf · 24 peserta · 185/192 isian</div></div>
+  <div class="row"><span class="btn sec"><i class="ic i-print"></i>Cetak semua (24)</span><span class="btn sec" style="padding:11px"><i class="ic i-more"></i></span></div>
+</div>
+<div class="c-dk">
+  <div class="card c-list">
+    <div class="srch" style="min-width:0"><i class="ic i-search"></i>Cari siswa</div>
+    <div class="seg"><span class="on">Peringkat</span><span>Belum (4)</span><span>No.</span></div>
+    <div><div class="row spread xs"><span class="muted">Rata-rata akhir</span><b class="small">70,34 <span class="up">▲1,91</span></b></div><div class="dist" style="height:8px;margin-top:5px"><i class="k1" style="width:22.73%"></i><i class="k2" style="width:59.09%"></i><i class="k3" style="width:13.64%"></i><i class="k4" style="width:4.55%"></i></div></div>
+    <div class="scroll"><div class="c-row on"><span class="rk-n">1</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Arif Pratama</b><span>Baik Sekali</span></div><span class="v">86,25</span></div><div class="c-row"><span class="rk-n">2</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Dimas Anggara</b><span>Baik Sekali</span></div><span class="v">84</span></div><div class="c-row"><span class="rk-n">3</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Fajar Ramadhan</b><span>Baik Sekali</span></div><span class="v">83,38</span></div><div class="c-row"><span class="rk-n">4</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Galih Saputra</b><span>Baik Sekali</span></div><span class="v">82</span></div><div class="c-row"><span class="rk-n">5</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Nanda Putri</b><span>Baik Sekali</span></div><span class="v">81,5</span></div><div class="c-row"><span class="rk-n">6</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Bagus Setiawan</b><span>Baik</span></div><span class="v">78,88</span></div><div class="c-row"><span class="rk-n">7</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Oktavia Sari</b><span>Baik</span></div><span class="v">78,38</span></div><div class="c-row"><span class="rk-n">8</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Hendra Kurniawan</b><span>Baik</span></div><span class="v">76,75</span></div><div class="c-row"><span class="rk-n">9</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Ilham Maulana</b><span>Baik</span></div><span class="v">75,63</span></div><div class="c-row"><span class="rk-n">10</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Joko Prasetyo</b><span>Baik</span></div><span class="v">74,5</span></div><div class="c-row"><span class="rk-n">11</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Lutfi Hakim</b><span>Baik</span></div><span class="v">72,88</span></div><div class="c-row"><span class="rk-n">12</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Nur Fadillah</b><span>Baik</span></div><span class="v">72,25</span></div><div class="c-row"><span class="rk-n">13</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Raka Wijaya</b><span>Baik</span></div><span class="v">70,63</span></div><div class="c-row"><span class="rk-n">14</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Sandi Purnomo</b><span>Baik</span></div><span class="v">68,88</span></div><div class="c-row"><span class="rk-n">15</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Taufik Hidayat</b><span>Baik</span></div><span class="v">67,75</span></div><div class="c-row"><span class="rk-n">16</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Wahyu Nugroho</b><span>Baik</span></div><span class="v">66</span></div><div class="c-row"><span class="rk-n">17</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Yoga Pradana</b><span>Baik</span></div><span class="v">64</span></div><div class="c-row"><span class="rk-n">18</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Zaki Firmansyah</b><span>Baik</span></div><span class="v">62</span></div><div class="c-row"><span class="rk-n">19</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Andi Saputra</b><span>Cukup</span></div><span class="v">58</span></div><div class="c-row"><span class="rk-n">20</span><span class="ring o sm" style="--p:87.5"><b>7/8</b></span><div class="main"><b>Kevin Halim</b><span>Cukup</span></div><span class="v">54,88</span></div><div class="c-row"><span class="rk-n">21</span><span class="ring o sm" style="--p:87.5"><b>7/8</b></span><div class="main"><b>Ayu Lestari</b><span>Cukup</span></div><span class="v">49,5</span></div><div class="c-row"><span class="rk-n">22</span><span class="ring sm" style="--p:100.0"><b><i class="ic i-check"></i></b></span><div class="main"><b>Fikri Haikal</b><span>Kurang</span></div><span class="v">39,38</span></div><div class="c-row"><span class="rk-n">-</span><span class="ring o sm" style="--p:75.0"><b>6/8</b></span><div class="main"><b>Rizal Mahendra</b><span class="o">kurang: Shuttle, Renang</span></div></div><div class="c-row"><span class="rk-n">-</span><span class="ring o sm" style="--p:62.5"><b>5/8</b></span><div class="main"><b>Reza Kurnia</b><span class="o">kurang: Push up, Shuttle, Renang</span></div></div></div>
+  </div>
+  <div class="card c-card">
+    <div class="c-hd"><div class="av xl">AP</div><div class="main"><b>Arif Pratama</b><span>Putra · no. 1 · peringkat 1 · <b class="up" style="display:inline;font-size:12px">✓ tersimpan</b></span></div><span class="btn"><i class="ic i-print"></i>Cetak blangko</span></div>
+    <div class="c-res"><div class="hero"><span>Hasil akhir (A+B)÷2</span><b>86,25</b><span class="pill">Baik Sekali</span></div>
+      <div><span>Garjas A</span><b>87</b><span class="up">▲ 7</span></div>
+      <div><span>Garjas B</span><b>85,5</b><span class="up">▲ 6,5</span></div>
+      <div><span>Tes I · 18 Okt</span><b>79,5</b><span>Baik · naik <b class="up" style="display:inline;font-size:11px">6,75</b></span></div></div>
+    <div class="c-grid"><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Tensi</h5><div class="fis"><div class="fi"><i>I</i><b>120/80</b></div><div class="fi"><i>II</i><b>118/78</b></div><div class="fi"><i>III</i><b>122/80</b></div></div><div class="was">Riwayat kesehatan: tidak ada</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Tinggi &amp; berat</h5><div class="fis"><div class="fi"><i>Tinggi</i><b>172 cm</b></div><div class="fi"><i>Berat</i><b>64 kg</b></div><div class="fi auto"><i>IMT</i><b>21,6</b></div></div><div class="was">Normal · Tes I: 63 kg</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Lari 12 menit<em class="up">▲ 7</em></h5><div class="fis two"><div class="fi"><i>Jarak</i><b>2.470 m</b></div><div class="fi"><i>Nilai</i><b>87</b></div></div><div class="was">Tes I: 2.400 m · 80</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Pull up<em class="up">▲ 4</em></h5><div class="fis two"><div class="fi"><i>Jumlah</i><b>15 kali</b></div><div class="fi"><i>Nilai</i><b>86</b></div></div><div class="was">Tes I: 14 kali · 82</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Sit up<em class="up">▲ 8</em></h5><div class="fis two"><div class="fi"><i>Jumlah</i><b>41 kali</b></div><div class="fi"><i>Nilai</i><b>88</b></div></div><div class="was">Tes I: 37 kali · 80</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Push up<em class="up">▲ 8</em></h5><div class="fis two"><div class="fi"><i>Jumlah</i><b>42 kali</b></div><div class="fi"><i>Nilai</i><b>87</b></div></div><div class="was">Tes I: 38 kali · 79</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Shuttle run 6×10 m<em class="up">▲ 6</em></h5><div class="fis two"><div class="fi"><i>Waktu</i><b>17,4 dtk</b></div><div class="fi"><i>Nilai</i><b>81</b></div></div><div class="was">Tes I: 18,0 dtk · 75</div></div><div class="cst"><h5><span class="ck"><i class="ic i-check"></i></span>Renang 50 m</h5><div class="fis two"><div class="fi"><i>Gaya</i><b>Dada</b></div><div class="fi"><i>Waktu</i><b>52,3 dtk</b></div></div><div class="was">Tanpa nilai · Tes I: 55,0 dtk</div></div></div>
+  </div>
+</div></div></div>
+</div>
+</article>
+</section>

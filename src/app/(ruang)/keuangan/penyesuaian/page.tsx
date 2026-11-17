@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CheckField, Field, SubmitButton } from "@/components/form";
-import { FinanceForm, FinanceTabs, MoneyField, rp } from "@/components/keuangan";
-import { Badge, Empty, Notice, PageHead } from "@/components/ui";
+import { FinanceForm, KeuanganHead, KeuanganSubHead, MoneyField, rp } from "@/components/keuangan";
+import { Badge, Empty, Notice } from "@/components/ui";
 import { num, text } from "@/lib/keuangan/domain";
 import {
   CREDIT_ACCOUNTS,
@@ -40,13 +40,12 @@ export default async function ReportSettingsPage() {
   const accountOptions = (keys: readonly string[]) => [{ value: "", label: "Tidak dipilih" }, ...keys.map((k) => ({ value: k, label: label(k) }))];
 
   return (
-    <div className="page">
-      <PageHead
-        eyebrow="Keuangan"
+    <div className="page kg-page">
+      <KeuanganHead current="penyesuaian" />
+      <KeuanganSubHead
         title="Penyesuaian laporan"
-        description="Pengaturan agar laba rugi dan neraca lengkap: dasar laporan, pemetaan kategori, aset & penyusutan, saldo awal neraca, jurnal nonkas, dan pajak. Khusus pemilik."
+        description="Opsional, untuk pembukuan rapi: dasar laporan, pemetaan kategori, aset & penyusutan, saldo awal neraca, jurnal nonkas, dan pajak. Khusus pemilik."
       />
-      <FinanceTabs current="penyesuaian" owner />
       <div className="grid-2">
         <section className="card">
           <div className="card-head">

@@ -1,0 +1,896 @@
+<style>
+/* ================= Keuangan: dasar bersama ================= */
+.m-keuangan { --c-in:#3f6e1e; --c-out:#f29a4a; --c1:#eb6834; --c2:#2a78d6; --c3:#1baf7a; --c4:#6250d6; }
+[data-theme="dark"] .m-keuangan { --c-in:#3b7022; --c-out:#d47528; --c1:#d95926; --c2:#3987e5; --c3:#199e70; --c4:#9085e9; }
+.m-keuangan .kg-sprite { position:absolute; width:0; height:0; overflow:hidden; }
+.m-keuangan .ic { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.m-keuangan .ic.s { width:16px; height:16px; } .m-keuangan .ic.l { width:24px; height:24px; }
+.m-keuangan .kg-f { margin:0; display:flex; flex-direction:column; gap:8px; max-width:100%; }
+.m-keuangan .kg-f figcaption { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:var(--muted); }
+.m-keuangan .kg-f figcaption b { width:22px; height:22px; border-radius:50%; background:var(--primary); color:var(--on-primary); display:grid; place-items:center; font-size:11.5px; flex:none; }
+body[data-device="dk"] .m-keuangan .kg-fhp, body[data-device="hp"] .m-keuangan .kg-fdk { display:none; }
+.m-keuangan .hp-bar { padding:8px 12px; }
+.m-keuangan .hp-bar .ico { width:44px; height:44px; border-radius:14px; color:var(--ink); }
+.m-keuangan .hp-nav i .ic { display:block; margin:0 auto 3px; }
+.m-keuangan .hp-body > * { flex-shrink:0; }
+.m-keuangan .seg span { white-space:nowrap; }
+.m-keuangan .hp .seg span { padding:12px 6px; }
+.m-keuangan .chip { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.m-keuangan .hp .chip { min-height:44px; }
+.m-keuangan .in { color:var(--primary); } .m-keuangan .out { color:var(--gold); } .m-keuangan .tr { color:var(--blue); }
+.m-keuangan .amt { font-weight:800; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.m-keuangan .r { text-align:right; } .m-keuangan .center { text-align:center; }
+.m-keuangan .x44 { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:var(--soft); color:var(--ink); flex:none; }
+.m-keuangan .input.focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--psoft); }
+.m-keuangan .input.sel { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.m-keuangan .hp .input { min-height:46px; display:flex; align-items:center; }
+.m-keuangan .hp .input.sel { justify-content:space-between; }
+.m-keuangan .caret { display:inline-block; width:2px; height:17px; background:var(--primary); vertical-align:-3px; margin-left:1px; }
+.m-keuangan .bar i.ci { background:var(--c-in); } .m-keuangan .bar i.co { background:var(--c-out); }
+.m-keuangan .sw { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+.m-keuangan .sw.ci { background:var(--c-in); } .m-keuangan .sw.co { background:var(--c-out); }
+.m-keuangan .sw.c1 { background:var(--c1); } .m-keuangan .sw.c2 { background:var(--c2); } .m-keuangan .sw.c3 { background:var(--c3); } .m-keuangan .sw.c4 { background:var(--c4); }
+.m-keuangan .pdf { min-height:44px; min-width:64px; padding:0 12px; border-radius:12px; border:1px solid var(--line); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; gap:5px; font-weight:800; font-size:12.5px; color:var(--primary); flex:none; }
+.m-keuangan .dk .pdf { min-height:36px; }
+
+/* ================= Opsi A · Dompet sederhana ================= */
+.m-keuangan .a-hero { padding:14px; display:flex; flex-direction:column; gap:8px; }
+.m-keuangan .a-ey { color:#d9dfc8; }
+.m-keuangan .a-total { font-size:30px; font-weight:800; letter-spacing:-.02em; line-height:1.1; }
+.m-keuangan .a-split { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.m-keuangan .a-split > div { background:#ffffff1c; border-radius:12px; padding:8px 10px; display:flex; flex-direction:column; gap:2px; }
+.m-keuangan .a-split span { font-size:11.5px; color:#d9dfc8; display:flex; align-items:center; gap:5px; }
+.m-keuangan .a-split b { font-size:15px; font-variant-numeric:tabular-nums; }
+.m-keuangan .a-month { color:#d9dfc8; display:flex; flex-wrap:wrap; justify-content:space-between; gap:2px 12px; }
+.m-keuangan .a-month span { white-space:nowrap; }
+.m-keuangan .a-month b { color:#f4f6ec; font-variant-numeric:tabular-nums; }
+.m-keuangan .a-acts { display:grid; grid-template-columns:1fr 1fr 52px; gap:8px; }
+.m-keuangan .a-acts .btn { min-height:56px; padding:0 8px; font-size:14px; border-radius:16px; }
+.m-keuangan .btn.a-out { background:var(--osoft); color:var(--gold); }
+.m-keuangan .btn.a-mv { background:var(--surface); border:1px solid var(--line); color:var(--ink); flex-direction:column; gap:1px; font-size:10.5px; }
+.m-keuangan .a-list { padding:2px 14px 4px; }
+.m-keuangan .a-day { font-size:11.5px; font-weight:800; color:var(--muted); padding:10px 0 0; }
+.m-keuangan .a-tx { display:flex; align-items:center; gap:10px; min-height:58px; border-bottom:1px solid var(--line); }
+.m-keuangan .a-tx.last { border-bottom:0; }
+.m-keuangan .a-tx .main { flex:1; min-width:0; }
+.m-keuangan .a-tx .main b { display:block; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.m-keuangan .a-tx .main span { display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.m-keuangan .a-ic { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; flex:none; }
+.m-keuangan .a-ic.i { background:var(--psoft); color:var(--primary); } .m-keuangan .a-ic.o { background:var(--osoft); color:var(--gold); } .m-keuangan .a-ic.t { background:var(--bsoft); color:var(--blue); }
+.m-keuangan .a-swipe { position:relative; overflow:hidden; margin:0 -14px; border-bottom:1px solid var(--line); }
+.m-keuangan .a-swipe .a-tx { position:relative; z-index:1; background:var(--surface); padding:0 14px; transform:translateX(-132px); border-bottom:0; }
+.m-keuangan .a-swacts { position:absolute; top:0; bottom:0; right:0; width:132px; display:flex; }
+.m-keuangan .a-swacts span { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:11.5px; font-weight:800; }
+.m-keuangan .a-swacts .e { background:var(--bsoft); color:var(--blue); } .m-keuangan .a-swacts .d { background:var(--rsoft); color:var(--red); }
+/* lembar isian */
+.m-keuangan .a-sheet { display:flex; flex-direction:column; gap:9px; }
+.m-keuangan .a-shtop { display:flex; gap:8px; align-items:center; }
+.m-keuangan .a-shtop .seg { flex:1; }
+.m-keuangan .a-amt { display:flex; align-items:baseline; justify-content:center; gap:6px; padding-top:2px; }
+.m-keuangan .a-amt span { font-size:18px; font-weight:800; color:var(--muted); }
+.m-keuangan .a-amt b { font-size:38px; font-weight:800; letter-spacing:-.02em; line-height:1.05; font-variant-numeric:tabular-nums; }
+.m-keuangan .a-amt i { width:2px; height:32px; background:var(--primary); align-self:center; }
+.m-keuangan .a-terb { text-align:center; font-size:11.5px; color:var(--muted); margin-top:-6px; }
+.m-keuangan .a-lbl { font-size:12px; font-weight:800; color:var(--muted); }
+.m-keuangan .a-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.m-keuangan .a-ket { justify-content:space-between; gap:8px; font-size:13.5px; }
+.m-keuangan .a-ket .pill { flex:none; }
+.m-keuangan .a-row2 { display:flex; gap:8px; } .m-keuangan .a-row2 .seg { flex:1; }
+.m-keuangan .a-row2 .seg span { display:flex; align-items:center; justify-content:center; gap:5px; }
+.m-keuangan .a-date { display:inline-flex; align-items:center; gap:6px; padding:0 12px; border:1px solid var(--line); border-radius:12px; font-weight:700; font-size:12.5px; min-height:44px; flex:none; }
+.m-keuangan .a-bukti { display:flex; align-items:center; gap:6px; color:var(--primary); font-weight:700; font-size:12.5px; }
+.m-keuangan .a-keys { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.m-keuangan .a-keys span { height:46px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:20px; font-weight:700; }
+/* laporan */
+.m-keuangan .a-msw { display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:4px; }
+.m-keuangan .a-msw > div { flex:1; text-align:center; } .m-keuangan .a-msw b { display:block; font-size:15px; }
+.m-keuangan .a-msw .x44 { background:transparent; }
+.m-keuangan .a-big { font-size:28px; font-weight:800; letter-spacing:-.02em; margin:2px 0 10px; font-variant-numeric:tabular-nums; }
+.m-keuangan .a-cmp { display:grid; gap:6px; }
+.m-keuangan .a-cmp .row { justify-content:space-between; font-size:12.5px; }
+.m-keuangan .a-rep { display:flex; align-items:center; gap:10px; min-height:62px; border-bottom:1px solid var(--line); }
+.m-keuangan .a-rep:last-child { border-bottom:0; }
+.m-keuangan .a-rep .main { flex:1; min-width:0; } .m-keuangan .a-rep .main b { display:block; font-size:14px; } .m-keuangan .a-rep .main span { font-size:12px; color:var(--muted); }
+.m-keuangan .a-ric { width:40px; height:40px; border-radius:12px; background:var(--psoft); color:var(--primary); display:grid; place-items:center; flex:none; }
+.m-keuangan .a-more { display:flex; align-items:center; gap:10px; min-height:58px; padding:8px 12px; border:1px dashed var(--line); border-radius:16px; color:var(--muted); }
+.m-keuangan .a-more .main { flex:1; min-width:0; } .m-keuangan .a-more b { display:block; font-size:13px; color:var(--ink); } .m-keuangan .a-more span { font-size:11.5px; }
+/* desktop A */
+.m-keuangan .a-dgrid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:14px; align-items:start; }
+.m-keuangan .a-dhero { display:grid; grid-template-columns:minmax(0,1fr) 150px; gap:12px; align-items:center; padding:16px 18px; }
+.m-keuangan .a-dhero .a-total { font-size:30px; margin:4px 0 8px; }
+.m-keuangan .dk .a-date { min-height:38px; }
+.m-keuangan .dk .a-row2 .seg span { padding:7px 8px; }
+.m-keuangan .a-dhero .a-split { grid-template-columns:1fr; }
+.m-keuangan .a-dacts { display:grid; grid-template-columns:1fr 1fr auto; gap:10px; }
+.m-keuangan .a-dacts .btn { min-height:48px; padding:0 10px; white-space:nowrap; }
+.m-keuangan .a-dacts .btn.on { box-shadow:0 0 0 3px var(--psoft); }
+.m-keuangan .a-tx.hov { background:var(--soft); margin:0 -14px; padding:0 14px; border-radius:12px; border-bottom-color:transparent; }
+.m-keuangan .a-ia { display:flex; gap:6px; }
+.m-keuangan .a-ia span { height:34px; width:34px; justify-content:center; border-radius:10px; display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:800; background:var(--surface); border:1px solid var(--line); }
+.m-keuangan .a-ia span.d { color:var(--red); }
+.m-keuangan .a-panel { display:flex; flex-direction:column; gap:10px; border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+.m-keuangan .a-damt { display:flex; align-items:baseline; gap:6px; border:2px solid var(--primary); border-radius:14px; padding:8px 12px; }
+.m-keuangan .a-damt span { font-weight:800; color:var(--muted); } .m-keuangan .a-damt b { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+.m-keuangan .a-damt i { width:2px; height:24px; background:var(--primary); align-self:center; }
+.m-keuangan .a-set { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+.m-keuangan .a-set:last-child { border-bottom:0; }
+.m-keuangan .a-set .main { flex:1; } .m-keuangan .a-set .main b { display:block; font-size:13px; } .m-keuangan .a-set .main span { font-size:11.5px; color:var(--muted); }
+.m-keuangan .a-set .a-ric { width:32px; height:32px; border-radius:10px; background:var(--soft); color:var(--muted); }
+
+/* ================= Opsi B · Buku kas ================= */
+.m-keuangan .b-mon { display:flex; align-items:center; gap:6px; }
+.m-keuangan .b-mon > b { flex:1; text-align:center; font-size:15px; }
+.m-keuangan .b-mon .x44.t { background:transparent; border:1px solid var(--line); }
+.m-keuangan .b-sum { display:grid; grid-template-columns:repeat(3,1fr); background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+.m-keuangan .b-sum > div { padding:8px 10px; display:flex; flex-direction:column; gap:1px; min-width:0; }
+.m-keuangan .b-sum > div + div { border-left:1px solid var(--line); }
+.m-keuangan .b-sum span { font-size:11px; color:var(--muted); font-weight:700; }
+.m-keuangan .b-sum b { font-size:13.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.m-keuangan .b-chips { display:flex; gap:6px; }
+.m-keuangan .b-led { padding:0; overflow:hidden; }
+.m-keuangan .b-new { display:flex; align-items:center; gap:10px; min-height:52px; padding:0 12px; border-bottom:1px solid var(--line); background:var(--psoft); color:var(--primary); font-weight:800; font-size:13.5px; }
+.m-keuangan .b-plus { width:32px; height:32px; border-radius:10px; background:var(--primary); color:var(--on-primary); display:grid; place-items:center; flex:none; }
+.m-keuangan .b-head, .m-keuangan .b-row { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:8px; padding:9px 12px; }
+.m-keuangan .b-head { padding:6px 12px; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--line); background:var(--soft); }
+.m-keuangan .b-row { border-bottom:1px solid var(--line); align-items:start; }
+.m-keuangan .b-d { text-align:center; line-height:1.1; } .m-keuangan .b-d b { display:block; font-size:16px; } .m-keuangan .b-d span { font-size:10.5px; color:var(--muted); font-weight:700; }
+.m-keuangan .b-k b { display:block; font-size:13px; font-weight:700; line-height:1.3; } .m-keuangan .b-k span { font-size:11.5px; color:var(--muted); }
+.m-keuangan .b-v { text-align:right; } .m-keuangan .b-v b { display:block; font-size:13px; font-weight:800; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.m-keuangan .b-v span { font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.m-keuangan .b-row.sel { background:var(--soft); box-shadow:inset 3px 0 0 var(--primary); }
+.m-keuangan .b-acts { grid-column:2 / -1; display:flex; gap:6px; margin-top:4px; }
+.m-keuangan .b-act { min-height:44px; padding:0 12px; border-radius:12px; display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:12.5px; background:var(--surface); border:1px solid var(--line); }
+.m-keuangan .b-act.d { color:var(--red); background:var(--rsoft); border-color:transparent; }
+.m-keuangan .b-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 14px; background:var(--surface); border-top:1px solid var(--line); }
+.m-keuangan .b-foot span { display:block; font-size:11px; font-weight:700; color:var(--muted); } .m-keuangan .b-foot b { font-size:17px; font-variant-numeric:tabular-nums; }
+.m-keuangan .b-foot .r span { font-weight:600; }
+.m-keuangan .b-form { padding:12px; display:flex; flex-direction:column; gap:10px; border-bottom:2px solid var(--primary); }
+.m-keuangan .b-form .head b { font-size:14px; }
+.m-keuangan .b-sug { border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top:4px; }
+.m-keuangan .b-sug > span { display:block; padding:6px 12px; font-size:11px; font-weight:800; color:var(--muted); background:var(--soft); }
+.m-keuangan .b-sg { padding:7px 12px; min-height:46px; border-top:1px solid var(--line); }
+.m-keuangan .b-sg.on { background:var(--psoft); }
+.m-keuangan .b-sg b { display:block; font-size:13px; } .m-keuangan .b-sg span { font-size:11.5px; color:var(--muted); }
+.m-keuangan .b-sg mark { background:transparent; color:var(--primary); font-weight:800; text-decoration:underline; }
+.m-keuangan .b-dim { opacity:.4; }
+.m-keuangan .b-rt { display:flex; gap:8px; } .m-keuangan .b-rt .seg { flex:1; }
+.m-keuangan .b-paper { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px; box-shadow:0 12px 24px -20px #0008; }
+.m-keuangan .b-ph { text-align:center; padding-bottom:10px; border-bottom:2px solid var(--ink); margin-bottom:4px; }
+.m-keuangan .b-ph b { display:block; font-size:16px; margin:2px 0; }
+.m-keuangan .b-lr { width:100%; border-collapse:collapse; font-size:12.5px; }
+.m-keuangan .b-lr td { padding:6px 0; border-bottom:1px dashed var(--line); }
+.m-keuangan .b-lr td:last-child { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; padding-left:8px; }
+.m-keuangan .b-lr tr.sec td { font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding-top:12px; border-bottom:0; }
+.m-keuangan .b-lr tr.sub td { font-weight:800; }
+.m-keuangan .b-lr tr.tot td { font-weight:800; font-size:14.5px; border-top:2px solid var(--ink); border-bottom:0; padding-top:9px; }
+.m-keuangan .b-dlbar { display:flex; gap:8px; padding:8px 12px; background:var(--surface); border-top:1px solid var(--line); }
+.m-keuangan .b-dlbar .btn { min-height:46px; }
+/* desktop B */
+.m-keuangan .b-dhead .title { font-size:20px; }
+.m-keuangan .b-dmon { display:flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:3px; }
+.m-keuangan .b-dmon span { width:30px; height:30px; display:grid; place-items:center; border-radius:9px; }
+.m-keuangan .b-dmon b { padding:0 8px; font-size:13.5px; }
+.m-keuangan .b-strip { display:grid; grid-template-columns:repeat(4,1fr) 1.15fr; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+.m-keuangan .b-strip > div { padding:10px 14px; min-width:0; }
+.m-keuangan .b-strip > div + div { border-left:1px solid var(--line); }
+.m-keuangan .b-strip span { display:block; font-size:11.5px; color:var(--muted); font-weight:700; }
+.m-keuangan .b-strip b { font-size:17px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.m-keuangan .b-strip .acc { display:grid; gap:2px; font-size:12px; }
+.m-keuangan .b-strip .acc div { display:flex; justify-content:space-between; gap:8px; } .m-keuangan .b-strip .acc b { font-size:12.5px; }
+.m-keuangan .b-tools { display:flex; gap:8px; align-items:center; }
+.m-keuangan .b-tools .seg span { padding:7px 12px; }
+.m-keuangan .b-tools .input { padding:8px 12px; font-size:13px; }
+.m-keuangan .b-search { flex:1; min-width:0; display:flex; align-items:center; gap:8px; color:var(--muted); white-space:nowrap; }
+.m-keuangan .b-search span { overflow:hidden; text-overflow:ellipsis; }
+.m-keuangan .b-chk { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap; }
+.m-keuangan .b-chk i { width:16px; height:16px; border:1.5px solid var(--muted); border-radius:4px; }
+.m-keuangan .b-tcard { padding:0; overflow:hidden; }
+.m-keuangan .b-tbl { table-layout:fixed; font-size:12.5px; }
+.m-keuangan .b-tbl th { background:var(--soft); }
+.m-keuangan .b-tbl td { padding:7px 6px; vertical-align:top; }
+.m-keuangan .b-tbl th { padding:8px 6px; }
+.m-keuangan .b-tbl td.a { white-space:nowrap; }
+.m-keuangan .b-two { display:grid; grid-template-columns:minmax(0,1fr) 112px; gap:4px; }
+.m-keuangan .b-tbl td.r, .m-keuangan .b-tbl th.r { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.m-keuangan .b-tbl td.k { color:var(--muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.m-keuangan .b-tbl td.s { font-weight:800; }
+.m-keuangan .b-tbl tr.inp td { background:var(--psoft); padding:6px 3px; vertical-align:middle; }
+.m-keuangan .b-cell { border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:6px 8px; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.m-keuangan .b-cell.f { border-color:var(--primary); color:var(--ink); box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--psoft); }
+.m-keuangan .b-tbl tr.hov td { background:var(--soft); }
+.m-keuangan .b-ia { display:flex; gap:4px; justify-content:flex-end; }
+.m-keuangan .b-ia span { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:var(--surface); border:1px solid var(--line); }
+.m-keuangan .b-ia span.d { color:var(--red); }
+.m-keuangan .b-tbl tr.more td { text-align:center; color:var(--primary); font-weight:700; background:var(--surface); }
+.m-keuangan .b-tbl tr.awal td { color:var(--muted); }
+.m-keuangan .b-tbl tr.tot td { font-weight:800; border-top:2px solid var(--ink); border-bottom:0; font-size:13px; }
+.m-keuangan .b-tbl td.pindah { color:var(--blue); font-weight:700; text-align:center; }
+.m-keuangan .b-tbl .btn.sm { padding:7px 8px; }
+
+/* ================= Opsi C · Dasbor bulanan ================= */
+.m-keuangan .c-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.m-keuangan .c-saldo { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; }
+.m-keuangan .c-saldo b.n { display:block; font-size:22px; font-weight:800; letter-spacing:-.01em; }
+.m-keuangan .c-acc { text-align:right; display:flex; flex-direction:column; gap:2px; font-size:11.5px; color:var(--muted); }
+.m-keuangan .c-acc b { color:var(--ink); font-variant-numeric:tabular-nums; }
+.m-keuangan .c-kpi .kpi { padding:8px 10px; } .m-keuangan .c-kpi .kpi b { font-size:16px; white-space:nowrap; }
+.m-keuangan .c-lg { display:flex; gap:12px; font-size:11.5px; color:var(--muted); font-weight:700; }
+.m-keuangan .c-chart { width:100%; height:auto; display:block; }
+.m-keuangan .c-chart .g { stroke:var(--line); stroke-width:1; }
+.m-keuangan .c-chart text { fill:var(--muted); font-size:10px; font-family:inherit; font-weight:600; }
+.m-keuangan .c-chart text.v { fill:var(--ink); font-weight:800; }
+.m-keuangan .c-chart text.now { fill:var(--ink); font-weight:800; }
+.m-keuangan .c-chart .bi { fill:var(--c-in); } .m-keuangan .c-chart .bo { fill:var(--c-out); }
+.m-keuangan .c-rank { display:grid; gap:9px; }
+.m-keuangan .c-rank .row { justify-content:space-between; font-size:12.5px; flex-wrap:nowrap; }
+.m-keuangan .c-rank .bar { height:8px; margin-top:5px; } .m-keuangan .c-rank .bar i { background:var(--c-out); }
+.m-keuangan .c-top3 .item { padding:8px 0; }
+.m-keuangan .c-fab { position:absolute; right:14px; bottom:76px; z-index:1; min-height:54px; padding:0 20px 0 16px; border-radius:18px; background:var(--primary); color:var(--on-primary); display:flex; align-items:center; gap:6px; font-weight:800; font-size:15px; box-shadow:0 14px 26px -12px #000a; }
+.m-keuangan .c-reps { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.m-keuangan .c-rp { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:10px; display:flex; flex-direction:column; gap:6px; }
+.m-keuangan .c-rp b { font-size:13px; } .m-keuangan .c-rp .pdf { min-width:0; width:100%; }
+.m-keuangan .c-sheet { display:flex; flex-direction:column; gap:10px; }
+.m-keuangan .c-lbl { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:var(--muted); }
+.m-keuangan .c-tpl { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.m-keuangan .c-tpl > div { border:1px solid var(--line); border-radius:14px; padding:7px 10px; min-height:52px; display:flex; flex-direction:column; justify-content:center; }
+.m-keuangan .c-tpl > div.on { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); background:var(--psoft); }
+.m-keuangan .c-tpl b { font-size:12.5px; } .m-keuangan .c-tpl span { font-size:11.5px; color:var(--muted); }
+.m-keuangan .c-nom b { font-size:22px; font-weight:800; margin-left:6px; font-variant-numeric:tabular-nums; }
+.m-keuangan .c-nom span { font-weight:800; color:var(--muted); }
+.m-keuangan .c-after { background:var(--soft); border-radius:10px; padding:8px 10px; font-size:12px; color:var(--muted); }
+.m-keuangan .c-after b { color:var(--ink); }
+.m-keuangan .c-rep { display:flex; flex-direction:column; gap:8px; }
+.m-keuangan .c-ric { width:36px; height:36px; border-radius:11px; display:grid; place-items:center; background:var(--psoft); color:var(--primary); flex:none; }
+.m-keuangan .c-rbig { font-size:24px; font-weight:800; letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+.m-keuangan .c-stk { display:flex; gap:2px; height:10px; } .m-keuangan .c-stk i { display:block; height:100%; border-radius:4px; }
+.m-keuangan .c-stk .u { background:var(--c-in); } .m-keuangan .c-stk .k { background:var(--c-out); }
+.m-keuangan .c-eq { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:4px; text-align:center; font-size:11px; color:var(--muted); background:var(--soft); border-radius:12px; padding:8px 6px; }
+.m-keuangan .c-eq b { display:block; font-size:12.5px; color:var(--ink); font-variant-numeric:tabular-nums; }
+.m-keuangan .c-eq i { font-style:normal; font-weight:800; color:var(--muted); }
+.m-keuangan .c-flow { display:flex; align-items:center; justify-content:space-between; gap:6px; background:var(--soft); border-radius:12px; padding:8px 10px; font-size:11px; color:var(--muted); }
+.m-keuangan .c-flow b { display:block; font-size:13px; color:var(--ink); font-variant-numeric:tabular-nums; }
+.m-keuangan .c-rbtn { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.m-keuangan .c-rbtn .btn { min-height:44px; }
+.m-keuangan .c-adv { display:flex; align-items:center; gap:10px; min-height:56px; padding:8px 12px; border:1px dashed var(--line); border-radius:16px; color:var(--muted); font-size:12px; }
+.m-keuangan .c-adv .main { flex:1; } .m-keuangan .c-adv b { display:block; color:var(--ink); font-size:13px; }
+/* desktop C */
+.m-keuangan .c-dkpi .kpi b { font-size:19px; font-variant-numeric:tabular-nums; }
+.m-keuangan .c-dkpi .kpi em { display:block; font-style:normal; font-size:11.5px; color:var(--muted); margin-top:2px; }
+.m-keuangan .c-dkpi .kpi.c-k1 { background:var(--hero); color:#f4f6ec; border-color:transparent; }
+.m-keuangan .c-dkpi .kpi.c-k1 span, .m-keuangan .c-dkpi .kpi.c-k1 em { color:#d9dfc8; }
+.m-keuangan .c-row2, .m-keuangan .c-row3 { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:14px; align-items:stretch; }
+.m-keuangan .c-tx td:first-child { white-space:nowrap; width:52px; }
+.m-keuangan .c-donut { display:flex; align-items:center; gap:16px; margin-top:8px; }
+.m-keuangan .c-donut svg { width:118px; height:118px; flex:none; }
+.m-keuangan .c-donut circle { fill:none; stroke-width:6.5; }
+.m-keuangan .c-donut text { font-family:inherit; text-anchor:middle; }
+.m-keuangan .c-leg { display:grid; gap:9px; flex:1; font-size:12.5px; }
+.m-keuangan .c-leg > div { display:grid; grid-template-columns:10px 1fr; gap:8px; align-items:start; line-height:1.3; }
+.m-keuangan .c-leg .sw { margin-top:3px; }
+.m-keuangan .c-leg .sw { margin:0; }
+.m-keuangan .c-leg small { color:var(--muted); font-size:11px; display:block; }
+.m-keuangan .c-tx td { vertical-align:middle; }
+.m-keuangan .c-tx td.r { text-align:right; white-space:nowrap; font-weight:800; font-variant-numeric:tabular-nums; }
+.m-keuangan .c-tx tr.hov td { background:var(--soft); }
+.m-keuangan .c-dr { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); }
+.m-keuangan .c-dr:last-of-type { border-bottom:0; }
+.m-keuangan .c-dr .main { flex:1; min-width:0; } .m-keuangan .c-dr .main b { display:block; font-size:13.5px; } .m-keuangan .c-dr .main span { font-size:12px; color:var(--muted); }
+</style>
+
+<section class="modul m-keuangan" data-modul="keuangan">
+<svg class="kg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="kg-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="kg-check" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="kg-run" viewBox="0 0 24 24"><circle cx="15" cy="4.5" r="2"/><path d="M7 21l3.5-6.5L14 17v4M5.5 11.5 9 8l4 .5 2.5 3.5 3 1M10.5 14.5 9.5 8.5"/></symbol>
+  <symbol id="kg-wallet" viewBox="0 0 24 24"><path d="M4 7.5V6a2 2 0 0 1 2-2h11v3.5"/><rect x="3" y="7.5" width="18" height="13" rx="2.5"/><path d="M16 14h2"/></symbol>
+  <symbol id="kg-dots" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3.4"/></symbol>
+  <symbol id="kg-in" viewBox="0 0 24 24"><path d="M12 4v12M6.5 10.5 12 16l5.5-5.5M5 20h14"/></symbol>
+  <symbol id="kg-out" viewBox="0 0 24 24"><path d="M12 20V8M6.5 13.5 12 8l5.5 5.5M5 4h14"/></symbol>
+  <symbol id="kg-swap" viewBox="0 0 24 24"><path d="M4 8h15l-3.5-3.5M20 16H5l3.5 3.5"/></symbol>
+  <symbol id="kg-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="kg-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="kg-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="kg-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="kg-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="kg-dl" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+  <symbol id="kg-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></symbol>
+  <symbol id="kg-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="kg-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="kg-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="kg-clip" viewBox="0 0 24 24"><path d="m20 11.5-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17.2a1.7 1.7 0 0 1-2.4-2.4L15 7.1"/></symbol>
+  <symbol id="kg-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="kg-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="kg-back" viewBox="0 0 24 24"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7z"/><path d="m12.5 9.5 5 5M17.5 9.5l-5 5"/></symbol>
+  <symbol id="kg-chart" viewBox="0 0 24 24"><path d="M3 20h18M6 16v-5M11 16V6M16 16v-8"/></symbol>
+  <symbol id="kg-book" viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></symbol>
+  <symbol id="kg-scale" viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M4 7h16M6.5 7 3.5 13a3 3 0 0 0 6 0zM17.5 7l-3 6a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="kg-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="kg-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 20.5h18"/></symbol>
+  <symbol id="kg-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v.01M18 14.5v.01"/></symbol>
+  <symbol id="kg-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></symbol>
+  <symbol id="kg-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></symbol>
+  <symbol id="kg-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></symbol>
+  <symbol id="kg-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 8v6l-4-2v-4z"/></symbol>
+  <symbol id="kg-slider" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+</svg>
+
+<div class="g-opsi-nav">
+  <button data-opsi="A"><b>A · Dompet sederhana <i class="rek">Saran</i></b><span>Saldo di atas, 2 tombol besar, catat seperti m-banking</span></button>
+  <button data-opsi="B"><b>B · Buku kas</b><span>Tabel per bulan dengan saldo berjalan, kuat di laptop</span></button>
+  <button data-opsi="C"><b>C · Dasbor bulanan</b><span>Grafik bulan ini dulu, catat lewat tombol Catat</span></button>
+</div>
+
+<!-- ======================================================= OPSI A ======================================================= -->
+<article class="opsi" data-opsi="A">
+  <div class="ringkas">
+    <div><h3>Dompet sederhana</h3><p>Keuangan dibuat seperti aplikasi dompet atau m-banking: saldo total di paling atas, lalu dua tombol besar <b>Uang masuk</b> dan <b>Uang keluar</b>, lalu riwayat per tanggal. Laporan cukup satu halaman. <b>Disarankan</b> karena pekerjaan harian Anda adalah mencatat uang dari HP, dan pola ini sudah akrab: tombol, ketik nominal, pilih untuk apa, simpan.</p></div>
+    <div><h4>KELEBIHAN</h4><ul>
+      <li>Catat pembayaran siswa cukup 3 langkah, tanpa form panjang.</li>
+      <li>Nominal juga ditulis dengan huruf, jadi salah ketik nol langsung terlihat.</li>
+      <li>Saldo total, Kas tunai, dan BRI terlihat tanpa menggulir.</li>
+      <li>Hanya 3 tab: Transaksi, Laporan, Lainnya. Istilah akuntansi disimpan di Lainnya.</li>
+      <li>Ubah atau hapus dengan menggeser baris, tidak ada tautan bercampur.</li>
+    </ul></div>
+    <div><h4>PERTIMBANGAN</h4><ul>
+      <li>Kurang cocok untuk memeriksa puluhan baris sekaligus; untuk itu ada Buku kas di Laporan.</li>
+      <li>Papan angka buatan sendiri perlu diuji di HP lama.</li>
+    </ul></div>
+  </div>
+  <div class="frames">
+
+    <!-- A1: halaman utama -->
+    <figure class="kg-f kg-fhp"><figcaption><b>1</b>Halaman Keuangan</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-search"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span class="on">Transaksi</span><span>Laporan</span><span>Lainnya</span></div>
+        <div class="hero a-hero">
+          <span class="eyebrow a-ey">Total saldo · 17 Nov</span>
+          <div class="a-total">Rp23.670.000</div>
+          <div class="a-split">
+            <div><span><svg class="ic s"><use href="#kg-cash"/></svg>Kas tunai</span><b>Rp8.570.000</b></div>
+            <div><span><svg class="ic s"><use href="#kg-bank"/></svg>Rekening BRI</span><b>Rp15.100.000</b></div>
+          </div>
+          <div class="a-month xs"><span>Masuk bulan ini <b>+Rp21.750.000</b></span><span>Keluar <b>−Rp7.385.000</b></span></div>
+        </div>
+        <div class="a-acts">
+          <button class="btn"><svg class="ic"><use href="#kg-in"/></svg>Uang masuk</button>
+          <button class="btn a-out"><svg class="ic"><use href="#kg-out"/></svg>Uang keluar</button>
+          <button class="btn a-mv"><svg class="ic"><use href="#kg-swap"/></svg>Pindah</button>
+        </div>
+        <div class="row spread"><b>Terbaru</b><span class="small in"><b>Lihat semua</b></span></div>
+        <div class="card a-list">
+          <div class="a-day">Hari ini · Selasa, 17 Nov</div>
+          <div class="a-tx"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Teguh Prasetyo</b><span>Formulir · GAN-0028 · Kas</span></div><span class="amt in">+Rp250.000</span></div>
+          <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Arif Pratama</b><span>Cicilan 2 · GAN-0005 · Kas</span></div><span class="amt in">+Rp1.500.000</span></div>
+          <div class="a-day">Kemarin · Senin, 16 Nov</div>
+          <div class="anno" data-anno="Geser: ubah atau hapus">
+            <div class="a-swipe">
+              <div class="a-tx"><span class="a-ic o"><svg class="ic s"><use href="#kg-out"/></svg></span><div class="main"><b>Matras &amp; cone latihan</b><span>Operasional · Kas</span></div><span class="amt out">−Rp600.000</span></div>
+              <div class="a-swacts"><span class="e"><svg class="ic s"><use href="#kg-edit"/></svg>Ubah</span><span class="d"><svg class="ic s"><use href="#kg-trash"/></svg>Hapus</span></div>
+            </div>
+          </div>
+          <div class="a-day">Minggu, 15 Nov</div>
+          <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Hendra Wijaya</b><span>Cicilan 1 · GAN-0023 · BRI</span></div><span class="amt in">+Rp1.750.000</span></div>
+          <div class="a-day">Sabtu, 14 Nov</div>
+          <div class="a-tx"><span class="a-ic o"><svg class="ic s"><use href="#kg-out"/></svg></span><div class="main"><b>Honor pelatih samapta</b><span>Honor pelatih · Kas</span></div><span class="amt out">−Rp1.500.000</span></div>
+          <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Wahyu Kurniawan</b><span>Cicilan 1 · GAN-0024 · BRI</span></div><span class="amt in">+Rp1.500.000</span></div>
+        </div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- A2: lembar uang masuk -->
+    <figure class="kg-f kg-fhp"><figcaption><b>2</b>Ketuk Uang masuk: lembar bawah</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-search"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span class="on">Transaksi</span><span>Laporan</span><span>Lainnya</span></div>
+        <div class="hero a-hero">
+          <span class="eyebrow a-ey">Total saldo · 17 Nov</span>
+          <div class="a-total">Rp23.670.000</div>
+          <div class="a-split">
+            <div><span>Kas tunai</span><b>Rp8.570.000</b></div>
+            <div><span>Rekening BRI</span><b>Rp15.100.000</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+      <div class="scrim"></div>
+      <div class="sheet a-sheet">
+        <div class="a-shtop">
+          <div class="seg"><span class="on">Uang masuk</span><span>Uang keluar</span><span>Pindah</span></div>
+          <span class="x44"><svg class="ic"><use href="#kg-x"/></svg></span>
+        </div>
+        <div class="a-amt"><span>Rp</span><b>1.500.000</b><i></i></div>
+        <div class="a-terb">satu juta lima ratus ribu rupiah</div>
+        <div class="a-lbl">Untuk apa?</div>
+        <div class="a-chips"><span class="chip on">Bayar bimbel</span><span class="chip">Pendaftaran</span><span class="chip">Lainnya</span></div>
+        <div class="input a-ket"><span>Cicilan 2 - GAN-0005 Arif Pratama</span><span class="pill">Ganti siswa</span></div>
+        <div class="a-row2">
+          <div class="seg"><span class="on"><svg class="ic s"><use href="#kg-cash"/></svg>Kas tunai</span><span><svg class="ic s"><use href="#kg-bank"/></svg>BRI</span></div>
+          <span class="a-date"><svg class="ic s"><use href="#kg-cal"/></svg>Hari ini</span>
+        </div>
+        <div class="a-bukti"><svg class="ic s"><use href="#kg-clip"/></svg>Tambah bukti (opsional)</div>
+        <div class="a-keys"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>000</span><span>0</span><span><svg class="ic l"><use href="#kg-back"/></svg></span></div>
+        <button class="btn lg block">Simpan uang masuk</button>
+      </div>
+    </div></figure>
+
+    <!-- A3: laporan -->
+    <figure class="kg-f kg-fhp"><figcaption><b>3</b>Tab Laporan: satu halaman</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-search"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span>Transaksi</span><span class="on">Laporan</span><span>Lainnya</span></div>
+        <div class="a-msw"><span class="x44"><svg class="ic"><use href="#kg-left"/></svg></span><div><b>November 2026</b><span class="xs muted">Bulan berjalan, sampai 17 Nov</span></div><span class="x44 muted"><svg class="ic"><use href="#kg-right"/></svg></span></div>
+        <div class="card">
+          <div class="eyebrow">Untung bulan ini</div>
+          <div class="a-big in">Rp14.365.000</div>
+          <div class="a-cmp">
+            <div class="row"><span><i class="sw ci"></i>Uang masuk</span><b class="amt">Rp21.750.000</b></div>
+            <div class="bar"><i class="ci" style="width:100%"></i></div>
+            <div class="row"><span><i class="sw co"></i>Uang keluar</span><b class="amt">Rp7.385.000</b></div>
+            <div class="bar"><i class="co" style="width:34%"></i></div>
+          </div>
+        </div>
+        <div class="card" style="padding:4px 14px">
+          <div class="a-rep"><span class="a-ric"><svg class="ic"><use href="#kg-book"/></svg></span><div class="main"><b>Buku kas</b><span>22 catatan, saldo per hari</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+          <div class="a-rep"><span class="a-ric"><svg class="ic"><use href="#kg-chart"/></svg></span><div class="main"><b>Laba rugi</b><span>Untung atau rugi bulan ini</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+          <div class="a-rep"><span class="a-ric"><svg class="ic"><use href="#kg-scale"/></svg></span><div class="main"><b>Neraca</b><span>Harta dan modal per 17 Nov</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+        </div>
+        <button class="btn lg block"><svg class="ic"><use href="#kg-dl"/></svg>Unduh 3 laporan (PDF)</button>
+        <div class="a-more"><svg class="ic"><use href="#kg-file"/></svg><div class="main"><b>Laporan lanjutan</b><span>Aset &amp; penyusutan, omzet &amp; pajak, pemeriksaan</span></div><svg class="ic"><use href="#kg-right"/></svg></div>
+        <div class="xs muted center">Perlu untuk Excel? Setiap laporan juga bisa diunduh CSV.</div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- A4: desktop -->
+    <figure class="kg-f kg-fdk"><figcaption><b>4</b>Laptop: riwayat di kiri, isian terbuka di kanan, menu Lainnya di bawahnya</figcaption>
+    <div class="dk">
+      <div class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a>Beranda</a><a>Presensi</a><a>Tes Samapta</a><a class="on">Keuangan</a><a>Siswa</a><a>Pengaturan</a><a>Panduan</a></div>
+      <div class="dk-body">
+        <div class="head">
+          <div class="row" style="gap:14px"><div class="title">Keuangan</div><div class="seg"><span class="on">Transaksi</span><span>Laporan</span><span>Lainnya</span></div></div>
+          <span class="chip"><svg class="ic s"><use href="#kg-cal"/></svg>November 2026<svg class="ic s"><use href="#kg-down"/></svg></span>
+        </div>
+        <div class="a-dgrid">
+          <div class="stack" style="gap:12px">
+            <div class="hero a-dhero">
+              <div>
+                <span class="eyebrow a-ey">Total saldo · 17 Nov 2026</span>
+                <div class="a-total">Rp23.670.000</div>
+                <div class="a-month xs"><span>Masuk bulan ini <b>+Rp21.750.000</b></span><span>Keluar <b>−Rp7.385.000</b></span></div>
+              </div>
+              <div class="a-split">
+                <div><span><svg class="ic s"><use href="#kg-cash"/></svg>Kas tunai</span><b>Rp8.570.000</b></div>
+                <div><span><svg class="ic s"><use href="#kg-bank"/></svg>Rekening BRI</span><b>Rp15.100.000</b></div>
+              </div>
+            </div>
+            <div class="a-dacts">
+              <button class="btn on"><svg class="ic"><use href="#kg-in"/></svg>Uang masuk</button>
+              <button class="btn a-out"><svg class="ic"><use href="#kg-out"/></svg>Uang keluar</button>
+              <button class="btn sec" title="Pindah antar akun"><svg class="ic"><use href="#kg-swap"/></svg>Pindah</button>
+            </div>
+            <div class="card a-list">
+              <div class="row spread" style="padding-top:10px"><b>Terbaru</b><span class="small muted">Arahkan kursor ke baris untuk ubah atau hapus</span></div>
+              <div class="a-day">Hari ini · Selasa, 17 Nov</div>
+              <div class="a-tx"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Teguh Prasetyo</b><span>Formulir · GAN-0028 · Kas tunai</span></div><span class="amt in">+Rp250.000</span></div>
+              <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Arif Pratama</b><span>Cicilan 2 · GAN-0005 · Kas tunai</span></div><span class="amt in">+Rp1.500.000</span></div>
+              <div class="a-day">Kemarin · Senin, 16 Nov</div>
+              <div class="a-tx hov"><span class="a-ic o"><svg class="ic s"><use href="#kg-out"/></svg></span><div class="main"><b>Matras &amp; cone latihan</b><span>Operasional latihan · Kas tunai</span></div><span class="amt out">−Rp600.000</span><div class="a-ia"><span title="Ubah"><svg class="ic s"><use href="#kg-edit"/></svg></span><span class="d" title="Hapus"><svg class="ic s"><use href="#kg-trash"/></svg></span></div></div>
+              <div class="a-day">Minggu, 15 Nov</div>
+              <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Hendra Wijaya</b><span>Cicilan 1 · GAN-0023 · Rekening BRI</span></div><span class="amt in">+Rp1.750.000</span></div>
+              <div class="a-day">Sabtu, 14 Nov</div>
+              <div class="a-tx"><span class="a-ic o"><svg class="ic s"><use href="#kg-out"/></svg></span><div class="main"><b>Honor pelatih samapta (2 minggu)</b><span>Honor pelatih &amp; pengajar · Kas tunai</span></div><span class="amt out">−Rp1.500.000</span></div>
+              <div class="a-tx last"><span class="a-ic i"><svg class="ic s"><use href="#kg-in"/></svg></span><div class="main"><b>Wahyu Kurniawan</b><span>Cicilan 1 · GAN-0024 · Rekening BRI</span></div><span class="amt in">+Rp1.500.000</span></div>
+              <div class="a-day">Kamis, 12 Nov</div>
+              <div class="a-tx last"><span class="a-ic t"><svg class="ic s"><use href="#kg-swap"/></svg></span><div class="main"><b>Setor tunai ke bank</b><span>Kas tunai ke Rekening BRI</span></div><span class="amt tr">Rp2.000.000</span></div>
+            </div>
+          </div>
+          <div class="stack" style="gap:12px">
+            <div class="card a-panel anno" data-anno="Terbuka setelah klik Uang masuk">
+              <div class="head"><h3>Catat uang masuk</h3><span class="x44" style="width:34px;height:34px;border-radius:10px"><svg class="ic s"><use href="#kg-x"/></svg></span></div>
+              <div class="a-damt"><span>Rp</span><b>1.500.000</b><i></i></div>
+              <div class="xs muted" style="margin-top:-4px">satu juta lima ratus ribu rupiah</div>
+              <div class="field"><label>Untuk apa?</label><div class="a-chips"><span class="chip on">Bayar bimbel</span><span class="chip">Pendaftaran</span><span class="chip">Lainnya</span></div></div>
+              <div class="field"><label>Masuk ke dan tanggal</label><div class="a-row2"><div class="seg"><span class="on"><svg class="ic s"><use href="#kg-cash"/></svg>Kas tunai</span><span><svg class="ic s"><use href="#kg-bank"/></svg>BRI</span></div><span class="a-date"><svg class="ic s"><use href="#kg-cal"/></svg>17 Nov</span></div></div>
+              <div class="field"><label>Keterangan</label><div class="input">Cicilan 2 - GAN-0005 Arif Pratama</div></div>
+              <div class="a-bukti"><svg class="ic s"><use href="#kg-clip"/></svg>Tambah tautan bukti (opsional)</div>
+              <div class="row"><button class="btn">Simpan</button><button class="btn ghost">Batal</button><span class="xs muted" style="margin-left:auto">Enter untuk simpan</span></div>
+            </div>
+            <div class="card">
+              <div class="row spread"><h3>Lainnya</h3><span class="xs muted">jarang dipakai</span></div>
+              <div class="a-set"><span class="a-ric"><svg class="ic s"><use href="#kg-wallet"/></svg></span><div class="main"><b>Akun &amp; saldo awal</b><span>Kas tunai, Rekening BRI</span></div><svg class="ic s muted"><use href="#kg-right"/></svg></div>
+              <div class="a-set"><span class="a-ric"><svg class="ic s"><use href="#kg-tag"/></svg></span><div class="main"><b>Kategori</b><span>3 uang masuk, 7 uang keluar</span></div><svg class="ic s muted"><use href="#kg-right"/></svg></div>
+              <div class="a-set"><span class="a-ric"><svg class="ic s"><use href="#kg-lock"/></svg></span><div class="main"><b>Tutup bulan</b><span>Oktober sudah ditutup</span></div><svg class="ic s muted"><use href="#kg-right"/></svg></div>
+              <div class="a-set"><span class="a-ric"><svg class="ic s"><use href="#kg-file"/></svg></span><div class="main"><b>Laporan lanjutan</b><span>Aset, omzet &amp; pajak, pemeriksaan</span></div><svg class="ic s muted"><use href="#kg-right"/></svg></div>
+              <div class="a-set"><span class="a-ric"><svg class="ic s"><use href="#kg-slider"/></svg></span><div class="main"><b>Penyesuaian laporan</b><span>Untuk pembukuan rapi, opsional</span></div><svg class="ic s muted"><use href="#kg-right"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></figure>
+  </div>
+</article>
+
+<!-- ======================================================= OPSI B ======================================================= -->
+<article class="opsi" data-opsi="B">
+  <div class="ringkas">
+    <div><h3>Buku kas</h3><p>Tampilan meniru buku kas kertas atau spreadsheet: satu tabel per bulan dengan kolom Masuk, Keluar, dan Saldo berjalan. Baris baru ditulis langsung di atas tabel, dan keterangan lama bisa dipilih ulang. Saldo akhir selalu terlihat di bawah layar. Paling kuat di laptop.</p></div>
+    <div><h4>KELEBIHAN</h4><ul>
+      <li>Saldo berjalan per baris, mudah dicocokkan dengan uang di laci dan mutasi BRI.</li>
+      <li>Isi baris baru tanpa pindah halaman; keterangan siswa terisi otomatis dari catatan sebelumnya.</li>
+      <li>Saring per akun dan kategori, atau cari kode GAN.</li>
+      <li>Laporan tampil seperti kertas yang akan dicetak.</li>
+    </ul></div>
+    <div><h4>PERTIMBANGAN</h4><ul>
+      <li>Di HP tabel terasa padat, kolom harus diringkas.</li>
+      <li>Untung bulan ini kurang menonjol dibanding opsi A dan C.</li>
+    </ul></div>
+  </div>
+  <div class="frames">
+
+    <!-- B1: buku kas di HP -->
+    <figure class="kg-f kg-fhp"><figcaption><b>1</b>Buku kas bulan ini</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-gear"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span class="on">Buku kas</span><span>Laporan</span></div>
+        <div class="b-mon"><span class="x44 t"><svg class="ic"><use href="#kg-left"/></svg></span><b>November 2026</b><span class="x44 t muted"><svg class="ic"><use href="#kg-right"/></svg></span><span class="x44"><svg class="ic"><use href="#kg-search"/></svg></span></div>
+        <div class="b-sum">
+          <div><span>Saldo 1 Nov</span><b>9.305.000</b></div>
+          <div><span>Masuk</span><b class="in">+21.750.000</b></div>
+          <div><span>Keluar</span><b class="out">−7.385.000</b></div>
+        </div>
+        <div class="b-chips"><span class="chip on">Semua</span><span class="chip">Kas tunai</span><span class="chip">BRI</span><span class="chip">Kategori<svg class="ic s"><use href="#kg-down"/></svg></span></div>
+        <div class="card b-led">
+          <div class="b-new"><span class="b-plus"><svg class="ic"><use href="#kg-plus"/></svg></span>Tulis baris baru</div>
+          <div class="b-head"><span>Tgl</span><span>Keterangan</span><span class="r">Jumlah / saldo</span></div>
+          <div class="b-row"><div class="b-d"><b>17</b><span>Sel</span></div><div class="b-k"><b>Formulir - GAN-0028 Teguh Prasetyo</b><span>Pendaftaran · Kas</span></div><div class="b-v"><b class="in">+250.000</b><span>23.670.000</span></div></div>
+          <div class="b-row"><div class="b-d"></div><div class="b-k"><b>Cicilan 2 - GAN-0005 Arif Pratama</b><span>Bimbel · Kas</span></div><div class="b-v"><b class="in">+1.500.000</b><span>23.420.000</span></div></div>
+          <div class="b-row sel"><div class="b-d"><b>16</b><span>Sen</span></div><div class="b-k"><b>Matras &amp; cone latihan</b><span>Operasional · Kas</span></div><div class="b-v"><b class="out">−600.000</b><span>21.920.000</span></div>
+            <div class="b-acts"><span class="b-act"><svg class="ic s"><use href="#kg-edit"/></svg>Ubah</span><span class="b-act d"><svg class="ic s"><use href="#kg-trash"/></svg>Hapus</span></div></div>
+          <div class="b-row"><div class="b-d"><b>15</b><span>Min</span></div><div class="b-k"><b>Cicilan 1 - GAN-0023 Hendra Wijaya</b><span>Bimbel · BRI</span></div><div class="b-v"><b class="in">+1.750.000</b><span>22.520.000</span></div></div>
+          <div class="b-row"><div class="b-d"><b>14</b><span>Sab</span></div><div class="b-k"><b>Honor pelatih samapta (2 minggu)</b><span>Honor · Kas</span></div><div class="b-v"><b class="out">−1.500.000</b><span>20.770.000</span></div></div>
+          <div class="b-row"><div class="b-d"></div><div class="b-k"><b>Cicilan 1 - GAN-0024 Wahyu Kurniawan</b><span>Bimbel · BRI</span></div><div class="b-v"><b class="in">+1.500.000</b><span>22.270.000</span></div></div>
+          <div class="b-row"><div class="b-d"><b>13</b><span>Jum</span></div><div class="b-k"><b>Lunas - GAN-0021 Reza Firmansyah</b><span>Bimbel · BRI</span></div><div class="b-v"><b class="in">+3.500.000</b><span>20.770.000</span></div></div>
+          <div class="b-row"><div class="b-d"><b>12</b><span>Kam</span></div><div class="b-k"><b>Setor tunai ke bank</b><span>Pindah · Kas ke BRI</span></div><div class="b-v"><b class="tr">2.000.000</b><span>17.270.000</span></div></div>
+        </div>
+      </div>
+      <div class="b-foot"><div><span>Saldo akhir</span><b>Rp23.670.000</b></div><div class="r"><span>Kas 8.570.000</span><span>BRI 15.100.000</span></div></div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- B2: baris baru -->
+    <figure class="kg-f kg-fhp"><figcaption><b>2</b>Ketuk Tulis baris baru: isian di dalam buku</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-gear"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span class="on">Buku kas</span><span>Laporan</span></div>
+        <div class="card b-led">
+          <div class="b-form">
+            <div class="head"><b>Baris baru · 17 Nov</b><span class="x44" style="width:36px;height:36px;border-radius:10px"><svg class="ic s"><use href="#kg-x"/></svg></span></div>
+            <div class="seg"><span class="on">Masuk</span><span>Keluar</span><span>Pindah akun</span></div>
+            <div class="field anno" data-anno="Isi otomatis dari catatan lama"><label>Keterangan</label><div class="input focus">arif<i class="caret"></i></div>
+              <div class="b-sug"><span>Dari catatan sebelumnya</span>
+                <div class="b-sg on"><b>Cicilan 2 - GAN-0005 <mark>Arif</mark> Pratama</b><span>Lanjutan Cicilan 1 (3 Okt) · Rp1.500.000</span></div>
+                <div class="b-sg"><b>Lunas - GAN-0005 <mark>Arif</mark> Pratama</b><span>Sisa tagihan · Rp2.000.000</span></div>
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label>Nominal</label><div class="input"><b>Rp1.500.000</b></div></div>
+              <div class="field"><label>Akun</label><div class="input sel">Kas tunai<svg class="ic s"><use href="#kg-down"/></svg></div></div>
+            </div>
+            <div class="field"><label>Kategori</label><div class="input sel">Pembayaran bimbel siswa<svg class="ic s"><use href="#kg-down"/></svg></div></div>
+            <div class="a-bukti"><svg class="ic s"><use href="#kg-clip"/></svg>Tautan bukti (opsional)</div>
+            <div class="grid2"><button class="btn sec lg">Batal</button><button class="btn lg">Simpan baris</button></div>
+          </div>
+          <div class="b-dim">
+            <div class="b-row"><div class="b-d"><b>17</b><span>Sel</span></div><div class="b-k"><b>Formulir - GAN-0028 Teguh Prasetyo</b><span>Pendaftaran · Kas</span></div><div class="b-v"><b class="in">+250.000</b><span>23.670.000</span></div></div>
+            <div class="b-row"><div class="b-d"></div><div class="b-k"><b>Cicilan 2 - GAN-0005 Arif Pratama</b><span>Bimbel · Kas</span></div><div class="b-v"><b class="in">+1.500.000</b><span>23.420.000</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- B3: laporan kertas -->
+    <figure class="kg-f kg-fhp"><figcaption><b>3</b>Tab Laporan: pratinjau seperti kertas</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-gear"/></svg></div></div>
+      <div class="hp-body">
+        <div class="seg"><span>Buku kas</span><span class="on">Laporan</span></div>
+        <div class="b-rt"><div class="seg"><span>Buku kas</span><span class="on">Laba rugi</span><span>Neraca</span></div><span class="x44" title="Laporan lanjutan"><svg class="ic"><use href="#kg-dots"/></svg></span></div>
+        <div class="b-paper">
+          <div class="b-ph"><span class="eyebrow">Garda Abdi Negara</span><b>Laba rugi</b><span class="xs muted">1-17 November 2026</span></div>
+          <table class="b-lr">
+            <tr class="sec"><td colspan="2">Uang masuk</td></tr>
+            <tr><td>Pembayaran bimbel siswa</td><td>20.000.000</td></tr>
+            <tr><td>Biaya pendaftaran &amp; formulir</td><td>750.000</td></tr>
+            <tr><td>Pemasukan lain</td><td>1.000.000</td></tr>
+            <tr class="sub"><td>Jumlah masuk</td><td>21.750.000</td></tr>
+            <tr class="sec"><td colspan="2">Uang keluar</td></tr>
+            <tr><td>Sewa tempat &amp; lapangan</td><td>3.000.000</td></tr>
+            <tr><td>Honor pelatih &amp; pengajar</td><td>1.500.000</td></tr>
+            <tr><td>Operasional latihan</td><td>980.000</td></tr>
+            <tr><td>Cetak/ATK &amp; modul</td><td>600.000</td></tr>
+            <tr><td>Promosi</td><td>500.000</td></tr>
+            <tr><td>Konsumsi</td><td>455.000</td></tr>
+            <tr><td>Listrik/internet &amp; pulsa</td><td>350.000</td></tr>
+            <tr class="sub"><td>Jumlah keluar</td><td>7.385.000</td></tr>
+            <tr class="tot"><td>Untung bersih</td><td class="in">14.365.000</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="b-dlbar"><button class="btn sec">CSV</button><button class="btn block"><svg class="ic"><use href="#kg-dl"/></svg>Unduh PDF</button></div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- B4: desktop -->
+    <figure class="kg-f kg-fdk"><figcaption><b>4</b>Laptop: lembar buku kas penuh, baris baru langsung di atas tabel</figcaption>
+    <div class="dk">
+      <div class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a>Beranda</a><a>Presensi</a><a>Tes Samapta</a><a class="on">Keuangan</a><a>Siswa</a><a>Pengaturan</a><a>Panduan</a></div>
+      <div class="dk-body">
+        <div class="head b-dhead">
+          <div class="row" style="gap:12px"><div class="title">Keuangan</div><div class="seg"><span class="on">Buku kas</span><span>Laporan</span></div><div class="b-dmon"><span><svg class="ic s"><use href="#kg-left"/></svg></span><b>November 2026</b><span class="muted"><svg class="ic s"><use href="#kg-right"/></svg></span></div></div>
+          <div class="row"><button class="btn sec sm"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</button><button class="btn sec sm">CSV</button><span class="x44" style="width:36px;height:36px;border-radius:10px" title="Pengaturan keuangan"><svg class="ic s"><use href="#kg-gear"/></svg></span></div>
+        </div>
+        <div class="b-strip">
+          <div><span>Saldo awal 1 Nov</span><b>9.305.000</b></div>
+          <div><span>Uang masuk</span><b class="in">+21.750.000</b></div>
+          <div><span>Uang keluar</span><b class="out">−7.385.000</b></div>
+          <div><span>Saldo akhir</span><b>23.670.000</b></div>
+          <div class="acc"><div><span>Kas tunai</span><b>8.570.000</b></div><div><span>BRI</span><b>15.100.000</b></div></div>
+        </div>
+        <div class="b-tools">
+          <div class="seg"><span class="on">Semua akun</span><span>Kas tunai</span><span>BRI</span></div>
+          <div class="input sel" style="min-width:150px">Semua kategori<svg class="ic s"><use href="#kg-down"/></svg></div>
+          <div class="input b-search"><svg class="ic s"><use href="#kg-search"/></svg><span>Cari keterangan atau kode GAN</span></div>
+          <span class="b-chk"><i></i>Tampilkan yang diubah</span>
+        </div>
+        <div class="card b-tcard">
+          <table class="tbl b-tbl">
+            <colgroup><col style="width:58px"><col><col style="width:78px"><col style="width:90px"><col style="width:86px"><col style="width:98px"><col style="width:68px"></colgroup>
+            <thead><tr><th>Tgl</th><th>Keterangan dan kategori</th><th>Akun</th><th class="r">Masuk</th><th class="r">Keluar</th><th class="r">Saldo</th><th></th></tr></thead>
+            <tbody>
+              <tr class="inp"><td><div class="b-cell">17/11</div></td><td class="anno" data-anno="Ketik lalu tekan Enter"><div class="b-two"><div class="b-cell f">Cicilan 1 - GAN-0025 Bayu<i class="caret"></i></div><div class="b-cell">Bimbel siswa ▾</div></div></td><td><div class="b-cell">Kas ▾</div></td><td><div class="b-cell r">1.500.000</div></td><td><div class="b-cell r">&nbsp;</div></td><td class="r xs muted">otomatis</td><td><button class="btn sm">Simpan</button></td></tr>
+              <tr><td>17 Nov</td><td>Formulir - GAN-0028 Teguh Prasetyo<div class="xs muted">Biaya pendaftaran &amp; formulir</div></td><td class="a">Kas</td><td class="r in">250.000</td><td class="r out"></td><td class="r s">23.670.000</td><td></td></tr>
+              <tr><td>17 Nov</td><td>Cicilan 2 - GAN-0005 Arif Pratama<div class="xs muted">Pembayaran bimbel siswa</div></td><td class="a">Kas</td><td class="r in">1.500.000</td><td class="r out"></td><td class="r s">23.420.000</td><td></td></tr>
+              <tr class="hov"><td>16 Nov</td><td>Matras &amp; cone latihan<div class="xs muted">Operasional latihan</div></td><td class="a">Kas</td><td class="r in"></td><td class="r out">600.000</td><td class="r s">21.920.000</td><td><div class="b-ia"><span title="Ubah"><svg class="ic s"><use href="#kg-edit"/></svg></span><span class="d" title="Hapus"><svg class="ic s"><use href="#kg-trash"/></svg></span></div></td></tr>
+              <tr><td>15 Nov</td><td>Cicilan 1 - GAN-0023 Hendra Wijaya<div class="xs muted">Pembayaran bimbel siswa</div></td><td class="a">BRI</td><td class="r in">1.750.000</td><td class="r out"></td><td class="r s">22.520.000</td><td></td></tr>
+              <tr><td>14 Nov</td><td>Honor pelatih samapta (2 minggu)<div class="xs muted">Honor pelatih &amp; pengajar</div></td><td class="a">Kas</td><td class="r in"></td><td class="r out">1.500.000</td><td class="r s">20.770.000</td><td></td></tr>
+              <tr><td>14 Nov</td><td>Cicilan 1 - GAN-0024 Wahyu Kurniawan<div class="xs muted">Pembayaran bimbel siswa</div></td><td class="a">BRI</td><td class="r in">1.500.000</td><td class="r out"></td><td class="r s">22.270.000</td><td></td></tr>
+              <tr><td>13 Nov</td><td>Lunas - GAN-0021 Reza Firmansyah<div class="xs muted">Pembayaran bimbel siswa</div></td><td class="a">BRI</td><td class="r in">3.500.000</td><td class="r out"></td><td class="r s">20.770.000</td><td></td></tr>
+              <tr><td>12 Nov</td><td>Setor tunai ke bank<div class="xs muted">Pindah akun</div></td><td class="a">Kas → BRI</td><td colspan="2" class="pindah">⇄ 2.000.000</td><td class="r s">17.270.000</td><td></td></tr>
+              <tr><td>12 Nov</td><td>Jual kaos latihan 10 pcs<div class="xs muted">Pemasukan lain</div></td><td class="a">Kas</td><td class="r in">1.000.000</td><td class="r out"></td><td class="r s">17.270.000</td><td></td></tr>
+              <tr><td>11 Nov</td><td>Snack tryout<div class="xs muted">Konsumsi</div></td><td class="a">Kas</td><td class="r in"></td><td class="r out">455.000</td><td class="r s">16.270.000</td><td></td></tr>
+              <tr><td>10 Nov</td><td>Formulir - GAN-0027 Ilham Maulana<div class="xs muted">Biaya pendaftaran &amp; formulir</div></td><td class="a">Kas</td><td class="r in">250.000</td><td class="r out"></td><td class="r s">16.725.000</td><td></td></tr>
+              <tr><td>10 Nov</td><td>Cicilan 2 - GAN-0019 Andi Saputra<div class="xs muted">Pembayaran bimbel siswa</div></td><td class="a">Kas</td><td class="r in">1.500.000</td><td class="r out"></td><td class="r s">16.475.000</td><td></td></tr>
+              <tr class="more"><td colspan="7">Tampilkan 10 baris sebelumnya (1-9 Nov)</td></tr>
+              <tr class="awal"><td>1 Nov</td><td>Saldo awal bulan<div class="xs">Kas 7.855.000 · BRI 1.450.000</div></td><td></td><td class="r"></td><td class="r"></td><td class="r s">9.305.000</td><td></td></tr>
+              <tr class="tot"><td></td><td>Jumlah November</td><td></td><td class="r in">21.750.000</td><td class="r out">7.385.000</td><td class="r">23.670.000</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div></figure>
+  </div>
+</article>
+
+<!-- ======================================================= OPSI C ======================================================= -->
+<article class="opsi" data-opsi="C">
+  <div class="ringkas">
+    <div><h3>Dasbor bulanan</h3><p>Halaman pertama adalah gambaran bulan ini: saldo, untung, grafik masuk dan keluar per minggu, ke mana uang keluar, dan pengeluaran terbesar. Mencatat lewat tombol <b>Catat</b> yang selalu ada, dengan pilihan cepat untuk transaksi rutin. Laporan berupa kartu, sekali ketuk jadi PDF.</p></div>
+    <div><h4>KELEBIHAN</h4><ul>
+      <li>Paling cepat menjawab "bulan ini untung berapa, uang habis ke mana".</li>
+      <li>Transaksi rutin (honor, wifi, air minum) cukup 2 ketukan lewat Sering dipakai.</li>
+      <li>Sebelum simpan, terlihat sisa saldo akun setelah uang keluar.</li>
+    </ul></div>
+    <div><h4>PERTIMBANGAN</h4><ul>
+      <li>Grafik memakan layar; daftar transaksi lengkap ada di halaman kedua.</li>
+      <li>Di awal bulan grafik masih kosong dan kurang bermakna.</li>
+    </ul></div>
+  </div>
+  <div class="frames">
+
+    <!-- C1: dasbor HP -->
+    <figure class="kg-f kg-fhp"><figcaption><b>1</b>Gambaran bulan ini</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-gear"/></svg></div></div>
+      <div class="hp-body">
+        <div class="c-top"><span class="chip"><svg class="ic s"><use href="#kg-cal"/></svg>November 2026<svg class="ic s"><use href="#kg-down"/></svg></span><span class="small in"><b>Semua transaksi</b></span></div>
+        <div class="card c-saldo"><div><span class="xs muted">Saldo sekarang</span><b class="n">Rp23.670.000</b></div><div class="c-acc"><span>Kas <b>8.570.000</b></span><span>BRI <b>15.100.000</b></span></div></div>
+        <div class="grid3 c-kpi">
+          <div class="kpi"><span>Masuk</span><b class="in">21,75 jt</b></div>
+          <div class="kpi"><span>Keluar</span><b class="out">7,39 jt</b></div>
+          <div class="kpi"><span>Untung</span><b>14,37 jt</b></div>
+        </div>
+        <div class="card">
+          <div class="row spread"><h3>Per minggu</h3><div class="c-lg"><span><i class="sw ci"></i>Masuk</span><span><i class="sw co"></i>Keluar</span></div></div>
+          <svg class="c-chart" viewBox="0 0 320 128" role="img" aria-label="Uang masuk dan keluar per minggu, November 2026">
+            <line class="g" x1="34" x2="316" y1="108" y2="108"/><line class="g" x1="34" x2="316" y1="68" y2="68" stroke-dasharray="2 3"/><line class="g" x1="34" x2="316" y1="28" y2="28" stroke-dasharray="2 3"/>
+            <text x="28" y="111" text-anchor="end">0</text><text x="28" y="71" text-anchor="end">5 jt</text><text x="28" y="31" text-anchor="end">10 jt</text>
+            <path class="bi" d="M48,108 V56 Q48,52 52,52 H64 Q68,52 68,56 V108 Z"/><path class="bo" d="M70,108 V77 Q70,73 74,73 H86 Q90,73 90,77 V108 Z"/>
+            <path class="bi" d="M119,108 V22 Q119,18 123,18 H135 Q139,18 139,22 V108 Z"/><path class="bo" d="M141,108 V92 Q141,88 145,88 H157 Q161,88 161,92 V108 Z"/>
+            <path class="bi" d="M189,108 V84 Q189,80 193,80 H205 Q209,80 209,84 V108 Z"/><path class="bo" d="M211,108 V105.5 Q211,103 213.5,103 H228.5 Q231,103 231,105.5 V108 Z"/>
+            <text class="v" x="129" y="13" text-anchor="middle">11,25 jt</text>
+            <text x="281" y="100" text-anchor="middle">belum</text>
+            <text x="69" y="122" text-anchor="middle">1-7</text><text x="140" y="122" text-anchor="middle">8-14</text><text class="now" x="210" y="122" text-anchor="middle">15-21 (kini)</text><text x="281" y="122" text-anchor="middle">22-30</text>
+          </svg>
+        </div>
+        <div class="card">
+          <div class="row spread"><h3>Ke mana uang keluar</h3><span class="xs muted">Rp7.385.000</span></div>
+          <div class="c-rank" style="margin-top:10px">
+            <div><div class="row"><span>Sewa tempat &amp; lapangan</span><b class="amt">3.000.000</b></div><div class="bar"><i style="width:41%"></i></div></div>
+            <div><div class="row"><span>Honor pelatih &amp; pengajar</span><b class="amt">1.500.000</b></div><div class="bar"><i style="width:20%"></i></div></div>
+            <div><div class="row"><span>Operasional latihan</span><b class="amt">980.000</b></div><div class="bar"><i style="width:13%"></i></div></div>
+            <div><div class="row"><span>4 kategori lain</span><b class="amt">1.905.000</b></div><div class="bar"><i style="width:26%"></i></div></div>
+          </div>
+        </div>
+        <div class="card c-top3">
+          <h3>Pengeluaran terbesar</h3>
+          <div class="list">
+            <div class="item"><div class="main"><b>Sewa lapangan bulan November</b><span>2 Nov · Rekening BRI</span></div><b class="amt out">−3.000.000</b></div>
+            <div class="item"><div class="main"><b>Honor pelatih samapta</b><span>14 Nov · Kas tunai</span></div><b class="amt out">−1.500.000</b></div>
+            <div class="item"><div class="main"><b>Cetak modul TPA 20 eks</b><span>4 Nov · Kas tunai</span></div><b class="amt out">−600.000</b></div>
+          </div>
+        </div>
+        <div style="height:60px"></div>
+      </div>
+      <span class="c-fab"><svg class="ic"><use href="#kg-plus"/></svg>Catat</span>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- C2: catat cepat -->
+    <figure class="kg-f kg-fhp"><figcaption><b>2</b>Ketuk Catat: pilih yang sering dipakai</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><div class="logo"></div><b>Keuangan</b><div class="ico"><svg class="ic"><use href="#kg-gear"/></svg></div></div>
+      <div class="hp-body">
+        <div class="card c-saldo"><div><span class="xs muted">Saldo sekarang</span><b class="n">Rp23.670.000</b></div></div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+      <div class="scrim"></div>
+      <div class="sheet c-sheet">
+        <div class="a-shtop"><div class="seg"><span>Uang masuk</span><span class="on">Uang keluar</span><span>Pindah</span></div><span class="x44"><svg class="ic"><use href="#kg-x"/></svg></span></div>
+        <div class="c-lbl"><svg class="ic s"><use href="#kg-repeat"/></svg>Sering dipakai</div>
+        <div class="c-tpl anno" data-anno="Rutin: 2 ketukan">
+          <div class="on"><b>Honor pelatih</b><span>Rp1.500.000 · Kas</span></div>
+          <div><b>Air minum</b><span>Rp380.000 · Kas</span></div>
+          <div><b>Wifi bulanan</b><span>Rp350.000 · BRI</span></div>
+          <div><b>Snack tryout</b><span>Rp455.000 · Kas</span></div>
+        </div>
+        <div class="field"><label>Nominal</label><div class="input c-nom"><span>Rp</span><b>1.500.000</b></div></div>
+        <div class="field"><label>Kategori</label><div class="input sel">Honor pelatih &amp; pengajar<svg class="ic s"><use href="#kg-down"/></svg></div></div>
+        <div class="a-row2">
+          <div class="seg"><span class="on"><svg class="ic s"><use href="#kg-cash"/></svg>Kas tunai</span><span><svg class="ic s"><use href="#kg-bank"/></svg>BRI</span></div>
+          <span class="a-date"><svg class="ic s"><use href="#kg-cal"/></svg>Hari ini</span>
+        </div>
+        <div class="field"><label>Keterangan</label><div class="input">Honor pelatih samapta minggu 3</div></div>
+        <div class="a-bukti"><svg class="ic s"><use href="#kg-clip"/></svg>Tempel tautan foto nota (opsional)</div>
+        <div class="c-after">Sisa Kas tunai setelah ini: <b>Rp7.070.000</b></div>
+        <button class="btn lg block">Simpan uang keluar</button>
+      </div>
+    </div></figure>
+
+    <!-- C3: laporan kartu -->
+    <figure class="kg-f kg-fhp"><figcaption><b>3</b>Laporan: kartu, sekali ketuk PDF</figcaption>
+    <div class="hp">
+      <div class="hp-bar"><span class="ico"><svg class="ic"><use href="#kg-left"/></svg></span><b>Laporan November</b><div class="ico"><svg class="ic"><use href="#kg-cal"/></svg></div></div>
+      <div class="hp-body">
+        <div class="xs muted">Dibuat otomatis dari catatan 1-17 November 2026.</div>
+        <div class="card c-rep">
+          <div class="row spread"><div class="row"><span class="c-ric"><svg class="ic"><use href="#kg-chart"/></svg></span><b>Laba rugi</b></div><span class="pill">Untung</span></div>
+          <div class="c-rbig in">Rp14.365.000</div>
+          <div class="c-stk"><i class="u" style="width:66%"></i><i class="k" style="width:34%"></i></div>
+          <div class="row spread xs muted"><span><i class="sw ci"></i>Untung 66%</span><span><i class="sw co"></i>Keluar 34% dari uang masuk</span></div>
+          <div class="c-rbtn"><button class="btn ghost">Lihat</button><button class="btn sec"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</button></div>
+        </div>
+        <div class="card c-rep">
+          <div class="row spread"><div class="row"><span class="c-ric"><svg class="ic"><use href="#kg-scale"/></svg></span><b>Neraca</b></div><span class="pill"><svg class="ic s"><use href="#kg-ok"/></svg>Seimbang</span></div>
+          <div class="c-eq"><div>Harta<b>23.670.000</b></div><i>=</i><div>Modal awal<b>9.305.000</b></div><i>+</i><div>Untung<b>14.365.000</b></div></div>
+          <div class="c-rbtn"><button class="btn ghost">Lihat</button><button class="btn sec"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</button></div>
+        </div>
+        <div class="card c-rep">
+          <div class="row spread"><div class="row"><span class="c-ric"><svg class="ic"><use href="#kg-book"/></svg></span><b>Buku kas</b></div><span class="pill m">22 catatan</span></div>
+          <div class="c-flow"><div>Saldo 1 Nov<b>9.305.000</b></div><svg class="ic s"><use href="#kg-right"/></svg><div class="r">Saldo 17 Nov<b>23.670.000</b></div></div>
+          <div class="c-rbtn"><button class="btn ghost">Lihat</button><button class="btn sec"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</button></div>
+        </div>
+        <div class="c-adv"><svg class="ic"><use href="#kg-file"/></svg><div class="main"><b>Laporan lanjutan</b>Aset &amp; penyusutan, omzet &amp; pajak, pemeriksaan</div><svg class="ic"><use href="#kg-down"/></svg></div>
+      </div>
+      <div class="hp-nav">
+        <div><i><svg class="ic"><use href="#kg-home"/></svg></i>Beranda</div><div><i><svg class="ic"><use href="#kg-check"/></svg></i>Presensi</div><div><i><svg class="ic"><use href="#kg-run"/></svg></i>Samapta</div><div class="on"><i><svg class="ic"><use href="#kg-wallet"/></svg></i>Keuangan</div><div><i><svg class="ic"><use href="#kg-dots"/></svg></i>Lainnya</div>
+      </div>
+    </div></figure>
+
+    <!-- C4: desktop -->
+    <figure class="kg-f kg-fdk"><figcaption><b>4</b>Laptop: dasbor penuh, Catat di kanan atas</figcaption>
+    <div class="dk">
+      <div class="dk-side"><div class="brand"><i></i>Ruang Garda</div><a>Beranda</a><a>Presensi</a><a>Tes Samapta</a><a class="on">Keuangan</a><a>Siswa</a><a>Pengaturan</a><a>Panduan</a></div>
+      <div class="dk-body">
+        <div class="head">
+          <div class="row" style="gap:12px"><div class="title">Keuangan</div><span class="chip"><svg class="ic s"><use href="#kg-cal"/></svg>November 2026<svg class="ic s"><use href="#kg-down"/></svg></span><span class="small muted">sampai 17 Nov</span></div>
+          <div class="row"><button class="btn sec"><svg class="ic s"><use href="#kg-file"/></svg>Laporan</button><button class="btn"><svg class="ic s"><use href="#kg-plus"/></svg>Catat</button><span class="x44" style="width:40px;height:40px;border-radius:12px" title="Pengaturan keuangan"><svg class="ic s"><use href="#kg-gear"/></svg></span></div>
+        </div>
+        <div class="grid4 c-dkpi">
+          <div class="kpi c-k1"><span>Saldo sekarang</span><b>Rp23.670.000</b><em>Kas 8.570.000<br>BRI 15.100.000</em></div>
+          <div class="kpi"><span>Uang masuk</span><b class="in">Rp21.750.000</b><em>13 catatan</em></div>
+          <div class="kpi"><span>Uang keluar</span><b class="out">Rp7.385.000</b><em>8 catatan</em></div>
+          <div class="kpi"><span>Untung</span><b>Rp14.365.000</b><em>66% dari uang masuk</em></div>
+        </div>
+        <div class="c-row2">
+          <div class="card">
+            <div class="row spread"><h3>Masuk dan keluar per minggu</h3><div class="c-lg"><span><i class="sw ci"></i>Masuk</span><span><i class="sw co"></i>Keluar</span></div></div>
+            <svg class="c-chart" viewBox="0 0 460 196" role="img" aria-label="Uang masuk dan keluar per minggu, November 2026" style="margin-top:6px">
+              <line class="g" x1="40" x2="452" y1="170" y2="170"/><line class="g" x1="40" x2="452" y1="105" y2="105" stroke-dasharray="2 3"/><line class="g" x1="40" x2="452" y1="40" y2="40" stroke-dasharray="2 3"/>
+              <text x="34" y="173" text-anchor="end">0</text><text x="34" y="108" text-anchor="end">5 jt</text><text x="34" y="43" text-anchor="end">10 jt</text>
+              <path class="bi" d="M60,170 V83 Q60,79 64,79 H86 Q90,79 90,83 V170 Z"/><path class="bo" d="M92,170 V118 Q92,114 96,114 H118 Q122,114 122,118 V170 Z"/>
+              <path class="bi" d="M163,170 V28 Q163,24 167,24 H189 Q193,24 193,28 V170 Z"/><path class="bo" d="M195,170 V142 Q195,138 199,138 H221 Q225,138 225,142 V170 Z"/>
+              <path class="bi" d="M265,170 V128 Q265,124 269,124 H291 Q295,124 295,128 V170 Z"/><path class="bo" d="M297,170 V166 Q297,162 301,162 H323 Q327,162 327,166 V170 Z"/>
+              <text class="v" x="178" y="18" text-anchor="middle">11,25 jt</text>
+              <text class="v" x="280" y="118" text-anchor="middle">3,5 jt</text><text class="v" x="312" y="156" text-anchor="middle">0,6 jt</text>
+              <text x="399" y="160" text-anchor="middle">belum ada</text>
+              <text x="91" y="188" text-anchor="middle">1-7 Nov</text><text x="194" y="188" text-anchor="middle">8-14 Nov</text><text class="now" x="296" y="188" text-anchor="middle">15-21 Nov (kini)</text><text x="399" y="188" text-anchor="middle">22-30 Nov</text>
+            </svg>
+          </div>
+          <div class="card">
+            <div class="row spread"><h3>Ke mana uang keluar</h3><span class="xs muted">8 catatan</span></div>
+            <div class="c-donut">
+              <svg viewBox="0 0 42 42" role="img" aria-label="Pembagian uang keluar per kategori">
+                <circle cx="21" cy="21" r="15.915" style="stroke:var(--c1)" stroke-dasharray="39.6 60.4" stroke-dashoffset="24.5"/>
+                <circle cx="21" cy="21" r="15.915" style="stroke:var(--c2)" stroke-dasharray="19.3 80.7" stroke-dashoffset="-16.1"/>
+                <circle cx="21" cy="21" r="15.915" style="stroke:var(--c3)" stroke-dasharray="12.3 87.7" stroke-dashoffset="-36.4"/>
+                <circle cx="21" cy="21" r="15.915" style="stroke:var(--c4)" stroke-dasharray="24.8 75.2" stroke-dashoffset="-49.7"/>
+                <text x="21" y="21" style="fill:var(--ink);font-size:5.2px;font-weight:800">7,39 jt</text>
+                <text x="21" y="26" style="fill:var(--muted);font-size:3.2px;font-weight:600">keluar</text>
+              </svg>
+              <div class="c-leg">
+                <div><i class="sw c1"></i><span>Sewa tempat &amp; lapangan<small>Rp3.000.000 · 41%</small></span></div>
+                <div><i class="sw c2"></i><span>Honor pelatih &amp; pengajar<small>Rp1.500.000 · 20%</small></span></div>
+                <div><i class="sw c3"></i><span>Operasional latihan<small>Rp980.000 · 13%</small></span></div>
+                <div><i class="sw c4"></i><span>4 kategori lain<small>Rp1.905.000 · 26%</small></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="c-row3">
+          <div class="card">
+            <div class="row spread"><h3>Transaksi terbaru</h3><span class="small in"><b>Semua transaksi</b></span></div>
+            <table class="tbl c-tx" style="margin-top:6px">
+              <tr><td class="muted">17 Nov</td><td><b>Teguh Prasetyo</b><div class="xs muted">Formulir · GAN-0028 · Kas tunai</div></td><td class="r in">+250.000</td><td></td></tr>
+              <tr><td class="muted">17 Nov</td><td><b>Arif Pratama</b><div class="xs muted">Cicilan 2 · GAN-0005 · Kas tunai</div></td><td class="r in">+1.500.000</td><td></td></tr>
+              <tr class="hov"><td class="muted">16 Nov</td><td><b>Matras &amp; cone latihan</b><div class="xs muted">Operasional latihan · Kas tunai</div></td><td class="r out">−600.000</td><td><div class="b-ia"><span title="Ubah"><svg class="ic s"><use href="#kg-edit"/></svg></span><span class="d" title="Hapus"><svg class="ic s"><use href="#kg-trash"/></svg></span></div></td></tr>
+              <tr><td class="muted">15 Nov</td><td><b>Hendra Wijaya</b><div class="xs muted">Cicilan 1 · GAN-0023 · BRI</div></td><td class="r in">+1.750.000</td><td></td></tr>
+              <tr><td class="muted">14 Nov</td><td><b>Honor pelatih samapta</b><div class="xs muted">Honor pelatih &amp; pengajar · Kas tunai</div></td><td class="r out">−1.500.000</td><td></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <div class="row spread"><h3>Laporan siap unduh</h3><span class="xs muted">otomatis</span></div>
+            <div class="c-dr"><span class="c-ric"><svg class="ic"><use href="#kg-chart"/></svg></span><div class="main"><b>Laba rugi</b><span>Untung Rp14.365.000</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+            <div class="c-dr"><span class="c-ric"><svg class="ic"><use href="#kg-scale"/></svg></span><div class="main"><b>Neraca</b><span>Seimbang per 17 Nov</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+            <div class="c-dr"><span class="c-ric"><svg class="ic"><use href="#kg-book"/></svg></span><div class="main"><b>Buku kas</b><span>22 catatan</span></div><span class="pdf"><svg class="ic s"><use href="#kg-dl"/></svg>PDF</span></div>
+            <div class="row spread small" style="margin-top:6px"><span class="in"><b>Laporan lanjutan</b></span><span class="muted">Semua juga tersedia CSV</span></div>
+          </div>
+        </div>
+      </div>
+    </div></figure>
+  </div>
+</article>
+</section>

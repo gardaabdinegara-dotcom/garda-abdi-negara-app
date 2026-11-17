@@ -33,7 +33,7 @@ import {
   visibleSession,
   type TestInput,
 } from "../src/lib/core/akademik";
-import { createQrToken, readQrToken } from "../src/lib/auth/qr";
+import { createQrToken, readQrToken, rotatingQrToken } from "../src/lib/auth/qr";
 import { createEnrollment, createStudent, saveClass, saveProgram, setStudentActive, updateEnrollmentStatus } from "../src/lib/core/domain";
 import { toEnrollment, toStudent, type Actor, type User } from "../src/lib/core/types";
 import { studentInput } from "../src/lib/core/validation";
@@ -233,6 +233,17 @@ describe("token QR presensi", () => {
     const forged = Buffer.from(JSON.stringify({ s: "SES_2", e: now + 60_000 })).toString("base64url");
     assert.equal(readQrToken(`${forged}.${token.split(".")[1]}`, now), null);
     assert.equal(readQrToken("", now), null);
+  });
+
+  test("QR layar penuh berganti tiap 10 menit; token sama dalam satu jendela dan masih sah sebentar setelah berganti", () => {
+    const start = Date.UTC(2026, 10, 17, 9, 10); // 16.10 WIB
+    const a = rotatingQrToken("SES_1", start + 60_000);
+    const b = rotatingQrToken("SES_1", start + 9 * 60_000);
+    assert.equal(a.token, b.token, "dimuat ulang dalam jendela yang sama → QR tidak berubah");
+    assert.equal(a.rotatesAt, start + 10 * 60_000);
+    assert.notEqual(rotatingQrToken("SES_1", start + 10 * 60_000).token, a.token, "jendela baru → QR baru");
+    assert.equal(readQrToken(a.token, start + 12 * 60_000), "SES_1", "dipindai tepat sebelum berganti tetap sempat dikirim");
+    assert.equal(readQrToken(a.token, start + 16 * 60_000), null);
   });
 });
 

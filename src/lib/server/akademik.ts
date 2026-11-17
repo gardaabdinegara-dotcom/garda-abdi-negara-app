@@ -11,6 +11,7 @@ import {
   canTeachStudent,
   classesOfStudent,
   currentReport,
+  DISCIPLINE,
   isAcademicStaff,
   liveSession,
   latestPublished,
@@ -128,11 +129,46 @@ export interface MySession extends Session {
 export interface FamilyAttendance {
   student: Student;
   summary: AttendanceSummary;
+  /** Sesi hari ini (tanpa yang dibatalkan), urut jam. */
   today: MySession[];
+  /** Sesi terdekat setelah hari ini. */
+  next: MySession | null;
   history: MySession[];
 }
 
+export interface RosterRow {
+  siswa_id: string;
+  nama: string;
+  kode_siswa: string;
+  record: Attendance | null;
+}
+
+/** Satu sesi lengkap untuk layar presensi staf: kartu sesi dan daftar peserta beserta catatannya. */
+export interface SessionWorkspace {
+  session: SessionCard;
+  roster: RosterRow[];
+}
+
+export interface RecapRow {
+  student: Student;
+  summary: AttendanceSummary;
+}
+
+export interface MonthlyRecap {
+  periode: string;
+  /** Urut dari persentase terendah; siswa tanpa sesi selesai di akhir. */
+  rows: RecapRow[];
+  /** Rata-rata tertimbang (total hadir / total sesi peserta). */
+  average: number | null;
+  /** Jumlah siswa di bawah batas cukup (75%). */
+  low: number;
+  /** Sesi selesai pada bulan itu yang terlihat oleh staf ini. */
+  sessions: number;
+}
+
 const SCHEDULE_TABLES = ["Pengaturan", "Pengguna", "Tautan_Akun", "Siswa", "Pendaftaran", "Kelas", "Sesi", "Presensi"];
+
+const byTime = (a: Session, b: Session) => `${a.tanggal} ${a.jam_mulai}`.localeCompare(`${b.tanggal} ${b.jam_mulai}`);
 
 function sessionCards(actor: Actor, t: Tables, sessions: Session[], attendance: Attendance[]) {
   const { students, enrollments, className, userName } = base(t);
@@ -149,34 +185,88 @@ function sessionCards(actor: Actor, t: Tables, sessions: Session[], attendance: 
   );
 }
 
-export async function loadSchedule(actor: Actor, dateParam: unknown) {
+function workspaceOf(actor: Actor, t: Tables, session: Session, attendance: Attendance[]): SessionWorkspace {
+  const { students, enrollments, studentById } = base(t);
+  const recordOf = new Map(attendance.filter((a) => a.sesi_id === session.sesi_id).map((a) => [a.siswa_id, a]));
+  const roster = participantsOf(session, students, enrollments)
+    .map((id) => studentById.get(id))
+    .filter((s): s is Student => Boolean(s))
+    .sort((a, b) => a.nama.localeCompare(b.nama, "id"))
+    .map((s): RosterRow => ({ siswa_id: s.siswa_id, nama: s.nama, kode_siswa: s.kode_siswa, record: recordOf.get(s.siswa_id) ?? null }));
+  return { session: sessionCards(actor, t, [session], attendance)[0]!, roster };
+}
+
+/** Rekap kehadiran bulanan siswa yang diajar staf ini. */
+function monthlyRecap(
+  actor: Actor,
+  students: readonly Student[],
+  enrollments: readonly Enrollment[],
+  sessions: readonly Session[],
+  records: ReadonlyMap<string, Attendance>,
+  periode: string,
+  visible: readonly Session[],
+): MonthlyRecap {
+  const rows = teachableStudents(actor, students, enrollments).map((student) => ({ student, summary: attendanceSummary(student.siswa_id, sessions, records, periode) }));
+  rows.sort((a, b) => (a.summary.persen ?? 101) - (b.summary.persen ?? 101) || a.student.nama.localeCompare(b.student.nama, "id"));
+  const totals = rows.reduce((acc, { summary }) => ({ hadir: acc.hadir + summary.hadir, total: acc.total + summary.total }), { hadir: 0, total: 0 });
+  return {
+    periode,
+    rows,
+    average: totals.total ? (totals.hadir / totals.total) * 100 : null,
+    low: rows.filter(({ summary }) => summary.persen !== null && summary.persen < DISCIPLINE.cukup).length,
+    sessions: visible.filter((s) => s.status === "SELESAI" && s.tanggal.startsWith(periode)).length,
+  };
+}
+
+/**
+ * Data layar Presensi.
+ * Staf: sesi hari ini (strip), sesi terpilih beserta daftar hadir, jadwal per tanggal, dan rekap bulanan.
+ * Siswa/wali: sesi hari ini, rekap bulan ini, dan riwayat.
+ */
+export async function loadPresensi(actor: Actor, params: { sesi?: unknown; tanggal?: unknown; bulan?: unknown }) {
   const t = await read(SCHEDULE_TABLES);
   const clock = clockOf(t);
   const { students, enrollments, classes, className } = base(t);
   const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
   const attendance = (t.Presensi ?? []).map(toAttendance);
+  const records = new Map(attendance.map((a) => [a.presensi_id, a]));
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
-  const byTime = (a: Session, b: Session) => `${a.tanggal} ${a.jam_mulai}`.localeCompare(`${b.tanggal} ${b.jam_mulai}`);
-  const date = isDate(dateParam) ? dateParam : clock.today;
 
   if (isAcademicStaff(actor)) {
+    const cards = (list: Session[]) => sessionCards(actor, t, list, attendance);
+    const today = visible.filter((s) => s.tanggal === clock.today).sort(byTime);
+    const future = visible.filter((s) => s.tanggal > clock.today && s.status !== "DIBATALKAN").sort(byTime);
+    const running = today.filter((s) => s.status !== "DIBATALKAN");
+    const requested = typeof params.sesi === "string" ? visible.find((s) => s.sesi_id === params.sesi) : undefined;
+    const selected =
+      requested ??
+      running.find((s) => s.status === "AKTIF") ??
+      running.find((s) => s.status === "AKAN_DATANG") ??
+      running[running.length - 1] ??
+      today[0] ??
+      null;
+    const strip = [...today, ...future.slice(0, 1)];
+    if (selected && !strip.some((s) => s.sesi_id === selected.sesi_id)) strip.push(selected);
+    const date = isDate(params.tanggal) ? params.tanggal : clock.today;
+    const periode = isPeriod(params.bulan) ? params.bulan : clock.periode;
     return {
       kind: "staff" as const,
       clock,
-      date,
-      sessions: sessionCards(actor, t, visible.filter((s) => s.tanggal === date).sort(byTime), attendance),
-      upcoming: sessionCards(
-        actor,
-        t,
-        visible.filter((s) => s.tanggal > date && s.status === "AKAN_DATANG").sort(byTime).slice(0, 6),
-        attendance,
-      ),
+      strip: cards(strip.sort(byTime)),
+      selected: selected ? workspaceOf(actor, t, selected, attendance) : null,
+      nearby: cards([...today, ...future].filter((s) => s.sesi_id !== selected?.sesi_id && s.status !== "DIBATALKAN").slice(0, 4)),
+      schedule: {
+        date,
+        sessions: cards(visible.filter((s) => s.tanggal === date).sort(byTime)),
+        next: cards(visible.filter((s) => s.tanggal > date && s.status !== "DIBATALKAN").sort(byTime).slice(0, 6)),
+        previous: cards(visible.filter((s) => s.tanggal < date).sort((a, b) => byTime(b, a)).slice(0, 6)),
+      },
+      recap: monthlyRecap(actor, students, enrollments, sessions, records, periode, visible),
       classes: creatableClasses(actor, classes),
       teachers: actor.user.peran === "PENGAJAR" ? [] : teacherOptions(t),
     };
   }
 
-  const records = new Map(attendance.map((a) => [a.presensi_id, a]));
   const family: FamilyAttendance[] = familyStudents(actor, students).map((student) => {
     const mine = visible
       .filter((s) => participantsOf(s, students, enrollments).includes(student.siswa_id))
@@ -185,42 +275,27 @@ export async function loadSchedule(actor: Actor, dateParam: unknown) {
       student,
       summary: attendanceSummary(student.siswa_id, sessions, records, clock.periode),
       today: mine.filter((s) => s.tanggal === clock.today && s.status !== "DIBATALKAN").sort(byTime),
+      next: mine.filter((s) => s.tanggal > clock.today && s.status === "AKAN_DATANG").sort(byTime)[0] ?? null,
       history: mine
         .filter((s) => s.status === "SELESAI" || (s.status === "AKTIF" && s.tanggal < clock.today))
         .sort((a, b) => byTime(b, a))
         .slice(0, 20),
     };
   });
-  return { kind: "family" as const, clock, date, family };
+  return { kind: "family" as const, clock, family };
 }
 
-export async function loadSessionDetail(actor: Actor, sesiId: string) {
+/** Layar QR penuh: sesi dan daftar hadirnya. Hanya staf yang boleh melihat sesi ini. */
+export async function loadQrScreen(actor: Actor, sesiId: string) {
   if (!isAcademicStaff(actor)) notFound();
   const t = await read(SCHEDULE_TABLES);
   const clock = clockOf(t);
-  const { students, enrollments, classes, studentById, className, userName } = base(t);
+  const { students, enrollments } = base(t);
   const row = (t.Sesi ?? []).find((r) => r.sesi_id === sesiId);
   if (!row || row.status === "DIHAPUS") notFound();
   const session = toSession(row);
   if (!visibleSession(actor, session, students, enrollments)) notFound();
-  const records = (t.Presensi ?? []).map(toAttendance).filter((a) => a.sesi_id === sesiId);
-  const recordOf = new Map(records.map((a) => [a.siswa_id, a]));
-  const roster = participantsOf(session, students, enrollments)
-    .map((id) => studentById.get(id))
-    .filter((s): s is Student => Boolean(s))
-    .sort((a, b) => a.nama.localeCompare(b.nama, "id"))
-    .map((student) => ({ student, record: recordOf.get(student.siswa_id) ?? null }));
-  return {
-    clock,
-    session,
-    kelas: kelasLabel(className, session.kelas_id, "Kelas tidak dikenal"),
-    pengajar: userName.get(session.pengajar_id) ?? "-",
-    canManage: canManageSession(actor, session),
-    roster,
-    pending: roster.filter((r) => r.record?.status === "MENUNGGU"),
-    classes: creatableClasses(actor, classes),
-    teachers: actor.user.peran === "PENGAJAR" ? [] : teacherOptions(t),
-  };
+  return { clock, ...workspaceOf(actor, t, session, (t.Presensi ?? []).map(toAttendance)) };
 }
 
 /** Sesi untuk halaman QR siswa. */

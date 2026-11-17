@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilihan Tampilan · Presensi, Tes Samapta, Keuangan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ================= Token (palet hijau army & oranye, sama dengan aplikasi) ================= */
+:root, [data-theme="light"] {
+  --bg:#f4f3ee; --surface:#fff; --soft:#efede4; --ink:#1c2014; --muted:#5c6150; --line:#e4e1d6;
+  --primary:#4b5d2a; --on-primary:#fff; --psoft:#eaeedd; --orange:#e07a1f; --osoft:#fdeedd; --gold:#8a4b0a;
+  --red:#9c2f1f; --rsoft:#f9e8e4; --blue:#275b87; --bsoft:#e6f0f9; --hero:linear-gradient(135deg,#2f3b1a,#4b5d2a 60%,#5b6f33);
+  --shadow:0 24px 50px -28px #1c201466;
+}
+[data-theme="dark"] {
+  --bg:#10120c; --surface:#181b12; --soft:#20241a; --ink:#ecefe2; --muted:#a3a893; --line:#2c3124;
+  --primary:#c3d68a; --on-primary:#1f2810; --psoft:#2a3319; --orange:#ff9d47; --osoft:#3a2a17; --gold:#ffb35c;
+  --red:#ff8d7a; --rsoft:#3a1f1a; --blue:#8cc0f0; --bsoft:#18283a; --hero:linear-gradient(135deg,#1d2410,#2f3b1a 60%,#3d4b22);
+  --shadow:0 24px 50px -28px #000;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+h1, h2, h3, h4, p { margin: 0; }
+
+/* ================= Kerangka galeri ================= */
+.g-top { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.g-top b { font-size: 15px; } .g-top small { display: block; color: var(--muted); font-size: 12px; }
+.g-seg { display: inline-flex; gap: 4px; background: var(--soft); padding: 4px; border-radius: 12px; }
+.g-seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 9px; font-weight: 700; font-size: 13px; }
+.g-seg button.on { background: var(--primary); color: var(--on-primary); }
+.g-sp { flex: 1; }
+.g-main { max-width: 1440px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+.g-intro { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; font-size: 13.5px; line-height: 1.55; }
+.g-intro h2 { font-size: 15px; margin-bottom: 6px; } .g-intro ul { margin: 0; padding-left: 18px; } .g-intro li { margin: 3px 0; }
+.g-opsi-nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.g-opsi-nav button { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 14px; min-width: 220px; }
+.g-opsi-nav button b { display: block; font-size: 14px; } .g-opsi-nav button span { font-size: 12px; color: var(--muted); }
+.g-opsi-nav button.on { border-color: var(--primary); box-shadow: inset 0 0 0 2px var(--primary); }
+.g-opsi-nav .rek { display: inline-block; margin-left: 6px; font-size: 10.5px; font-weight: 800; color: var(--gold); background: var(--osoft); padding: 1px 7px; border-radius: 99px; vertical-align: 2px; }
+.modul, .opsi { display: none; } .modul.on, .opsi.on { display: block; }
+.ringkas { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 16px; font-size: 13.5px; line-height: 1.55; }
+.ringkas h3 { font-size: 16px; margin-bottom: 4px; } .ringkas h4 { font-size: 12px; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.ringkas ul { margin: 0; padding-left: 18px; }
+.frames { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+body[data-device="hp"] .dk, body[data-device="dk"] .hp { display: none !important; }
+
+/* ================= Bingkai ponsel ================= */
+.hp { width: 390px; height: 800px; flex: none; border-radius: 40px; border: 10px solid #111; background: var(--bg); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.hp-bar { display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.hp-bar .logo { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); }
+.hp-bar b { font-size: 16px; flex: 1; } .hp-bar .ico { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: var(--soft); }
+.hp-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.hp-nav { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); background: var(--surface); padding: 6px; }
+.hp-nav div { text-align: center; font-size: 10.5px; color: var(--muted); padding: 6px 0; border-radius: 12px; }
+.hp-nav div i { display: block; font-style: normal; font-size: 17px; }
+.hp-nav div.on { background: var(--psoft); color: var(--primary); font-weight: 800; }
+
+/* ================= Bingkai desktop ================= */
+.dk { width: 1000px; max-width: 100%; flex: none; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow); overflow: hidden; display: grid; grid-template-columns: 196px 1fr; min-height: 640px; }
+.dk-side { background: var(--surface); border-right: 1px solid var(--line); padding: 14px 10px; display: flex; flex-direction: column; gap: 3px; }
+.dk-side .brand { display: flex; gap: 8px; align-items: center; font-weight: 800; padding: 0 6px 12px; }
+.dk-side .brand i { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); display: inline-block; }
+.dk-side a { padding: 9px 10px; border-radius: 10px; color: var(--muted); font-weight: 600; font-size: 13px; text-decoration: none; }
+.dk-side a.on { background: var(--primary); color: var(--on-primary); }
+.dk-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* ================= Komponen bersama ================= */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+.card h3 { font-size: 15px; } .card .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.title { font-size: 22px; font-weight: 800; letter-spacing: -.01em; } .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.muted { color: var(--muted); } .small { font-size: 12.5px; } .xs { font-size: 11.5px; } .n { font-variant-numeric: tabular-nums; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .spread { justify-content: space-between; } .stack { display: flex; flex-direction: column; gap: 8px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; } .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.btn { border: 0; background: var(--primary); color: var(--on-primary); border-radius: 12px; padding: 11px 14px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn.sec { background: var(--soft); color: var(--ink); } .btn.ghost { background: transparent; color: var(--primary); } .btn.danger { background: var(--rsoft); color: var(--red); }
+.btn.lg { padding: 15px 16px; font-size: 15px; border-radius: 14px; } .btn.block { width: 100%; } .btn.sm { padding: 7px 10px; font-size: 12px; border-radius: 10px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; border-radius: 99px; padding: 3px 9px; background: var(--psoft); color: var(--primary); white-space: nowrap; }
+.pill.o { background: var(--osoft); color: var(--gold); } .pill.r { background: var(--rsoft); color: var(--red); } .pill.b { background: var(--bsoft); color: var(--blue); } .pill.m { background: var(--soft); color: var(--muted); }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 7px 12px; font-weight: 700; font-size: 12.5px; }
+.chip.on { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.seg { display: flex; gap: 4px; background: var(--soft); padding: 4px; border-radius: 12px; } .seg span { flex: 1; text-align: center; padding: 8px 6px; border-radius: 9px; font-weight: 700; font-size: 12.5px; color: var(--muted); } .seg span.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px #0002; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; } .kpi b { display: block; font-size: 20px; font-weight: 800; } .kpi span { font-size: 11.5px; color: var(--muted); }
+.list { display: flex; flex-direction: column; } .item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); } .item:last-child { border-bottom: 0; }
+.item .main { flex: 1; min-width: 0; } .item .main b { display: block; font-size: 13.5px; } .item .main span { font-size: 12px; color: var(--muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; background: var(--psoft); color: var(--primary); display: grid; place-items: center; font-weight: 800; font-size: 12px; flex: none; }
+.bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; } .bar i { display: block; height: 100%; border-radius: 99px; background: var(--primary); }
+.hero { background: var(--hero); color: #f4f6ec; border-radius: 18px; padding: 16px; } .hero .muted { color: #d9dfc8; }
+.fab { position: absolute; right: 16px; bottom: 16px; width: 56px; height: 56px; border-radius: 18px; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; font-size: 26px; font-weight: 800; box-shadow: var(--shadow); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 22px 22px 0 0; box-shadow: 0 -20px 40px -20px #0006; padding: 10px 14px 14px; z-index: 3; }
+.sheet::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 99px; background: var(--line); margin: 0 auto 10px; }
+.scrim { position: absolute; inset: 0; background: #0005; z-index: 2; }
+.field { display: flex; flex-direction: column; gap: 4px; } .field label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.input { border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; background: var(--surface); font-size: 14px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .tbl th { text-align: left; font-size: 11px; color: var(--muted); font-weight: 700; padding: 8px 6px; border-bottom: 1px solid var(--line); } .tbl td { padding: 9px 6px; border-bottom: 1px solid var(--line); }
+.anno { position: relative; } .anno::after { content: attr(data-anno); position: absolute; top: -9px; right: -6px; background: var(--orange); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+
+/*CSS-PARTS*/
+@media (max-width: 1100px) { .ringkas, .g-intro { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-device="both">
+<div class="g-top">
+  <div><b>Pilihan tampilan · Ruang Garda</b><small>Pilih satu opsi per modul; nanti saya bangun yang Anda setujui</small></div>
+  <div class="g-seg" id="modul-nav"><button data-modul="presensi" class="on">Presensi</button><button data-modul="samapta">Tes Samapta</button><button data-modul="keuangan">Keuangan</button></div>
+  <div class="g-sp"></div>
+  <div class="g-seg" id="device-nav"><button data-device="both" class="on">HP + Desktop</button><button data-device="hp">HP</button><button data-device="dk">Desktop</button></div>
+  <div class="g-seg"><button id="tema">Gelap</button></div>
+</div>
+<div class="g-main">
+  <section class="g-intro">
+    <div><h2>Masalah tampilan sekarang</h2><ul>
+      <li>Kepala halaman terlalu tinggi: judul, deskripsi panjang, tombol, dan tab memakan setengah layar HP sebelum isi muncul.</li>
+      <li>Semua tombol sama kuat; tidak jelas langkah utama.</li>
+      <li>Keuangan memakai 5 tab berisi istilah akuntansi, dan laporan menampilkan 6 jenis sekaligus.</li>
+      <li>Presensi tercecer: daftar sesi, halaman sesi, QR, pengajuan, daftar hadir terpisah; mencatat satu siswa butuh beberapa ketukan.</li>
+    </ul></div>
+    <div><h2>Prinsip yang dipakai semua opsi</h2><ul>
+      <li>Satu tombol utama yang jelas per layar; aksi lain lebih tenang.</li>
+      <li>Kepala ringkas: judul 1 baris, keterangan dipindah ke Panduan.</li>
+      <li>Isian memakai lembar bawah (bottom sheet) di HP, bukan form panjang yang selalu tampil.</li>
+      <li>Bahasa sehari-hari: "Uang masuk/keluar", bukan istilah akuntansi; fitur lanjutan disimpan di bawah "Lainnya".</li>
+    </ul></div>
+  </section>
+  <!--PARTS-->
+</div>
+<script>
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function pilihModul(id) {
+  $$("#modul-nav button").forEach((b) => b.classList.toggle("on", b.dataset.modul === id));
+  $$(".modul").forEach((m) => m.classList.toggle("on", m.dataset.modul === id));
+  try { localStorage.setItem("uiux-modul", id); } catch (e) {}
+}
+function pilihOpsi(modul, opsi) {
+  const m = document.querySelector(`.modul[data-modul="${modul}"]`); if (!m) return;
+  $$(".g-opsi-nav button", m).forEach((b) => b.classList.toggle("on", b.dataset.opsi === opsi));
+  $$(".opsi", m).forEach((o) => o.classList.toggle("on", o.dataset.opsi === opsi));
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.modul && b.closest("#modul-nav")) pilihModul(b.dataset.modul);
+  else if (b.dataset.device) { document.body.dataset.device = b.dataset.device; $$("#device-nav button").forEach((x) => x.classList.toggle("on", x === b)); }
+  else if (b.dataset.opsi) pilihOpsi(b.closest(".modul").dataset.modul, b.dataset.opsi);
+  else if (b.id === "tema") { const d = document.documentElement.dataset.theme === "dark"; document.documentElement.dataset.theme = d ? "light" : "dark"; b.textContent = d ? "Gelap" : "Terang"; }
+});
+$$(".modul").forEach((m) => { const first = m.querySelector(".g-opsi-nav button"); if (first) pilihOpsi(m.dataset.modul, first.dataset.opsi); });
+let awal = "presensi"; try { awal = localStorage.getItem("uiux-modul") || awal; } catch (e) {}
+pilihModul(awal);
+</script>
+</body>
+</html>

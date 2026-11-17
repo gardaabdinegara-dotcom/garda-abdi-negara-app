@@ -1,7 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { canCorrectFinance, canRecordFinance, canSeeChildBills, canViewFinance, financeAccess, ownStudentIds } from "../core/permissions";
-import type { Actor } from "../core/types";
+import { toStudent, type Actor } from "../core/types";
 import { finance, invoiceSummary, num, setting, text, today } from "../keuangan/domain";
 import { accountName, familyBills, reversedIds, studentOf, userName } from "../keuangan/ringkasan";
 import { composeState, CORE_TABLES, FINANCE_TABLES, ledgerActor } from "../keuangan/sumber";
@@ -30,6 +30,12 @@ async function financeData(actor: Actor) {
     recorder: canRecordFinance(actor),
     closed: JSON.parse(setting(state, "closed_periods", "[]")) as string[],
     business: setting(state, "business_name", "Garda Abdi Negara"),
+    /** Siswa aktif (kode + nama) untuk mengisi keterangan pembayaran dengan cepat. */
+    students: (inti.Siswa ?? [])
+      .map(toStudent)
+      .filter((st) => st.aktif && !st.dihapus_pada && st.kode_siswa)
+      .map((st) => ({ kode: st.kode_siswa, nama: st.nama }))
+      .sort((a, b) => a.kode.localeCompare(b.kode)),
   };
 }
 
