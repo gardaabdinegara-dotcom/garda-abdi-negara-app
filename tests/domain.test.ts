@@ -5,6 +5,7 @@ import {
   createEnrollment,
   createStudent,
   createUser,
+  deleteStudent,
   formatStudentCode,
   revokeSessions,
   saveClass,
@@ -14,6 +15,7 @@ import {
   updateEnrollmentStatus,
   updateUser,
 } from "../src/lib/core/domain";
+import { createStudentAccount } from "../src/lib/core/pin";
 import { studentInput, type StudentInput } from "../src/lib/core/validation";
 import { AppError, type Tables } from "../src/lib/data/types";
 import { actor, ctx, emptyTables, putUser, user } from "./helpers";
@@ -45,6 +47,21 @@ describe("kode siswa", () => {
     assert.equal(code(t, next), "GAN-0004");
     assert.equal(setting(t, "penghitung_kode_siswa"), "4");
     assert.equal(new Set(codes(t)).size, codes(t).length);
+  });
+
+  test("kode siswa yang dihapus langsung dipakai siswa baru, beserta username akunnya", async () => {
+    const t = await emptyTables();
+    t.Pengguna!.push({ ...admin.user });
+    const ids = ["Andi", "Budi", "Citra"].map((nama) => createStudent(t, student(nama), ctx(), admin).entityId);
+    ids.forEach((id) => createStudentAccount(t, id, ctx(), admin));
+    deleteStudent(t, ids[1]!, ctx(), admin);
+    assert.equal(code(t, ids[1]!), "GAN-0002~hapus");
+    const next = createStudent(t, student("Dewi"), ctx(), admin).entityId;
+    assert.equal(code(t, next), "GAN-0002");
+    const account = createStudentAccount(t, next, ctx(), admin);
+    assert.equal(account.data!.username, "gan-0002");
+    const after = createStudent(t, student("Eko"), ctx(), admin).entityId;
+    assert.equal(code(t, after), "GAN-0004", "setelah celah terisi, lanjut dari penghitung");
   });
 
   test("melewati kode yang sudah terpakai (mis. diisi manual di spreadsheet)", async () => {

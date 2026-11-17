@@ -25,7 +25,7 @@ export default async function PreviewPage() {
           <div className="card-head">
             <div>
               <h2>{on ? "Sedang memakai data contoh" : "Coba dengan data contoh"}</h2>
-              <p>24 siswa fiktif, presensi dua minggu terakhir (termasuk sesi yang sedang berlangsung), Tes Samapta I dan II, serta pemasukan dan pengeluaran dua bulan.</p>
+              <p>24 siswa fiktif, presensi dua minggu terakhir (termasuk sesi yang sedang berlangsung), Tes Samapta I dan II, latihan psikotes tiga minggu, serta pemasukan dan pengeluaran dua bulan.</p>
             </div>
           </div>
           <ul className="guide-steps">
@@ -70,6 +70,9 @@ export default async function PreviewPage() {
             </li>
             <li>
               <b>Tes Samapta</b>: Tes II masih berjalan (beberapa pos belum lengkap); Tes I sudah selesai dan bisa dicetak semua blangkonya.
+            </li>
+            <li>
+              <b>Latihan siswa</b>: rekap tiga minggu latihan psikotes, termasuk siswa yang belum pernah latihan, lama tidak latihan, atau skornya turun. Ketuk nama untuk melihat progresnya.
             </li>
             <li>
               <b>Keuangan</b>: pemasukan bimbel dan pengeluaran dua bulan; laporan laba rugi dan neraca siap diunduh.

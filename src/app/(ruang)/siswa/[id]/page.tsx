@@ -18,6 +18,7 @@ import { disciplineLabel } from "@/lib/core/akademik";
 import { FITUR } from "@/lib/core/fitur";
 import { canManageSamapta } from "@/lib/core/samapta";
 import { loadSamaptaStudent } from "@/lib/server/samapta";
+import { loadRingkasLatihanSiswa } from "@/lib/server/latihan";
 import { requireActor } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Profil siswa" };
@@ -31,11 +32,12 @@ export default async function StudentPage({ params, searchParams }: { params: Pa
   const search = await searchParams;
   const [profile, catalog, settings] = await Promise.all([loadStudentProfile(actor, decodeURIComponent(id)), loadCatalog(), loadSettings()]);
   const { student, enrollments, accounts, canManage } = profile;
-  const [academic, bills, money, samapta] = await Promise.all([
+  const [academic, bills, money, samapta, latihan] = await Promise.all([
     loadStudentAcademic(actor, student.siswa_id),
     FITUR.tagihan ? loadStudentBills(actor, student.siswa_id) : Promise.resolve(null),
     canManage && FITUR.tagihan ? loadTariffs(actor) : Promise.resolve(null),
     canManageSamapta(actor) ? loadSamaptaStudent(actor, student.siswa_id) : Promise.resolve(null),
+    loadRingkasLatihanSiswa(actor, student.siswa_id),
   ]);
   const lastTest = samapta?.history.at(-1) ?? null;
   const programs = new Map(catalog.programs.map((p) => [p.program_id, p.nama_program]));
@@ -106,7 +108,7 @@ export default async function StudentPage({ params, searchParams }: { params: Pa
           <section className="card">
             <div className="card-head">
               <div>
-                <h2>{FITUR.nilai ? "Akademik" : "Presensi & samapta"}</h2>
+                <h2>{FITUR.nilai ? "Akademik" : latihan ? "Presensi, samapta & latihan" : "Presensi & samapta"}</h2>
                 <p>Ringkasan {monthLabel(academic.clock.periode)}.</p>
               </div>
             </div>
@@ -123,6 +125,15 @@ export default async function StudentPage({ params, searchParams }: { params: Pa
                   <span>{lastTest ? lastTest.test.nama : "Tes Samapta"}</span>
                   <b>{lastTest?.entry.score.akhir != null ? fmtNumber(lastTest.entry.score.akhir, 2) : "-"}</b>
                   <span>{lastTest ? (lastTest.entry.score.klas ?? "Belum lengkap") : "Belum ikut tes"}</span>
+                </div>
+              ) : null}
+              {latihan ? (
+                <div>
+                  <span>Latihan psikotes</span>
+                  <b>{latihan.total}</b>
+                  <span>
+                    {latihan.terakhir ? `${latihan.mingguIni} minggu ini · skor terakhir ${latihan.terakhir.skor}` : "Belum pernah latihan"}
+                  </span>
                 </div>
               ) : null}
               {FITUR.nilai ? (
@@ -144,6 +155,11 @@ export default async function StudentPage({ params, searchParams }: { params: Pa
               {lastTest ? (
                 <Link href={`/samapta/${lastTest.test.tes_id}/siswa/${student.siswa_id}`} className="btn btn-secondary btn-sm">
                   Hasil samapta
+                </Link>
+              ) : null}
+              {latihan ? (
+                <Link href={latihan.href} className="btn btn-secondary btn-sm">
+                  Progres latihan
                 </Link>
               ) : null}
               {academic.staff && FITUR.nilai ? (

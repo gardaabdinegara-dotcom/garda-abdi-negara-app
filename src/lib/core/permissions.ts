@@ -51,7 +51,7 @@ export interface MenuItem {
   /** Label pendek untuk navigasi bawah di ponsel. */
   short?: string;
   href: string;
-  icon: "home" | "users" | "book" | "wallet" | "settings" | "user" | "check" | "chart" | "file" | "more" | "run" | "receipt";
+  icon: "home" | "users" | "book" | "wallet" | "settings" | "user" | "check" | "chart" | "file" | "more" | "run" | "receipt" | "target";
 }
 
 /**
@@ -64,6 +64,7 @@ export function menuFor(actor: Actor): MenuItem[] {
   const guide: MenuItem = { key: "panduan", label: "Panduan", href: "/panduan", icon: "file" };
   const presensi: MenuItem = { key: "presensi", label: "Presensi", href: "/akademik", icon: "check" };
   const samapta: MenuItem = { key: "samapta", label: "Tes Samapta", short: "Samapta", href: "/samapta", icon: "run" };
+  const latihan: MenuItem = { key: "latihan", label: "Latihan", href: "/latihan", icon: "target" };
   const hidden: MenuItem[] = [
     ...(FITUR.nilai ? [{ key: "nilai", label: "Nilai & Tes", short: "Nilai", href: "/akademik/nilai", icon: "chart" } as MenuItem] : []),
     ...(FITUR.tugas ? [{ key: "tugas", label: "Tugas", href: "/akademik/tugas", icon: "book" } as MenuItem] : []),
@@ -74,6 +75,7 @@ export function menuFor(actor: Actor): MenuItem[] {
     case "ADMIN": {
       const items: MenuItem[] = [home, presensi, samapta];
       if (canViewFinance(actor)) items.push({ key: "keuangan", label: "Keuangan", href: "/keuangan", icon: "wallet" });
+      items.push({ ...latihan, label: "Latihan siswa" });
       items.push({ key: "siswa", label: "Siswa", href: "/siswa", icon: "users" }, ...hidden);
       items.push({ key: "pengaturan", label: "Pengaturan", href: "/pengaturan", icon: "settings" }, guide);
       return items;
@@ -85,6 +87,7 @@ export function menuFor(actor: Actor): MenuItem[] {
         home,
         presensi,
         { ...samapta, label: "Hasil Samapta" },
+        latihan,
         ...(FITUR.tagihan ? [{ key: "tagihan", label: "Tagihan", href: "/keuangan/tagihan", icon: "receipt" } as MenuItem] : []),
         ...hidden,
         me,

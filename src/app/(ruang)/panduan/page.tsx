@@ -84,6 +84,24 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    id: "latihan",
+    title: "Latihan psikotes",
+    roles: ["OWNER", "ADMIN"],
+    intro: "Siswa berlatih Kraepelin, Pauli, angka hilang, dan simbol hilang dari HP masing-masing. Angka dan simbol dibuat acak terus saat dikerjakan, jadi setiap latihan berbeda. Setiap latihan yang selesai tersimpan satu baris di spreadsheet.",
+    steps: [
+      <>
+        <Link href="/latihan">Latihan siswa</Link>: semua siswa aktif dalam satu daftar, dengan jumlah latihan minggu ini, skor terakhir, dan tren naik/turun.
+      </>,
+      <>
+        Pilih <b>Perlu perhatian</b> untuk melihat siswa yang belum pernah latihan, 7 hari tidak latihan, atau skornya turun 5 poin atau lebih.
+      </>,
+      <>Ketuk nama siswa untuk melihat grafik skor, perbandingan aspek latihan pertama dan terakhir, serta hasil tiap latihan.</>,
+      <>
+        Ingin merasakan layarnya? <Link href="/latihan/coba">Coba latihan</Link>: hasilnya ditampilkan tetapi tidak disimpan.
+      </>,
+    ],
+  },
+  {
     id: "keuangan",
     title: "Keuangan: catat manual",
     roles: ["OWNER", "ADMIN"],
@@ -155,6 +173,12 @@ const SECTIONS: Section[] = [
       <>
         <b>Hasil Samapta</b>: nilai tiap materi, hasil akhir, klasifikasi, peringkat, dan perkembangan dari tes sebelumnya. Blangko sendiri bisa dicetak.
       </>,
+      <>
+        <b>Latihan</b>: pilih Kraepelin, Pauli, angka hilang, atau simbol hilang, pilih durasi (Singkat, Standar, atau Seperti tes asli), lalu mulai. Hasil keluar begitu waktu habis: skor, ketelitian, kecepatan, stabilitas, performa, dan kurva kerja.
+      </>,
+      <>
+        <Link href="/latihan/progres">Progres saya</Link>: grafik skor dari latihan ke latihan. Bila sinyal putus saat menyimpan, hasil disimpan di HP dan bisa dikirim ulang.
+      </>,
     ],
   },
   {
@@ -192,7 +216,7 @@ export default async function GuidePage() {
 
   return (
     <div className="page">
-      <PageHead eyebrow="Bantuan" title="Panduan" description="Langkah yang paling sering dipakai: presensi, Tes Samapta, dan keuangan, sesuai peran akun Anda." actions={<PrintButton label="Cetak panduan" />} />
+      <PageHead eyebrow="Bantuan" title="Panduan" description="Langkah yang paling sering dipakai: presensi, Tes Samapta, latihan, dan keuangan, sesuai peran akun Anda." actions={<PrintButton label="Cetak panduan" />} />
       <nav className="tabs" aria-label="Isi panduan">
         {sections.map((s) => (
           <a key={s.id} href={`#${s.id}`} className="tab">

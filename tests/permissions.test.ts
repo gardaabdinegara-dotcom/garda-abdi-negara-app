@@ -111,12 +111,12 @@ describe("menu per peran (PRD 3)", () => {
 
   test("susunan menu", () => {
     // Arah 17 Nov 2026: Presensi, Tes Samapta, Keuangan; nilai/tugas/rapor disembunyikan (lib/core/fitur.ts).
-    assert.deepEqual(keys(actor("OWNER")), ["beranda", "presensi", "samapta", "keuangan", "siswa", "pengaturan", "panduan"]);
-    assert.deepEqual(keys(actor("ADMIN")), ["beranda", "presensi", "samapta", "siswa", "pengaturan", "panduan"]);
-    assert.deepEqual(keys(actor("ADMIN", { akses: "LIHAT" })), ["beranda", "presensi", "samapta", "keuangan", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("OWNER")), ["beranda", "presensi", "samapta", "keuangan", "latihan", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("ADMIN")), ["beranda", "presensi", "samapta", "latihan", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("ADMIN", { akses: "LIHAT" })), ["beranda", "presensi", "samapta", "keuangan", "latihan", "siswa", "pengaturan", "panduan"]);
     assert.deepEqual(keys(actor("PENGAJAR")), ["beranda", "presensi", "samapta", "akun-saya", "panduan"]);
     // Tagihan siswa disembunyikan: keuangan dicatat manual oleh owner.
-    assert.deepEqual(keys(actor("SISWA")), ["beranda", "presensi", "samapta", "akun-saya", "panduan"]);
+    assert.deepEqual(keys(actor("SISWA")), ["beranda", "presensi", "samapta", "latihan", "akun-saya", "panduan"]);
     assert.deepEqual(keys(actor("WALI")), ["beranda", "presensi", "akun-saya", "panduan"]);
   });
 

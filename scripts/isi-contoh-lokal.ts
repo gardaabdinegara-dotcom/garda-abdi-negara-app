@@ -28,6 +28,8 @@ import { applyFinanceCommand, FINANCE_TABLES } from "../src/lib/keuangan/sumber"
 import { eligibleStudents, isLate, localClock, publishReport, saveAssignment, saveHealth, saveReportNote, saveTest, toSession } from "../src/lib/core/akademik";
 import { SAMAPTA_TABLES, saveSamaptaPos, saveSamaptaTest, setSamaptaStatus } from "../src/lib/core/samapta";
 import { samaptaPosInput } from "../src/lib/core/samapta-input";
+import { LATIHAN_TABLES } from "../src/lib/core/latihan-simpan";
+import { isiContohLatihan, type PolaLatihan } from "../src/lib/demo/data-contoh";
 
 const file = localDataFile();
 if (fs.existsSync(file) && !process.argv.includes("--ulang")) {
@@ -351,6 +353,28 @@ for (const [n, tanggal] of samaptaDays.entries()) {
     if (n === 0) setSamaptaStatus(t, { tes_id: tesId, status: "SELESAI" }, ctx, owner);
   });
 }
+
+// 6c. Latihan psikotes sekitar 3 minggu terakhir (fiktif), lewat perintah simpan yang sama dengan aplikasi.
+// Ada siswa yang rutin dan naik, skornya turun, lama tidak latihan, baru mulai, dan belum pernah latihan,
+// sehingga setiap tanda di rekap owner terlihat. Arif (akun siswa.arif) punya riwayat terpanjang.
+const POLA_LOKAL: PolaLatihan[] = ["naik", "naik", "turun", "naik", "lama", "belum", "naik", "baru", "naik", "lama", "naik", "belum"];
+await runOperation(deps, {
+  sheet: "inti",
+  operationId: randomUUID(),
+  actorId: ownerId,
+  action: "isiContoh:latihan",
+  fingerprint: { name: "latihan" },
+  tables: [...LATIHAN_TABLES, "Latihan_Psikotes"],
+  apply: (t) => {
+    const peserta = ids.students.map((siswaId, i) => ({
+      siswaId,
+      userId: i === 0 ? ids.users.get("siswa.arif")! : "CONTOH",
+      pola: POLA_LOKAL[i] ?? "naik",
+    }));
+    const jumlah = isiContohLatihan(t, peserta, new Date().toISOString(), 20261117, (prefix) => `${prefix}_${randomUUID().replace(/-/g, "")}`);
+    return { entityType: "Contoh", entityId: "latihan", message: `Contoh latihan diisi (${jumlah} latihan).` };
+  },
+});
 
 // 7. Data keuangan: akun kas/bank, tarif, ketentuan biaya, tagihan, pembayaran, biaya, dan dasar laporan.
 // Semua lewat perintah keuangan yang sama dengan aplikasi (aturan dan validasinya ikut berlaku).

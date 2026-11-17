@@ -1,6 +1,9 @@
 // Data contoh mode pratinjau: lengkap, deterministik, dan bisa dibaca aplikasi.
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import { kelompokkanPerSiswa, rekapDari } from "../src/lib/core/latihan-rekap";
+import { toLatihan } from "../src/lib/core/latihan-simpan";
+import { toStudent } from "../src/lib/core/types";
 import { buildDemoData } from "../src/lib/demo/data-contoh";
 import { composeState } from "../src/lib/keuangan/sumber";
 import { financialStatements } from "../src/lib/keuangan/reporting";
@@ -27,6 +30,36 @@ describe("data contoh mode pratinjau", () => {
     assert.deepEqual(a.inti.Sesi!.map((s) => s.sesi_id), b.inti.Sesi!.map((s) => s.sesi_id));
     assert.deepEqual(a.inti.Tes_Samapta!.map((s) => s.tes_id), b.inti.Tes_Samapta!.map((s) => s.tes_id));
     assert.deepEqual(a.keuangan.Transaksi!.map((t) => t.nominal), b.keuangan.Transaksi!.map((t) => t.nominal));
+    assert.deepEqual(a.inti.Latihan_Psikotes, b.inti.Latihan_Psikotes);
+  });
+
+  test("latihan psikotes tiga minggu: kolom tersimpan cocok dengan hitungan ulang, semua tanda rekap muncul", () => {
+    const d = buildDemoData(viewer, NOW);
+    const rows = d.inti.Latihan_Psikotes!;
+    assert.ok(rows.length > 100, `jumlah latihan ${rows.length}`);
+    for (const row of rows) {
+      const l = toLatihan(row);
+      for (const key of ["dijawab", "benar", "salah", "kecepatan", "ketelitian", "stabilitas", "performa", "skor"] as const) {
+        assert.equal(row[key], l[key], `${key} ${row.latihan_id}`);
+      }
+      assert.ok(String(row.mulai) < NOW, "tidak ada latihan di masa depan");
+      assert.ok(String(row.tanggal) >= "2026-10-26" && String(row.tanggal) <= "2026-11-17", `tanggal ${row.tanggal}`);
+      assert.ok(d.inti.Pengguna!.some((u) => u.user_id === row.created_by && u.peran === "SISWA"), "disimpan atas nama akun siswa");
+    }
+    const latihan = rows.map(toLatihan);
+    assert.ok(new Set(latihan.map((l) => l.jenis)).size === 4, "keempat jenis ada");
+    assert.ok(new Set(latihan.map((l) => l.durasi)).size >= 2, "durasi bervariasi");
+    const rekap = rekapDari(d.inti.Siswa!.map(toStudent), kelompokkanPerSiswa(latihan), "2026-11-17");
+    const tanda = new Set(rekap.baris.map((b) => b.tanda));
+    for (const t of ["belum", "lama", "turun", null]) assert.ok(tanda.has(t as never), `tanda ${t} ada`);
+    assert.ok(rekap.aktifMingguIni >= 15, `siswa aktif minggu ini ${rekap.aktifMingguIni}`);
+    // Siswa yang rutin latihan menunjukkan kemajuan: skor terakhir jenis favoritnya di atas skor pertama.
+    const naik = rekap.baris.filter((b) => b.total >= 7 && b.tanda === null);
+    assert.ok(naik.length >= 8);
+    for (const b of naik) {
+      const sama = latihan.filter((l) => l.siswa_id === b.student.siswa_id && l.jenis === b.terakhir!.jenis).sort((x, y) => x.mulai.localeCompare(y.mulai));
+      assert.ok(sama.at(-1)!.skor > sama[0]!.skor, `${b.student.nama}: ${sama.map((l) => l.skor).join(",")}`);
+    }
   });
 
   test("laporan keuangan contoh siap diperiksa (semua kategori terpetakan, saldo awal terverifikasi)", () => {

@@ -133,13 +133,17 @@ function ensureCapacity(t: Tables): void {
 export function createStudent(t: Tables, input: StudentInput, ctx: OperationContext, actor: Actor): OperationOutcome {
   if (!canManageStudents(actor)) throw forbidden();
   ensureCapacity(t);
-  // Kode siswa diambil dari penghitung di Pengaturan, di dalam gerbang penyimpanan, sehingga tidak pernah ganda.
-  const used = new Set(rows(t, "Siswa").map((row) => str(row.kode_siswa)));
+  // Kode siswa dibuat di dalam gerbang penyimpanan, sehingga tidak pernah ganda. Kode milik siswa yang DIHAPUS
+  // dibebaskan dan dipakai lagi lebih dulu (kode bebas terkecil); siswa nonaktif tetap memegang kodenya.
+  const used = new Set(rows(t, "Siswa").filter((row) => !str(row.dihapus_pada)).map((row) => str(row.kode_siswa)));
   let counter = num(setting(t, "penghitung_kode_siswa"), 0);
-  let code: string;
-  do code = formatStudentCode(++counter);
-  while (used.has(code));
-  putSetting(t, "penghitung_kode_siswa", counter, ctx);
+  let code = "";
+  for (let n = 1; n <= counter && !code; n++) if (!used.has(formatStudentCode(n))) code = formatStudentCode(n);
+  if (!code) {
+    do code = formatStudentCode(++counter);
+    while (used.has(code));
+    putSetting(t, "penghitung_kode_siswa", counter, ctx);
+  }
   const row = {
     siswa_id: ctx.newId("SIS"),
     kode_siswa: code,
@@ -222,7 +226,8 @@ export function deleteStudent(t: Tables, siswaId: string, ctx: OperationContext,
   if (!canManageStudents(actor)) throw forbidden();
   const found = find(t, "Siswa", "siswa_id", siswaId);
   if (!found || str(found.row.dihapus_pada)) throw notFound("Siswa");
-  const row = { ...found.row, aktif: false, dihapus_pada: ctx.now, ...updated(ctx) };
+  // Kode diberi akhiran agar jelas di spreadsheet dan bebas dipakai siswa baru.
+  const row = { ...found.row, aktif: false, kode_siswa: `${str(found.row.kode_siswa)}~hapus`, dihapus_pada: ctx.now, ...updated(ctx) };
   replace(t, "Siswa", found.index, row);
   for (const account of studentAccounts(t, siswaId)) if (!str(account.row.dihapus_pada)) markUserDeleted(t, account.index, ctx);
   return { entityType: "Siswa", entityId: siswaId, message: `Siswa ${str(found.row.nama)} dihapus.`, before: found.row, after: row };

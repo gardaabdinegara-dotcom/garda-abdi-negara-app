@@ -18,7 +18,13 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
   - Klasifikasi: Baik Sekali ≥ 81, Baik 61–80, Cukup 41–60, Kurang ≤ 40 (bisa diubah).
   - Nilai diisi manual sampai tabel nilai resmi tersedia.
   - Blangko A4 bisa dicetak terisi (per siswa atau semua) di `/cetak/samapta/[tes]` atau kosong di `/cetak/samapta/kosong`. Kop, tempat, kota, dan penanda tangan diatur di Pengaturan → Lembaga.
-- **Siswa** melihat presensi dan hasil samapta (dengan peringkat dan perkembangan).
+- **Latihan psikotes** (`/latihan`):
+  - Empat jenis: Kraepelin, Pauli, angka hilang, dan simbol hilang (simbol berupa karakter Unicode, seperti Insert Symbol di Word).
+  - Angka dan simbol dibuat acak terus di HP selama mengerjakan. Durasi: Singkat, Standar, atau Seperti tes asli (`PRESET` di `src/lib/core/latihan.ts`).
+  - Penilaian mengikuti prototipe owner: kecepatan, ketelitian, stabilitas (deviation rate), dan performa (tren kurva kerja), digabung jadi skor 0 sampai 100 (35/30/20/15). Kategori resmi untuk Kraepelin dan Pauli.
+  - Hanya hasil akhir yang dikirim: satu baris per latihan di tab `Latihan_Psikotes`, ditambahkan tanpa membaca isi tab, jadi tetap ringan walau banyak siswa menyimpan bersamaan. Skor selalu dihitung ulang di server. Bila sinyal putus, hasil disimpan di HP dan bisa dikirim ulang tanpa tersimpan dua kali.
+  - Siswa melihat hasil, kurva kerja, dan progres. Owner melihat rekap semua siswa (minggu ini, skor terakhir, tren) dengan penanda siswa yang belum latihan, lama tidak latihan, atau skornya turun. Owner bisa mencoba latihan tanpa menyimpan (`/latihan/coba`).
+- **Siswa** melihat presensi, hasil samapta (dengan peringkat dan perkembangan), dan latihan psikotes.
 - **Keuangan catat manual:** tagihan, cicilan, tarif, piutang, dan kuitansi siswa disembunyikan (`FITUR.tagihan = false`). Owner mencatat pemasukan dan pengeluaran di **Keuangan → Pemasukan & pengeluaran**, lalu laporan (buku kas, laba rugi, neraca) dibuat otomatis. **Siapkan akun & kategori** membuat kategori lembaga yang sudah dipetakan ke laporan (mis. Pembayaran bimbel siswa → Pendapatan jasa). Setiap transaksi punya **Ubah / hapus**: transaksi lama dibalik pada tanggal aslinya, jadi jejaknya tetap ada.
 - **Hapus data:** tombol Hapus untuk akun, siswa (beserta akunnya), sesi presensi, dan tes samapta. Baris tidak dicabut dari spreadsheet (posisi baris harus tetap); baris ditandai kolom `dihapus_pada` atau status `DIHAPUS` lalu disembunyikan dari aplikasi.
 - **Mode pratinjau (owner/admin):** Pengaturan → Mode pratinjau menampilkan semua fitur dengan data contoh di memori server (`src/lib/demo/data-contoh.ts`): 24 siswa fiktif, presensi dua minggu, Tes Samapta I dan II, serta keuangan dua bulan. Hanya untuk browser owner itu (cookie 4 jam); siswa tetap melihat data asli dan spreadsheet tidak pernah disentuh.
@@ -26,7 +32,7 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
 
 **Spreadsheet perlu diperbarui sekali** sebelum versi ini dipakai dengan Google Sheets: jalankan `npm run setup:sheets` (pratinjau), lalu `npm run setup:sheets -- --apply`. Perintah ini:
 
-- menambah tab `Tes_Samapta` dan `Hasil_Samapta`;
+- menambah tab `Tes_Samapta`, `Hasil_Samapta`, dan `Latihan_Psikotes`;
 - menambah kolom `tempat_lahir` dan `asal_sekolah` di **ujung kanan** tab `Siswa`. Data lama tidak diubah.
 
 Tanpa langkah ini, mode Sheets menampilkan galat "Header tab Siswa berubah".
@@ -43,7 +49,7 @@ Tanpa langkah ini, mode Sheets menampilkan galat "Header tab Siswa berubah".
 
 Fitur pendukung:
 
-- Kode siswa otomatis `GAN-0001`, `GAN-0002`, dst. Kode tidak pernah ganda dan tidak dipakai ulang.
+- Kode siswa otomatis `GAN-0001`, `GAN-0002`, dst. Kode tidak pernah ganda. Kode siswa yang **dihapus** langsung dipakai siswa baru berikutnya (kode bebas terkecil), beserta username akunnya; siswa yang hanya dinonaktifkan tetap memegang kodenya.
 - Kapasitas siswa aktif ditegakkan (bawaan 30).
 - Password sementara 16 karakter, hanya ditampilkan sekali dan wajib diganti saat pertama masuk.
 - Tampilan "Profesional modern" dengan palet hijau army dan oranye, mode terang dan gelap:
@@ -222,10 +228,11 @@ Perintah di atas hanya menampilkan pratinjau. Tambahkan `--terapkan` untuk menyi
 
 ## Pengujian
 
-`npm run check` menjalankan 242 tes otomatis:
+`npm run check` menjalankan 298 tes otomatis:
 
 - Tes Samapta: klasifikasi, IMT, Garjas B dan hasil akhir, durasi renang, simpan per pos tanpa menyentuh pos lain, kunci saat selesai, hak akses, serta pembantu tampilan
 - presensi untuk semua siswa tanpa kelas dan hadir lewat QR yang langsung sah
+- latihan psikotes: rumus skor dan kategori, batas pembulatan, validasi kiriman dari HP, hak simpan hanya untuk siswa, dan batas kewajaran data
 
 - matriks hak akses untuk kelima peran, menu, dan aturan keuangan
 - keunikan kode siswa, kapasitas, aturan pendaftaran, akun, dan tautan
@@ -328,7 +335,7 @@ Keuangan memakai spreadsheet Keuangan dengan kolom yang sama seperti aplikasi Ke
 - Tagihan hanya bisa diterbitkan setelah ketentuan biaya pendaftaran diatur di menu **Keuangan → Tarif & biaya**.
 - Langkah pertama pemilik adalah menekan **Siapkan akun & kategori** di Ringkasan Keuangan, lalu mengisi saldo awal di **Akun & periode**.
 
-17 Nov 2026 menambah tab `Tes_Samapta` dan `Hasil_Samapta` serta kolom `tempat_lahir` dan `asal_sekolah` di ujung kanan tab `Siswa`. `npm run setup:sheets -- --apply` membuat tab baru dan melengkapi header lama yang hanya kekurangan kolom di ujung kanan, tanpa mengubah data.
+17 Nov 2026 menambah tab `Tes_Samapta`, `Hasil_Samapta`, dan `Latihan_Psikotes` serta kolom `tempat_lahir` dan `asal_sekolah` di ujung kanan tab `Siswa`. `npm run setup:sheets -- --apply` membuat tab baru dan melengkapi header lama yang hanya kekurangan kolom di ujung kanan, tanpa mengubah data.
 
 Fase 2 menambah kolom `komponen` (sesudah `kategori`) di tab `Hasil_Tes`. Bila tab itu sudah dibuat sebelum Fase 2 dan masih kosong, hapus tab `Hasil_Tes` lalu jalankan `npm run setup:sheets -- --apply` lagi. Bila sudah berisi data, sisipkan kolom `komponen` secara manual di posisi yang sama.
 

@@ -3,6 +3,8 @@
 // perhitungan, laporan, dan blangko berjalan persis seperti data asli.
 import { localClock } from "../core/akademik";
 import { createStudent } from "../core/domain";
+import { hitungHasil, JENIS_LATIHAN, PRESET, type Bagian, type DurasiLatihan, type JenisLatihan } from "../core/latihan";
+import { saveLatihan } from "../core/latihan-simpan";
 import { createStudentAccount } from "../core/pin";
 import { saveSamaptaPos, saveSamaptaTest, setSamaptaStatus } from "../core/samapta";
 import { samaptaPosInput } from "../core/samapta-input";
@@ -51,10 +53,122 @@ function emptyTables(): { inti: Tables; keuangan: Tables } {
   return { inti, keuangan };
 }
 
+// ---------------------------------------------------------------- Latihan psikotes contoh
+
+/**
+ * Pola riwayat latihan satu siswa:
+ * "naik" = rutin dan makin baik, "turun" = rutin tetapi latihan terakhir turun 5 poin atau lebih,
+ * "lama" = sempat latihan lalu berhenti 8 sampai 12 hari, "baru" = baru mulai minggu ini, "belum" = belum pernah.
+ */
+export type PolaLatihan = "naik" | "turun" | "lama" | "baru" | "belum";
+
+export interface PesertaLatihan {
+  siswaId: string;
+  /** Akun siswa (untuk kolom created_by). */
+  userId: string;
+  pola: PolaLatihan;
+}
+
+/** Jawaban per kolom/interval untuk kemampuan `k` (0 sampai 1): makin tinggi makin cepat, teliti, dan stabil. */
+function seriContoh(jenis: JenisLatihan, durasi: DurasiLatihan, k: number, rand: () => number): Bagian[] {
+  const { bagian, detik } = PRESET[jenis][durasi];
+  const cermat = jenis === "angka" || jenis === "simbol";
+  const perMenit = cermat ? 12 + 30 * k : 14 + 36 * k;
+  const teliti = Math.min(0.995, (cermat ? 0.82 + 0.16 * k : 0.88 + 0.11 * k) + (rand() - 0.5) * 0.02);
+  const lelah = -0.18 * (1 - k) + (rand() - 0.5) * 0.1; // perubahan laju dari awal ke akhir
+  const goyang = 0.04 + 0.16 * (1 - k);
+  return Array.from({ length: bagian }, (_, b) => {
+    const posisi = bagian > 1 ? b / (bagian - 1) - 0.5 : 0;
+    const jawab = Math.min(400, Math.max(1, Math.round(((perMenit * detik) / 60) * (1 + lelah * posisi + (rand() - 0.5) * 2 * goyang))));
+    const salah = Math.max(0, Math.round(jawab * (1 - teliti) + (rand() - 0.5) * 1.2));
+    return { benar: Math.max(0, jawab - salah), jawab };
+  });
+}
+
+/**
+ * Mengisi riwayat latihan psikotes contoh sekitar 3 minggu terakhir lewat perintah simpan yang sama dengan aplikasi
+ * (skor dihitung ulang dari data per kolom). Deterministik untuk benih dan waktu yang sama. Mengembalikan jumlah baris.
+ */
+export function isiContohLatihan(t: Tables, peserta: readonly PesertaLatihan[], nowIso: string, seed: number, newId: (prefix: string) => string): number {
+  const rand = mulberry32(seed);
+  const today = localClock("Asia/Jakarta", nowIso).date;
+  const nowMs = Date.parse(nowIso);
+  const jepit = (v: number) => Math.max(0.02, Math.min(0.98, v));
+  let jumlahBaris = 0;
+  let op = 0;
+
+  peserta.forEach((p, idx) => {
+    if (p.pola === "belum") return;
+    const actor: Actor = {
+      user: { user_id: p.userId, username: "", nama: "", peran: "SISWA", password_hash: "", wajib_ganti_password: false, versi_otorisasi: 1, akses_keuangan: "TIDAK", aktif: true, terakhir_masuk: "", dihapus_pada: "" },
+      links: [{ tautan_id: "", user_id: p.userId, jenis: "SISWA", siswa_id: p.siswaId, kelas_id: "", aktif: true }],
+    };
+    const favorit = JENIS_LATIHAN[idx % JENIS_LATIHAN.length]!;
+    const awal = 0.12 + rand() * 0.4;
+    const naik = p.pola === "baru" ? 0.04 : 0.14 + rand() * 0.22;
+    const [jumlah, pertama, terakhir] =
+      p.pola === "lama"
+        ? [3 + Math.floor(rand() * 4), -20 + Math.floor(rand() * 3), -(8 + Math.floor(rand() * 5))]
+        : p.pola === "baru"
+          ? [1 + Math.floor(rand() * 2), -4, -Math.floor(rand() * 2)]
+          : p.pola === "turun"
+            ? [6 + Math.floor(rand() * 5), -20 + Math.floor(rand() * 3), -(1 + Math.floor(rand() * 4))]
+            : [idx === 0 ? 14 : 7 + Math.floor(rand() * 8), -20 + Math.floor(rand() * 4), -Math.floor(rand() * 3)];
+    // Waktu mulai tiap latihan (jam 06.00 sampai 20.59 WIB), diurutkan dulu agar "latihan terakhir" di sini sama
+    // dengan yang dibaca aplikasi. Latihan yang baru selesai setelah waktu sekarang digeser ke hari sebelumnya.
+    const waktu = Array.from({ length: jumlah }, (_, k) => {
+      let d = terakhir;
+      if (k === 0 && jumlah > 1) d = pertama;
+      else if (k < jumlah - 1) d = Math.max(pertama, Math.min(terakhir, Math.round(pertama + ((terakhir - pertama) * k) / (jumlah - 1) + (rand() - 0.5) * 1.6)));
+      const jam = `${String(6 + Math.floor(rand() * 15)).padStart(2, "0")}:${String(Math.floor(rand() * 60)).padStart(2, "0")}`;
+      let ms = Date.parse(wib(addDays(today, d), jam));
+      if (ms + 30 * 60_000 > nowMs) ms -= 86_400_000;
+      return ms;
+    }).sort((a, b) => a - b);
+    for (let i = 1; i < waktu.length; i++) if (waktu[i]! - waktu[i - 1]! < 30 * 60_000) waktu[i] = waktu[i - 1]! + 30 * 60_000;
+
+    const skorTerakhir = new Map<JenisLatihan, { skor: number; k: number }>();
+    waktu.forEach((mulaiMs, n) => {
+      const akhir = n === jumlah - 1;
+      // Latihan pertama dan terakhir memakai jenis favorit agar tren jenis itu terbaca.
+      const jenis = n === 0 || akhir || rand() < 0.55 ? favorit : JENIS_LATIHAN[Math.floor(rand() * JENIS_LATIHAN.length)]!;
+      const r = rand();
+      const durasi: DurasiLatihan = r < 0.45 ? "singkat" : r < 0.92 || jenis === "pauli" ? "standar" : "asli";
+      const { bagian, detik } = PRESET[jenis][durasi];
+      const lama = bagian * detik;
+      let k = jepit(awal + naik * (jumlah > 1 ? n / (jumlah - 1) : 0) + (rand() - 0.5) * 0.08);
+      const lalu = skorTerakhir.get(jenis);
+      if (akhir && lalu && p.pola === "turun") k = jepit(lalu.k - 0.25 - rand() * 0.1);
+      let seri = seriContoh(jenis, durasi, k, rand);
+      // Pastikan tanda di rekap sesuai pola: "turun" turun 5 poin atau lebih, pola lain tidak turun sebanyak itu.
+      for (let coba = 0; akhir && lalu && coba < 12; coba++) {
+        const skor = hitungHasil(jenis, seri, lama).skor;
+        if (p.pola === "turun" ? skor - lalu.skor <= -5 : skor - lalu.skor > -3) break;
+        k = jepit(k + (p.pola === "turun" ? -0.06 : 0.05));
+        seri = seriContoh(jenis, durasi, k, rand);
+      }
+      skorTerakhir.set(jenis, { skor: hitungHasil(jenis, seri, lama).skor, k });
+
+      const ctx: OperationContext = {
+        actorId: p.userId,
+        now: new Date(mulaiMs + lama * 1000).toISOString(),
+        operationId: `demo-lat-${++op}`,
+        newId,
+      };
+      saveLatihan(t, { jenis, durasi, mulai: new Date(mulaiMs).toISOString(), detik: lama, seri }, ctx, actor);
+      jumlahBaris++;
+    });
+  });
+  return jumlahBaris;
+}
+
+/** Pola latihan 24 siswa contoh: kebanyakan naik, sisanya contoh untuk setiap tanda di rekap owner. */
+const POLA_LATIHAN: Record<number, PolaLatihan> = { 3: "lama", 4: "turun", 6: "baru", 7: "belum", 11: "lama", 16: "baru", 18: "lama", 20: "turun", 23: "belum" };
+
 /**
  * Membangun seluruh data contoh relatif terhadap hari ini: 24 siswa, presensi dua minggu terakhir (termasuk sesi
- * yang sedang berlangsung dengan pengajuan menunggu), Tes Samapta I (selesai) dan II (berjalan), serta
- * pemasukan/pengeluaran dua bulan dengan laporan siap diperiksa.
+ * yang sedang berlangsung dengan pengajuan menunggu), Tes Samapta I (selesai) dan II (berjalan), latihan psikotes
+ * tiga minggu terakhir, serta pemasukan/pengeluaran dua bulan dengan laporan siap diperiksa.
  */
 export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): { inti: Tables; keuangan: Tables } {
   const { inti, keuangan } = emptyTables();
@@ -76,6 +190,7 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
   // ---------------------------------------------------------------- Siswa & akun
   const daftar = addDays(today, -75);
   const ids: string[] = [];
+  const akun: string[] = [];
   NAMA.forEach(([nama, jk], i) => {
     const input = studentInput.parse({
       nama,
@@ -90,6 +205,7 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     const siswaId = createStudent(inti, input, ctxAt(daftar), actor).entityId;
     ids.push(siswaId);
     const account = createStudentAccount(inti, siswaId, ctxAt(daftar), actor);
+    akun.push(account.entityId);
     // Sebagian besar siswa sudah membuat PIN (hash contoh yang tidak bisa dipakai masuk).
     if (i % 6 !== 5) {
       const row = inti.Pengguna!.find((u) => u.user_id === account.entityId);
@@ -156,6 +272,15 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     });
     if (n === 0) setSamaptaStatus(inti, { tes_id: tesId, status: "SELESAI" }, ctx, actor);
   });
+
+  // ---------------------------------------------------------------- Latihan psikotes
+  isiContohLatihan(
+    inti,
+    ids.map((siswaId, i) => ({ siswaId, userId: akun[i]!, pola: POLA_LATIHAN[i] ?? "naik" })),
+    nowIso,
+    Number(today.replace(/-/g, "")) + 7,
+    (prefix) => `${prefix}_DEMO${String(++seq).padStart(5, "0")}`,
+  );
 
   // ---------------------------------------------------------------- Keuangan (catat manual)
   const start = `${addDays(`${today.slice(0, 7)}-01`, -1).slice(0, 7)}-01`;
