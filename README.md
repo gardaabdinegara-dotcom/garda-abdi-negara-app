@@ -20,6 +20,8 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
   - Blangko A4 bisa dicetak terisi (per siswa atau semua) di `/cetak/samapta/[tes]` atau kosong di `/cetak/samapta/kosong`. Kop, tempat, kota, dan penanda tangan diatur di Pengaturan → Lembaga.
 - **Siswa** melihat presensi dan hasil samapta (dengan peringkat dan perkembangan).
 - **Keuangan catat manual:** tagihan, cicilan, tarif, piutang, dan kuitansi siswa disembunyikan (`FITUR.tagihan = false`). Owner mencatat pemasukan dan pengeluaran di **Keuangan → Pemasukan & pengeluaran**, lalu laporan (buku kas, laba rugi, neraca) dibuat otomatis. **Siapkan akun & kategori** membuat kategori lembaga yang sudah dipetakan ke laporan (mis. Pembayaran bimbel siswa → Pendapatan jasa). Setiap transaksi punya **Ubah / hapus**: transaksi lama dibalik pada tanggal aslinya, jadi jejaknya tetap ada.
+- **Hapus data:** tombol Hapus untuk akun, siswa (beserta akunnya), sesi presensi, dan tes samapta. Baris tidak dicabut dari spreadsheet (posisi baris harus tetap); baris ditandai kolom `dihapus_pada` atau status `DIHAPUS` lalu disembunyikan dari aplikasi.
+- **Mode pratinjau (owner/admin):** Pengaturan → Mode pratinjau menampilkan semua fitur dengan data contoh di memori server (`src/lib/demo/data-contoh.ts`): 24 siswa fiktif, presensi dua minggu, Tes Samapta I dan II, serta keuangan dua bulan. Hanya untuk browser owner itu (cookie 4 jam); siswa tetap melihat data asli dan spreadsheet tidak pernah disentuh.
 - **Owner = superadmin:** ubah atau nonaktifkan data di semua bagian. Ganti nama siswa ikut mengganti nama akun loginnya, dan menonaktifkan siswa menutup akunnya. Sesi presensi yang sudah selesai bisa diubah atau dibatalkan (lalu dipulihkan), dan Tes Samapta bisa dibatalkan atau dipulihkan. Data tidak pernah benar-benar dihapus.
 
 **Spreadsheet perlu diperbarui sekali** sebelum versi ini dipakai dengan Google Sheets: jalankan `npm run setup:sheets` (pratinjau), lalu `npm run setup:sheets -- --apply`. Perintah ini:
@@ -220,7 +222,7 @@ Perintah di atas hanya menampilkan pratinjau. Tambahkan `--terapkan` untuk menyi
 
 ## Pengujian
 
-`npm run check` menjalankan 236 tes otomatis:
+`npm run check` menjalankan 242 tes otomatis:
 
 - Tes Samapta: klasifikasi, IMT, Garjas B dan hasil akhir, durasi renang, simpan per pos tanpa menyentuh pos lain, kunci saat selesai, hak akses, serta pembantu tampilan
 - presensi untuk semua siswa tanpa kelas dan hadir lewat QR yang langsung sah

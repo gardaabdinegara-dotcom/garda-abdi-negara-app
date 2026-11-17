@@ -3,16 +3,16 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ActionState } from "@/lib/action-state";
-import { setStudentActive, updateEnrollmentStatus, updateStudent } from "@/lib/core/domain";
+import { deleteStudent, setStudentActive, updateEnrollmentStatus, updateStudent } from "@/lib/core/domain";
 import { enrollmentInput, enrollmentStatusInput, studentInput } from "@/lib/core/validation";
 import { failure, formObject, mutate, operationIdFrom, parse, success } from "@/lib/server/mutate";
 import { canRecordFinance } from "@/lib/core/permissions";
 import { registerIntegrated, type EnrollmentDraft, type FinanceDraft } from "@/lib/core/terpadu";
 import type { Actor } from "@/lib/core/types";
 import { AppError } from "@/lib/data/types";
-import { deps } from "@/lib/deps";
 import { rupiah } from "@/lib/keuangan/form-commands";
 import { requireActor } from "@/lib/server/session";
+import { dataDeps } from "@/lib/server/data";
 
 const STUDENT_TABLES = ["Pengaturan", "Siswa", "Pengguna", "Tautan_Akun"] as const;
 
@@ -43,7 +43,7 @@ export async function tambahSiswa(_prev: ActionState, formData: FormData): Promi
   const actor = await requireActor();
   let target: string;
   try {
-    const result = await registerIntegrated(deps(), actor, {
+    const result = await registerIntegrated(await dataDeps(), actor, {
       operationId: operationIdFrom(formData),
       student: parse(studentInput, formObject(formData)),
       enrollment: enrollmentDraft(formData),
@@ -100,7 +100,7 @@ export async function tambahPendaftaran(_prev: ActionState, formData: FormData):
     const siswaId = String(formData.get("siswa_id") ?? "");
     const enrollment = enrollmentDraft(formData);
     if (!enrollment) return failure(new AppError("Pilih program dan kelas."));
-    const result = await registerIntegrated(deps(), actor, { operationId: operationIdFrom(formData), siswa_id: siswaId, enrollment, finance: financeDraft(formData, actor) });
+    const result = await registerIntegrated(await dataDeps(), actor, { operationId: operationIdFrom(formData), siswa_id: siswaId, enrollment, finance: financeDraft(formData, actor) });
     refresh();
     return success(result.message);
   } catch (error) {
@@ -124,4 +124,22 @@ export async function ubahStatusPendaftaran(_prev: ActionState, formData: FormDa
   } catch (error) {
     return failure(error);
   }
+}
+
+/** Menghapus siswa (beserta akun loginnya) lalu kembali ke daftar siswa. */
+export async function hapusSiswa(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor();
+  try {
+    const siswaId = String(formData.get("siswa_id") ?? "");
+    await mutate(actor, {
+      formData,
+      action: "hapusSiswa",
+      fingerprint: { siswaId },
+      tables: STUDENT_TABLES,
+      apply: (t, ctx) => deleteStudent(t, siswaId, ctx, actor),
+    });
+  } catch (error) {
+    return failure(error);
+  }
+  redirect("/siswa?dihapus=1");
 }

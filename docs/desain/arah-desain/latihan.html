@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup Latihan Psikotes · Ruang Garda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="light"] {
+  --bg:#f4f3ee; --surface:#fff; --soft:#efede4; --ink:#1c2014; --muted:#5c6150; --line:#e4e1d6;
+  --primary:#4b5d2a; --on-primary:#fff; --psoft:#eaeedd; --orange:#e07a1f; --osoft:#fdeedd; --gold:#8a4b0a;
+  --red:#9c2f1f; --rsoft:#f9e8e4; --blue:#275b87; --bsoft:#e6f0f9; --shadow:0 30px 60px -30px #1c201466;
+  --paper:#fffdf7; --paper-ink:#1c2014;
+}
+[data-theme="dark"] {
+  --bg:#10120c; --surface:#181b12; --soft:#20241a; --ink:#ecefe2; --muted:#a3a893; --line:#2c3124;
+  --primary:#c3d68a; --on-primary:#1f2810; --psoft:#2a3319; --orange:#ff9d47; --osoft:#3a2a17; --gold:#ffb35c;
+  --red:#ff8d7a; --rsoft:#3a1f1a; --blue:#8cc0f0; --bsoft:#18283a; --shadow:0 30px 60px -30px #000;
+  --paper:#1d2116; --paper-ink:#ecefe2;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface); position: sticky; top: 0; z-index: 5; }
+.top b { font-size: 16px; } .top small { display: block; color: var(--muted); font-size: 12px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 13px; }
+.wrap { display: grid; grid-template-columns: 280px 1fr; gap: 24px; max-width: 1180px; margin: 0 auto; padding: 20px; }
+.side { display: flex; flex-direction: column; gap: 6px; }
+.side h3 { font-size: 11px; letter-spacing: .08em; color: var(--muted); margin: 14px 4px 4px; }
+.side button { text-align: left; border: 1px solid transparent; background: transparent; border-radius: 12px; padding: 10px 12px; }
+.side button b { display: block; font-size: 14px; } .side button span { font-size: 12px; color: var(--muted); }
+.side button.on { background: var(--primary); color: var(--on-primary); } .side button.on span { color: inherit; opacity: .85; }
+.stage { display: grid; grid-template-columns: 390px 1fr; gap: 24px; align-items: start; }
+.phone { width: 390px; height: 800px; border-radius: 42px; background: var(--bg); border: 10px solid #111; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.note { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; font-size: 14px; line-height: 1.6; }
+.note h2 { margin: 0 0 6px; font-size: 18px; } .note ul { padding-left: 18px; margin: 8px 0; } .note li { margin: 4px 0; }
+.note .tag { display: inline-block; background: var(--osoft); color: var(--gold); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 10px; }
+/* layar aplikasi */
+.appbar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.appbar .back { border: 0; background: var(--soft); width: 36px; height: 36px; border-radius: 12px; font-size: 18px; }
+.appbar b { font-size: 16px; } .appbar small { display: block; color: var(--muted); font-size: 12px; }
+.scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+.card h4 { margin: 0 0 4px; font-size: 15px; } .muted { color: var(--muted); } .small { font-size: 12.5px; }
+.tile { display: grid; grid-template-columns: 46px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 12px; }
+.ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+.i1 { background: var(--psoft); color: var(--primary); } .i2 { background: var(--osoft); color: var(--gold); } .i3 { background: var(--bsoft); color: var(--blue); } .i4 { background: var(--rsoft); color: var(--red); }
+.tile b { display: block; } .tile .meta { font-size: 12px; color: var(--muted); }
+.pill { font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: var(--psoft); color: var(--primary); white-space: nowrap; }
+.pill.o { background: var(--osoft); color: var(--gold); } .pill.r { background: var(--rsoft); color: var(--red); } .pill.b { background: var(--bsoft); color: var(--blue); }
+.btn { border: 0; background: var(--primary); color: var(--on-primary); border-radius: 14px; padding: 14px; font-weight: 800; font-size: 15px; width: 100%; }
+.btn.sec { background: var(--soft); color: var(--ink); }
+.seg { display: flex; gap: 6px; } .seg button { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 6px; font-weight: 700; font-size: 12.5px; }
+.seg button.on { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+/* bar status tes */
+.hud { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.hud .t { font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; min-width: 64px; }
+.hud .meter { flex: 1; height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; } .hud .meter i { display: block; height: 100%; background: var(--orange); width: 0; transition: width .25s linear; }
+.hud .c { font-size: 12px; color: var(--muted); text-align: right; } .hud .c b { display: block; color: var(--ink); font-size: 14px; }
+.cue { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) scale(.9); background: var(--orange); color: #fff; font-weight: 800; font-size: 26px; padding: 14px 26px; border-radius: 18px; opacity: 0; pointer-events: none; transition: .2s; z-index: 3; }
+.cue.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+/* kolom angka (kertas) */
+.paper { flex: 1; display: flex; justify-content: center; align-items: center; background: var(--paper); color: var(--paper-ink); position: relative; overflow: hidden; }
+.strip { display: flex; flex-direction: column; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
+.strip .d { font-size: 30px; font-weight: 700; width: 60px; text-align: center; line-height: 1.25; opacity: .35; }
+.strip .d.near { opacity: .7; } .strip .d.act { opacity: 1; font-size: 40px; }
+.strip .slot { width: 70px; height: 44px; border: 2px dashed var(--orange); border-radius: 12px; display: grid; place-items: center; font-size: 24px; font-weight: 800; color: var(--orange); margin: 2px 0; }
+.strip .done { font-size: 15px; color: var(--muted); width: 60px; text-align: right; padding-right: 6px; opacity: .8; }
+.strip .garis { width: 90px; border-top: 3px solid var(--orange); margin: 6px 0; }
+.dir { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); writing-mode: vertical-rl; letter-spacing: .1em; }
+.pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; background: var(--surface); border-top: 1px solid var(--line); }
+.pad button { height: 58px; border-radius: 14px; border: 1px solid var(--line); background: var(--soft); font-size: 24px; font-weight: 800; }
+.pad button:active { background: var(--primary); color: var(--on-primary); }
+/* kecermatan */
+.kunci { display: grid; grid-template-columns: repeat(5, 1fr); border: 2px solid var(--paper-ink); border-radius: 12px; overflow: hidden; background: var(--paper); color: var(--paper-ink); }
+.kunci div { text-align: center; padding: 6px 0; border-right: 1px solid var(--line); }
+.kunci div:last-child { border-right: 0; }
+.kunci .v { font-size: 28px; font-weight: 800; line-height: 1.3; } .kunci .l { font-size: 12px; font-weight: 800; color: var(--muted); border-top: 1px solid var(--line); }
+.soal { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; background: var(--paper); color: var(--paper-ink); }
+.soal .q { display: flex; gap: 14px; font-size: 44px; font-weight: 800; letter-spacing: .02em; }
+.soal .no { font-size: 13px; color: var(--muted); }
+.opsi { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; background: var(--surface); border-top: 1px solid var(--line); }
+.opsi button { height: 64px; border-radius: 14px; border: 1px solid var(--line); background: var(--soft); font-size: 24px; font-weight: 800; }
+.flash-ok { animation: ok .25s; } @keyframes ok { from { background: var(--psoft); } }
+/* hasil */
+.big { display: flex; align-items: center; gap: 14px; }
+.ring { width: 92px; height: 92px; }
+.asp { display: grid; gap: 10px; }
+.asp .r { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; font-size: 13.5px; }
+.bar { grid-column: 1 / -1; height: 10px; border-radius: 99px; background: var(--soft); overflow: hidden; } .bar i { display: block; height: 100%; border-radius: 99px; background: var(--primary); }
+.bar i.o { background: var(--orange); } .bar i.r { background: var(--red); }
+.kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.kv div { background: var(--soft); border-radius: 12px; padding: 8px 4px; } .kv b { display: block; font-size: 18px; } .kv span { font-size: 11.5px; color: var(--muted); }
+svg text { font-family: inherit; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .tbl td, .tbl th { padding: 8px 4px; border-bottom: 1px solid var(--line); text-align: left; } .tbl th { font-size: 11px; color: var(--muted); }
+.mini { height: 6px; border-radius: 99px; background: var(--soft); overflow: hidden; width: 70px; } .mini i { display: block; height: 100%; background: var(--primary); }
+@media (max-width: 1100px) { .stage { grid-template-columns: 1fr; } .wrap { grid-template-columns: 1fr; } .side { flex-direction: row; flex-wrap: wrap; } .side h3 { width: 100%; } }
+@media (max-width: 440px) { .wrap { padding: 0; } .phone { width: 100%; height: 100dvh; border: 0; border-radius: 0; } .stage { gap: 0; } .note, .side, .top { display: none; } }
+</style>
+</head>
+<body>
+<div class="top"><div><b>Mockup · Latihan Psikotes</b><small>Ruang Garda · bisa dicoba langsung · waktu dipersingkat untuk mockup · nama siswa fiktif</small></div><button class="chip" id="tema">Mode gelap</button></div>
+<div class="wrap">
+  <aside class="side" id="side"></aside>
+  <main class="stage"><div class="phone" id="phone"></div><div class="note" id="note"></div></main>
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const rnd = (n) => Math.floor(Math.random() * n);
+const pad2 = (n) => String(n).padStart(2, "0");
+const fmt = (n, d = 0) => Number(n).toLocaleString("id-ID", { maximumFractionDigits: d, minimumFractionDigits: d });
+const SIMBOL = ["★", "◆", "♣", "▲", "●", "♥", "■", "✿", "☀", "♠", "✚", "◐", "☂", "♪", "✈", "☎", "✉", "⚑"];
+
+/* Jenis latihan. Waktu asli di keterangan; mockup memakai versi singkat. */
+const JENIS = {
+  kraepelin: { nama: "Kraepelin", ikon: "＋", cls: "i1", ket: "Jumlahkan dua angka dari bawah ke atas, tulis angka terakhirnya. Pindah kolom saat aba-aba.", demo: { kolom: 6, detik: 12 }, asli: "45 kolom × 30 detik" },
+  pauli: { nama: "Pauli", ikon: "Σ", cls: "i2", ket: "Jumlahkan dua angka dari atas ke bawah tanpa henti. Garis ditarik tiap interval.", demo: { kolom: 4, detik: 15 }, asli: "60 menit, garis tiap 3 menit" },
+  angka: { nama: "Angka hilang", ikon: "7?", cls: "i3", ket: "Lima angka kunci A–E. Soal menampilkan empat; pilih huruf angka yang hilang.", demo: { kolom: 3, detik: 20 }, asli: "10 kolom × 60 detik" },
+  simbol: { nama: "Simbol hilang", ikon: "★?", cls: "i4", ket: "Sama seperti angka hilang, memakai simbol (seperti Insert Symbol di Word).", demo: { kolom: 3, detik: 20 }, asli: "10 kolom × 60 detik" },
+};
+
+/* Riwayat contoh (fiktif) untuk halaman progres. */
+const RIWAYAT = {
+  kraepelin: [52, 55, 54, 60, 63, 61, 67, 71],
+  pauli: [48, 50, 57, 55, 59, 64, 66, 69],
+  angka: [41, 47, 52, 56, 58, 63, 62, 68],
+  simbol: [38, 44, 46, 51, 57, 55, 60, 64],
+};
+const S = { layar: "beranda", jenis: "kraepelin", hasil: null, timer: null };
+
+const SCREENS = [
+  ["beranda", "Latihan (siswa)", "Pilih jenis latihan"],
+  ["kraepelin", "Kraepelin", "Coba langsung, ±1 menit"],
+  ["pauli", "Pauli", "Coba langsung, ±1 menit"],
+  ["angka", "Angka hilang", "Coba langsung, ±1 menit"],
+  ["simbol", "Simbol hilang", "Coba langsung, ±1 menit"],
+  ["hasil", "Hasil latihan", "Muncul setelah selesai"],
+  ["progres", "Progres saya", "Bar progres antarlatihan"],
+  ["rekap", "Latihan siswa (owner)", "Pantau semua siswa"],
+];
+const NOTES = {
+  beranda: `<h2>Menu Latihan untuk siswa</h2><p>Empat jenis latihan dalam satu menu. Setiap kartu menunjukkan skor terakhir dan tren, jadi siswa tahu apa yang perlu dilatih.</p><ul><li>Angka dan simbol <b>dibuat acak terus</b> di HP saat mengerjakan, jadi tiap latihan berbeda dan tidak pernah habis.</li><li>Hanya <b>hasil akhir</b> yang dikirim ke spreadsheet (1 baris per latihan), jadi tetap lancar walau banyak siswa latihan bersamaan.</li><li>Durasi bisa dipilih: <i>Singkat</i> untuk pemanasan, <i>Standar</i>, atau <i>Seperti tes asli</i>.</li></ul>`,
+  kraepelin: `<h2>Kraepelin di HP</h2><span class="tag">Coba: ketuk angka di keypad</span><ul><li>Kolom angka tampil seperti kertas; pasangan yang sedang dijumlah disorot, dikerjakan <b>dari bawah ke atas</b>.</li><li>Jawab dengan <b>keypad besar milik aplikasi</b>, bukan keyboard HP, supaya layar tidak tertutup dan jari tidak salah ketuk.</li><li>Aba-aba <b>"Pindah!"</b> (suara + tulisan) saat waktu kolom habis, lalu kolom baru berisi angka acak baru.</li><li>Asli: ${JENIS.kraepelin.asli}. Mockup: 6 kolom × 12 detik.</li></ul>`,
+  pauli: `<h2>Pauli di HP</h2><span class="tag">Coba: ketuk angka di keypad</span><ul><li>Satu kolom panjang dikerjakan <b>dari atas ke bawah</b> tanpa pindah kolom.</li><li>Tiap interval terdengar aba-aba <b>"Garis!"</b> dan garis oranye ditarik di kolom, persis seperti tes kertas. Jumlah per interval membentuk kurva kerja.</li><li>Asli: ${JENIS.pauli.asli}. Mockup: 4 interval × 15 detik.</li></ul>`,
+  angka: `<h2>Angka hilang (kecermatan)</h2><span class="tag">Coba: pilih A–E</span><ul><li>Lima angka kunci di atas (A–E). Soal menampilkan empat angka teracak; pilih <b>huruf</b> angka yang hilang.</li><li>Kunci berganti tiap kolom; soal terus dibuat acak sampai waktu kolom habis.</li><li>Asli: ${JENIS.angka.asli}. Mockup: 3 kolom × 20 detik.</li></ul>`,
+  simbol: `<h2>Simbol hilang</h2><span class="tag">Coba: pilih A–E</span><ul><li>Format sama dengan angka hilang, memakai <b>karakter simbol</b> seperti di Insert Symbol Word: ${SIMBOL.slice(0, 10).join(" ")}.</li><li>Tidak perlu gambar, dan tampil sama di semua HP (Android, iPhone, laptop). Font Wingdings tidak dipakai karena tidak ada di HP.</li></ul>`,
+  hasil: `<h2>Hasil setelah latihan</h2><p>Dihitung dari jawaban yang baru Anda kerjakan (atau contoh bila belum mencoba).</p><ul><li><b>Skor gabungan</b> 0–100 dengan bobot seperti prototipe Anda: ketelitian 35%, kecepatan 30%, stabilitas 20%, performa 15%.</li><li>Empat <b>bar aspek</b> beserta kategori (tabel Kraepelin/Pauli dari prototipe) dan saran singkat.</li><li><b>Kurva kerja</b>: jawaban benar per kolom/interval, garis putus = rata-rata.</li></ul>`,
+  progres: `<h2>Progres siswa</h2><ul><li>Grafik skor gabungan dari latihan ke latihan untuk tiap jenis.</li><li><b>Bar progres per aspek</b>: latihan pertama vs terakhir, jadi terlihat aspek mana yang naik.</li><li>Riwayat lengkap, ketuk untuk melihat hasil tiap latihan.</li></ul>`,
+  rekap: `<h2>Latihan siswa (owner)</h2><ul><li>Semua siswa dalam satu tabel: jumlah latihan minggu ini, skor terakhir, dan tren naik/turun.</li><li>Siswa yang lama tidak latihan atau skornya turun ditandai, jadi pelatih tahu siapa yang perlu didorong.</li><li>Ketuk nama untuk melihat progres siswa itu (halaman sama seperti "Progres saya").</li></ul>`,
+};
+
+function side() {
+  $("#side").innerHTML = `<h3>LAYAR</h3>` + SCREENS.map(([id, b, s]) => `<button data-go="${id}" class="${S.layar === id ? "on" : ""}"><b>${b}</b><span>${s}</span></button>`).join("");
+}
+function render() {
+  clearInterval(S.timer); S.timer = null;
+  side();
+  $("#note").innerHTML = NOTES[S.layar] || "";
+  const phone = $("#phone");
+  if (S.layar === "beranda") phone.innerHTML = beranda();
+  else if (JENIS[S.layar]) { S.jenis = S.layar; phone.innerHTML = siapkan(S.layar); }
+  else if (S.layar === "hasil") phone.innerHTML = hasil();
+  else if (S.layar === "progres") phone.innerHTML = progres();
+  else if (S.layar === "rekap") phone.innerHTML = rekap();
+}
+function go(id) { S.layar = id; render(); }
+
+/* ---------- Beranda latihan ---------- */
+function beranda() {
+  const kartu = Object.entries(JENIS).map(([id, j]) => {
+    const r = RIWAYAT[id], last = r.at(-1), naik = last - r.at(-2);
+    return `<button class="tile" data-go="${id}"><span class="ico ${j.cls}">${j.ikon}</span><span><b>${j.nama}</b><span class="meta">Skor terakhir ${last} · ${r.length} latihan</span></span><span class="pill ${naik >= 0 ? "" : "r"}">${naik >= 0 ? "▲" : "▼"} ${Math.abs(naik)}</span></button>`;
+  }).join("");
+  return `<div class="appbar"><div><b>Latihan Psikotes</b><small>Selasa, 17 November 2026</small></div></div>
+  <div class="scroll">
+    <div class="card"><h4>Halo, Arif 👋</h4><p class="muted small" style="margin:0">Minggu ini 5 latihan. Skor Kraepelin naik 4 poin dari latihan sebelumnya.</p></div>
+    ${kartu}
+    <button class="tile" data-go="progres"><span class="ico i1">📈</span><span><b>Progres saya</b><span class="meta">Bar progres semua latihan</span></span><span class="pill b">Lihat</span></button>
+  </div>${nav("latihan")}`;
+}
+function nav(on) {
+  const items = [["Beranda", "⌂"], ["Presensi", "✓"], ["Samapta", "🏃"], ["Latihan", "✎"], ["Lainnya", "⋯"]];
+  return `<div style="display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--surface);padding:6px">${items.map(([l, i]) => `<div style="text-align:center;font-size:11px;padding:6px 0;border-radius:12px;${l.toLowerCase() === on ? "background:var(--psoft);color:var(--primary);font-weight:800" : "color:var(--muted)"}"><div style="font-size:18px">${i}</div>${l}</div>`).join("")}</div>`;
+}
+
+/* ---------- Layar persiapan ---------- */
+function siapkan(id) {
+  const j = JENIS[id];
+  return `<div class="appbar"><button class="back" data-go="beranda">‹</button><div><b>${j.nama}</b><small>Latihan</small></div></div>
+  <div class="scroll">
+    <div class="card"><span class="ico ${j.cls}" style="margin-bottom:8px">${j.ikon}</span><h4>Cara mengerjakan</h4><p class="muted small" style="margin:0">${j.ket}</p></div>
+    <div class="card"><h4>Durasi</h4><div class="seg" style="margin-top:8px"><button class="on">Mockup (±1 mnt)</button><button>Standar</button><button>Seperti tes asli</button></div><p class="muted small" style="margin:8px 0 0">Tes asli: ${j.asli}.</p></div>
+    <div class="card"><h4>Contoh</h4>${contoh(id)}</div>
+  </div>
+  <div style="padding:12px;background:var(--surface);border-top:1px solid var(--line)"><button class="btn" data-mulai="${id}">Mulai latihan</button></div>`;
+}
+function contoh(id) {
+  if (id === "kraepelin") return `<p class="small muted">Dari bawah: 4 + 9 = 1<b>3</b> → tulis <b>3</b>. Lalu 9 + 6 = 1<b>5</b> → tulis <b>5</b>.</p>`;
+  if (id === "pauli") return `<p class="small muted">Dari atas: 7 + 8 = 1<b>5</b> → tulis <b>5</b>. Lalu 8 + 2 = <b>10</b> → tulis <b>0</b>.</p>`;
+  const v = id === "angka" ? ["3", "8", "1", "6", "9"] : ["★", "◆", "♣", "▲", "●"];
+  return `<div class="kunci">${v.map((x, i) => `<div><div class="v">${x}</div><div class="l">${"ABCDE"[i]}</div></div>`).join("")}</div><p class="small muted">Soal: ${[v[3], v[0], v[4], v[2]].join(" ")} → yang hilang <b>${v[1]}</b>, jawab <b>B</b>.</p>`;
+}
+
+/* ---------- Mesin latihan ---------- */
+let T = null;
+function mulai(id) {
+  const j = JENIS[id];
+  T = { id, kolom: 0, sisa: j.demo.detik, total: j.demo.kolom * j.demo.detik, lewat: 0, seri: [], benarKol: 0, jawabKol: 0, salah: 0, jawab: 0 };
+  if (id === "kraepelin" || id === "pauli") { T.digit = [rnd(10), rnd(10)]; T.hasil = []; T.garis = []; }
+  else baruKunci();
+  gambar();
+  S.timer = setInterval(detik, 1000);
+}
+function baruKunci() {
+  const pool = T.id === "angka" ? "0123456789".split("") : SIMBOL;
+  const k = []; while (k.length < 5) { const x = pool[rnd(pool.length)]; if (!k.includes(x)) k.push(x); }
+  T.kunci = k; baruSoal();
+}
+function baruSoal() {
+  T.hilang = rnd(5);
+  T.soal = T.kunci.filter((_, i) => i !== T.hilang).sort(() => Math.random() - .5);
+  T.no = (T.no || 0) + 1;
+}
+function detik() {
+  T.sisa--; T.lewat++;
+  if (T.sisa <= 0) {
+    T.seri.push({ benar: T.benarKol, jawab: T.jawabKol }); T.benarKol = 0; T.jawabKol = 0; T.kolom++;
+    const j = JENIS[T.id];
+    if (T.kolom >= j.demo.kolom) return selesai();
+    T.sisa = j.demo.detik;
+    if (T.id === "kraepelin") { T.digit = [rnd(10), rnd(10)]; T.hasil = []; aba("Pindah!"); }
+    else if (T.id === "pauli") { T.garis.push(T.hasil.length); aba("Garis!"); }
+    else { baruKunci(); T.no = 1; aba("Kolom baru"); }
+  }
+  gambar();
+}
+function aba(teks) {
+  const c = $("#cue"); if (!c) return; c.textContent = teks; c.classList.add("show"); setTimeout(() => c.classList.remove("show"), 900);
+  try { const a = new AudioContext(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 740; g.gain.value = .06; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .15); } catch (e) {}
+}
+function jawabAngka(n) {
+  const [a, b] = T.digit.slice(-2);
+  const ok = (a + b) % 10 === n;
+  T.jawab++; T.jawabKol++; if (ok) T.benarKol++; else T.salah++;
+  T.hasil.push(n); T.digit.push(rnd(10));
+  gambar();
+}
+function jawabHuruf(i) {
+  const ok = i === T.hilang; T.jawab++; T.jawabKol++; if (ok) T.benarKol++; else T.salah++;
+  baruSoal(); gambar();
+}
+function gambar() {
+  const j = JENIS[T.id], tot = j.demo.kolom * j.demo.detik, pct = (T.lewat / tot) * 100;
+  const label = T.id === "pauli" ? "Interval" : "Kolom";
+  const hud = `<div class="hud"><div class="t">${pad2(Math.floor(T.sisa / 60))}:${pad2(T.sisa % 60)}</div><div class="meter"><i style="width:${pct}%"></i></div><div class="c">${label}<b>${T.kolom + 1} / ${j.demo.kolom}</b></div></div>`;
+  let body;
+  if (T.id === "kraepelin" || T.id === "pauli") {
+    const up = T.id === "kraepelin";
+    const d = T.digit, h = T.hasil, n = d.length;
+    // tampilkan 4 angka terakhir yang belum dikerjakan + beberapa yang sudah
+    const rows = [];
+    for (let i = Math.max(0, n - 7); i < n; i++) {
+      const act = i >= n - 2;
+      rows.push(`<div class="d ${act ? "act" : i >= n - 4 ? "near" : ""}">${d[i]}</div>`);
+      if (i < n - 1) rows.push(i === n - 2 ? `<div class="slot">?</div>` : `<div class="done">${h[i] ?? ""}</div>`);
+      if (!up && T.garis.includes(i + 1)) rows.push(`<div class="garis"></div>`);
+    }
+    if (up) rows.reverse();
+    body = `<div class="paper"><div class="strip">${rows.join("")}</div><div class="dir">${up ? "▲ DARI BAWAH KE ATAS" : "▼ DARI ATAS KE BAWAH"}</div></div>
+      <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((x) => `<button data-n="${x}">${x}</button>`).join("")}</div>`;
+  } else {
+    body = `<div style="padding:12px;background:var(--surface);border-bottom:1px solid var(--line)"><div class="small muted" style="margin-bottom:6px">Kunci kolom ${T.kolom + 1}</div><div class="kunci">${T.kunci.map((x, i) => `<div><div class="v">${x}</div><div class="l">${"ABCDE"[i]}</div></div>`).join("")}</div></div>
+      <div class="soal"><div class="no">Soal ${T.no}</div><div class="q">${T.soal.join("<span></span>")}</div><div class="small muted">Mana yang hilang?</div></div>
+      <div class="opsi">${"ABCDE".split("").map((x, i) => `<button data-h="${i}">${x}</button>`).join("")}</div>`;
+  }
+  $("#phone").innerHTML = `<div class="appbar"><button class="back" data-stop>✕</button><div><b>${j.nama}</b><small>Dijawab ${T.jawab} · jangan keluar dari layar</small></div></div>${hud}${body}<div class="cue" id="cue"></div>`;
+}
+function selesai() {
+  clearInterval(S.timer); S.timer = null;
+  S.hasil = hitung(T); S.layar = "hasil"; render();
+}
+
+/* ---------- Penilaian (mengikuti prototipe Kraepelin/Pauli) ---------- */
+const KAT = {
+  kec: [[13.07, "Rendah", "r"], [26.13, "Cukup rendah", "o"], [39.2, "Sedang", ""], [52.27, "Cukup tinggi", ""], [1e9, "Tinggi", ""]],
+  tel: [[93.9, "Rendah", "r"], [95.25, "Cukup rendah", "o"], [97.95, "Sedang", ""], [99.3, "Cukup tinggi", ""], [1e9, "Tinggi", ""]],
+  sta: [[5, "Tinggi", ""], [7.5, "Cukup tinggi", ""], [12.5, "Sedang", ""], [15, "Cukup rendah", "o"], [1e9, "Rendah", "r"]],
+  per: [[-20, "Turun drastis", "r"], [-5, "Cenderung turun", "o"], [5, "Mendatar", ""], [20, "Cenderung naik", ""], [1e9, "Naik drastis", ""]],
+};
+const kat = (tbl, v) => tbl.find(([m]) => v <= m);
+function hitung(t) {
+  const seri = t.seri.map((s) => s.benar), menit = Math.max(t.lewat, 1) / 60;
+  const avg = seri.reduce((a, b) => a + b, 0) / (seri.length || 1);
+  const mad = seri.reduce((a, b) => a + Math.abs(b - avg), 0) / (seri.length || 1);
+  const n = seri.length, xs = seri.map((_, i) => i), mx = (n - 1) / 2;
+  const slope = n > 1 ? xs.reduce((a, x, i) => a + (x - mx) * (seri[i] - avg), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0) : 0;
+  const benar = seri.reduce((a, b) => a + b, 0);
+  const tel = t.jawab ? (benar / t.jawab) * 100 : 0, kec = t.jawab / menit;
+  const DR = avg ? (mad / avg) * 100 : 0, per = avg ? (slope * Math.max(0, n - 1)) / avg * 100 : 0;
+  const s = { tel: Math.min(100, tel), kec: Math.min(100, (kec / 65.33) * 100), sta: Math.max(0, 100 - DR), per: Math.max(25, Math.min(100, 85 + per * 0.6)) };
+  return { id: t.id, jawab: t.jawab, benar, salah: t.jawab - benar, seri, tel, kec, DR, per, s, skor: Math.round(.35 * s.tel + .3 * s.kec + .2 * s.sta + .15 * s.per) };
+}
+function contohHasil() {
+  return hitung({ id: "kraepelin", jawab: 226, lewat: 300, seri: [34, 38, 36, 40, 35, 37].map((b) => ({ benar: b })) });
+}
+
+/* ---------- Grafik ---------- */
+function ringSvg(v) {
+  const r = 38, c = 2 * Math.PI * r;
+  return `<svg class="ring" viewBox="0 0 92 92"><circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--soft)" stroke-width="10"/><circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--primary)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(v / 100) * c} ${c}" transform="rotate(-90 46 46)"/><text x="46" y="52" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)">${v}</text></svg>`;
+}
+function kurva(seri) {
+  const W = 320, H = 130, max = Math.max(...seri, 1), bw = (W - 20) / seri.length, avg = seri.reduce((a, b) => a + b, 0) / seri.length;
+  const ay = H - 20 - (avg / max) * (H - 36);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${seri.map((v, i) => { const h = (v / max) * (H - 36); return `<rect x="${10 + i * bw + 3}" y="${H - 20 - h}" width="${bw - 6}" height="${h}" rx="4" fill="var(--primary)"/><text x="${10 + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="10" fill="var(--muted)">${i + 1}</text><text x="${10 + i * bw + bw / 2}" y="${H - 24 - h}" text-anchor="middle" font-size="10" fill="var(--ink)">${v}</text>`; }).join("")}<line x1="8" x2="${W - 8}" y1="${ay}" y2="${ay}" stroke="var(--orange)" stroke-dasharray="5 4" stroke-width="2"/></svg>`;
+}
+function garis(data, warna = "var(--primary)") {
+  const W = 320, H = 120, min = Math.min(...data) - 5, max = Math.max(...data) + 5, dx = (W - 30) / (data.length - 1);
+  const pts = data.map((v, i) => [15 + i * dx, H - 15 - ((v - min) / (max - min)) * (H - 30)]);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><polyline points="${pts.map((p) => p.join(",")).join(" ")}" fill="none" stroke="${warna}" stroke-width="3" stroke-linejoin="round"/>${pts.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="4" fill="${warna}"/><text x="${x}" y="${y - 9}" text-anchor="middle" font-size="10" fill="var(--ink)">${data[i]}</text>`).join("")}</svg>`;
+}
+
+/* ---------- Layar hasil ---------- */
+function hasil() {
+  const h = S.hasil || contohHasil(), j = JENIS[h.id], cermat = h.id === "angka" || h.id === "simbol";
+  const baris = [
+    ["Ketelitian", `${fmt(h.tel, 1)}%`, h.s.tel, cermat ? null : kat(KAT.tel, h.tel)],
+    ["Kecepatan", `${fmt(h.kec, 1)}/mnt`, h.s.kec, cermat ? null : kat(KAT.kec, h.kec)],
+    ["Stabilitas", `DR ${fmt(h.DR, 1)}%`, h.s.sta, cermat ? null : kat(KAT.sta, h.DR)],
+    ["Performa", `${h.per >= 0 ? "+" : ""}${fmt(h.per, 1)}%`, h.s.per, cermat ? null : kat(KAT.per, h.per)],
+  ];
+  return `<div class="appbar"><button class="back" data-go="beranda">‹</button><div><b>Hasil ${j.nama}</b><small>${S.hasil ? "Baru saja" : "Contoh"} · ${h.seri.length} ${h.id === "pauli" ? "interval" : "kolom"}</small></div></div>
+  <div class="scroll">
+    <div class="card big">${ringSvg(h.skor)}<div><h4>Skor gabungan</h4><p class="muted small" style="margin:0">${h.skor >= 70 ? "Bagus. Pertahankan ritme dan ketelitian." : h.skor >= 50 ? "Cukup. Fokus pada aspek berwarna oranye." : "Perlu banyak latihan. Mulai dari durasi singkat."}</p><p class="small" style="margin:6px 0 0"><span class="pill">▲ 4 dari latihan lalu</span></p></div></div>
+    <div class="kv"><div><b>${h.jawab}</b><span>dijawab</span></div><div><b>${h.benar}</b><span>benar</span></div><div><b>${h.salah}</b><span>salah</span></div></div>
+    <div class="card"><h4>Empat aspek</h4><div class="asp" style="margin-top:8px">${baris.map(([n, v, s, k]) => `<div class="r"><span><b>${n}</b> · ${v}</span><span class="pill ${k ? k[2] : "b"}">${k ? k[1] : "dibanding latihan lalu"}</span><div class="bar"><i class="${s < 45 ? "r" : s < 65 ? "o" : ""}" style="width:${Math.round(s)}%"></i></div></div>`).join("")}</div>
+    ${cermat ? `<p class="small muted" style="margin:10px 0 0">Angka/simbol hilang belum punya tabel norma resmi, jadi kategorinya dibandingkan dengan latihanmu sebelumnya. Batasnya bisa diatur owner.</p>` : ""}</div>
+    <div class="card"><h4>Kurva kerja</h4><p class="muted small" style="margin:0 0 6px">Jawaban benar per ${h.id === "pauli" ? "interval" : "kolom"}; garis putus = rata-rata.</p>${kurva(h.seri.length ? h.seri : [0])}</div>
+    <button class="btn" data-go="${h.id}">Latihan lagi</button><button class="btn sec" data-go="progres">Lihat progres</button>
+  </div>`;
+}
+
+/* ---------- Progres siswa ---------- */
+function progres() {
+  const j = S.jenis in JENIS ? S.jenis : "kraepelin", r = RIWAYAT[j];
+  const aspek = [["Ketelitian", 78, 91], ["Kecepatan", 44, 63], ["Stabilitas", 70, 84], ["Performa", 62, 73]];
+  return `<div class="appbar"><button class="back" data-go="beranda">‹</button><div><b>Progres saya</b><small>Arif Pratama · GAN-0001</small></div></div>
+  <div class="scroll">
+    <div class="seg">${Object.entries(JENIS).map(([id, x]) => `<button class="${id === j ? "on" : ""}" data-jenis="${id}">${x.nama.split(" ")[0]}</button>`).join("")}</div>
+    <div class="card"><h4>Skor gabungan ${JENIS[j].nama}</h4><p class="muted small" style="margin:0">${r.length} latihan terakhir · naik ${r.at(-1) - r[0]} poin</p>${garis(r)}</div>
+    <div class="card"><h4>Bar progres per aspek</h4><p class="muted small" style="margin:0 0 8px">Latihan pertama (abu) → terakhir (hijau)</p>
+      <div class="asp">${aspek.map(([n, a, b]) => `<div class="r"><span><b>${n}</b></span><span class="pill">+${b - a}</span><div class="bar" style="position:relative"><i style="width:${b}%"></i></div><div class="bar" style="height:6px;margin-top:-6px"><i style="width:${a}%;background:var(--muted);opacity:.5"></i></div></div>`).join("")}</div></div>
+    <div class="card"><h4>Riwayat</h4><table class="tbl"><tr><th>Tanggal</th><th>Durasi</th><th>Skor</th></tr>${r.slice().reverse().slice(0, 5).map((v, i) => `<tr><td>${17 - i * 2} Nov</td><td>${i % 2 ? "Standar" : "Singkat"}</td><td><b>${v}</b></td></tr>`).join("")}</table></div>
+  </div>${nav("latihan")}`;
+}
+
+/* ---------- Rekap owner ---------- */
+function rekap() {
+  const siswa = [["Arif Pratama", 5, 71, 4], ["Bagus Setiawan", 3, 66, 2], ["Dewi Lestari", 6, 74, 6], ["Fajar Nugroho", 0, 52, -3], ["Hendra Wijaya", 2, 58, -5], ["Yoga Saputra", 4, 63, 1], ["Rizky Ramadhan", 1, 49, 0]];
+  return `<div class="appbar"><div><b>Latihan siswa</b><small>Owner · minggu ini</small></div></div>
+  <div class="scroll">
+    <div class="kv"><div><b>21</b><span>latihan</span></div><div><b>6/7</b><span>siswa aktif</span></div><div><b>62</b><span>rata-rata skor</span></div></div>
+    <div class="card" style="background:var(--osoft);border-color:transparent"><b style="color:var(--gold)">Perlu didorong</b><p class="small" style="margin:4px 0 0">Fajar Nugroho belum latihan 9 hari · Hendra Wijaya skornya turun 5 poin.</p></div>
+    <div class="seg">${Object.entries(JENIS).map(([id, x], i) => `<button class="${i === 0 ? "on" : ""}">${x.nama.split(" ")[0]}</button>`).join("")}</div>
+    <div class="card" style="padding:8px 12px"><table class="tbl"><tr><th>Siswa</th><th>Latihan</th><th>Skor</th><th>Tren</th></tr>
+    ${siswa.map(([n, l, s, t]) => `<tr><td><b>${n}</b></td><td>${l}×</td><td><div style="display:flex;align-items:center;gap:6px">${s}<div class="mini"><i style="width:${s}%"></i></div></div></td><td><span class="pill ${t < 0 ? "r" : t === 0 ? "b" : ""}">${t > 0 ? "▲" : t < 0 ? "▼" : "="} ${Math.abs(t)}</span></td></tr>`).join("")}</table></div>
+  </div>`;
+}
+
+/* ---------- Interaksi ---------- */
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.go) { if (b.dataset.go === "hasil") S.hasil = S.hasil; go(b.dataset.go); }
+  else if (b.dataset.mulai) mulai(b.dataset.mulai);
+  else if (b.dataset.n !== undefined) jawabAngka(Number(b.dataset.n));
+  else if (b.dataset.h !== undefined) jawabHuruf(Number(b.dataset.h));
+  else if (b.hasAttribute("data-stop")) { clearInterval(S.timer); go(T.id); }
+  else if (b.dataset.jenis) { S.jenis = b.dataset.jenis; $("#phone").innerHTML = progres(); }
+  else if (b.id === "tema") { const d = document.documentElement.dataset.theme === "dark"; document.documentElement.dataset.theme = d ? "light" : "dark"; b.textContent = d ? "Mode gelap" : "Mode terang"; }
+});
+document.addEventListener("keydown", (e) => {
+  if (!T || !S.timer) return;
+  if (/^[0-9]$/.test(e.key) && (T.id === "kraepelin" || T.id === "pauli")) jawabAngka(Number(e.key));
+  const i = "abcde".indexOf(e.key.toLowerCase()); if (i >= 0 && (T.id === "angka" || T.id === "simbol")) jawabHuruf(i);
+});
+render();
+</script>
+</body>
+</html>

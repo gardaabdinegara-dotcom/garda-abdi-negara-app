@@ -13,14 +13,17 @@ export const SESSION_TYPES = ["AKADEMIK", "SKD", "PSIKOTES", "FISIK"] as const;
 export type SessionType = (typeof SESSION_TYPES)[number];
 export const SESSION_TYPE_LABEL: Record<SessionType, string> = { AKADEMIK: "Akademik", SKD: "SKD", PSIKOTES: "Psikotes", FISIK: "Fisik" };
 
-export const SESSION_STATUS = ["AKAN_DATANG", "AKTIF", "SELESAI", "DIBATALKAN"] as const;
+export const SESSION_STATUS = ["AKAN_DATANG", "AKTIF", "SELESAI", "DIBATALKAN", "DIHAPUS"] as const;
 export type SessionStatus = (typeof SESSION_STATUS)[number];
 export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   AKAN_DATANG: "Akan datang",
   AKTIF: "Berlangsung",
   SELESAI: "Selesai",
   DIBATALKAN: "Dibatalkan",
+  DIHAPUS: "Dihapus",
 };
+/** Sesi yang dihapus disembunyikan dari semua daftar dan rekap (barisnya tetap di spreadsheet). */
+export const liveSession = (s: { status: string }) => s.status !== "DIHAPUS";
 
 export const ATTENDANCE_STATUS = ["MENUNGGU", "HADIR", "IZIN", "SAKIT", "ALFA", "KOSONG"] as const;
 export type AttendanceStatus = (typeof ATTENDANCE_STATUS)[number];
@@ -496,6 +499,13 @@ export function setSessionStatus(t: Tables, input: { sesi_id: string; status: Se
   if (!canManageSession(actor, session)) throw forbidden("Sesi ini bukan penugasan Anda.");
   const { date } = clock(t, ctx);
   if (input.status === session.status) return { entityType: "Sesi", entityId: session.sesi_id, message: "Status sesi tidak berubah." };
+  if (session.status === "DIHAPUS") throw notFound("Sesi");
+  if (input.status === "DIHAPUS") {
+    if (!isAdmin(actor)) throw forbidden("Hanya owner atau admin yang dapat menghapus sesi.");
+    const after = { ...row, status: "DIHAPUS", ...updated(ctx) };
+    replace(t, "Sesi", index, after);
+    return { entityType: "Sesi", entityId: session.sesi_id, message: "Sesi dihapus.", before: row, after };
+  }
   if (input.status === "AKTIF" && session.tanggal !== date) throw new AppError("Sesi hanya dapat dibuka pada tanggal kegiatannya.", "CONFLICT", 409);
   // Owner/admin bisa memulihkan sesi yang terlanjur dibatalkan, asalkan dulu sudah pernah dibuka (peserta beku).
   const restore = input.status === "SELESAI" && session.status === "DIBATALKAN" && session.peserta_ids.length > 0 && isAdmin(actor);
@@ -1012,7 +1022,7 @@ export function buildReport(t: Tables, siswaId: string, periode: string, now: st
     .sort((a, b) => `${a.tanggal}${a.created_at}`.localeCompare(`${b.tanggal}${b.created_at}`))
     .at(-1);
 
-  const sessions = rows(t, "Sesi").map(toSession);
+  const sessions = rows(t, "Sesi").map(toSession).filter(liveSession);
   const attendance = new Map(rows(t, "Presensi").map((r) => [str(r.presensi_id), toAttendance(r)]));
   const recap = attendanceSummary(siswaId, sessions, attendance, periode);
 

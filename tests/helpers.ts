@@ -49,6 +49,7 @@ export function user(peran: Role, overrides: Partial<User> = {}): User {
     akses_keuangan: "TIDAK",
     aktif: true,
     terakhir_masuk: "",
+    dihapus_pada: "",
     ...overrides,
   };
 }

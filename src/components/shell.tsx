@@ -26,13 +26,19 @@ export function Wordmark() {
  * Kerangka halaman setelah masuk.
  * Desktop: menu samping + bar atas berisi pencarian. Tablet: menu ikon. Ponsel: bar atas ringkas + menu bawah.
  */
-export function Shell({ actor, children }: { actor: Actor; children: React.ReactNode }) {
+export function Shell({ actor, preview = false, children }: { actor: Actor; preview?: boolean; children: React.ReactNode }) {
   const items = menuFor(actor);
   const name = actor.user.nama;
   const short = initials(name);
   return (
     <div className="app-shell">
-      {dataMode() === "lokal" ? <div className="mode-banner">Mode lokal: data contoh di komputer ini, belum Google Sheets.</div> : null}
+      {preview ? (
+        <div className="mode-banner mode-banner-preview">
+          Mode pratinjau: data contoh, perubahan tidak masuk ke spreadsheet. <Link href="/pengaturan/pratinjau">Kembali ke data asli</Link>
+        </div>
+      ) : dataMode() === "lokal" ? (
+        <div className="mode-banner">Mode lokal: data contoh di komputer ini, belum Google Sheets.</div>
+      ) : null}
       <aside className="sidebar" aria-label="Navigasi">
         <Link href="/beranda" className="sidebar-brand" aria-label="Ruang Garda, ke beranda">
           <img src="/brand/garda-logo-192-v1.webp" alt="" width={40} height={40} />

@@ -321,3 +321,22 @@ export async function revisiRapor(_prev: ActionState, formData: FormData): Promi
     return failure(error);
   }
 }
+
+/** Menghapus sesi yang salah input (owner/admin) lalu kembali ke jadwal tanggal itu. */
+export async function hapusSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor();
+  const tanggal = String(formData.get("tanggal") ?? "");
+  try {
+    const sesiId = String(formData.get("sesi_id") ?? "");
+    await mutate(actor, {
+      formData,
+      action: "hapusSesi",
+      fingerprint: { sesiId },
+      tables: SESSION_TABLES,
+      apply: (t, ctx) => setSessionStatus(t, { sesi_id: sesiId, status: "DIHAPUS" }, ctx, actor),
+    });
+  } catch (error) {
+    return failure(error);
+  }
+  redirect(/^\d{4}-\d{2}-\d{2}$/.test(tanggal) ? `/akademik?tanggal=${tanggal}` : "/akademik");
+}

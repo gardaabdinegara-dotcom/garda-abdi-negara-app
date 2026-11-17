@@ -34,6 +34,9 @@ const SECTIONS: Section[] = [
         <Link href="/keuangan">Keuangan → Ringkasan</Link>: tekan <b>Siapkan akun & kategori</b>. Akun kas dan bank serta kategori pemasukan/pengeluaran langsung dibuat dan siap masuk laporan. Isi saldo awal kas dan bank di <Link href="/keuangan/master">Akun & periode</Link>.
       </>,
       <>
+        Ingin melihat semua fitur berjalan dulu? <Link href="/pengaturan/pratinjau">Pengaturan → Mode pratinjau</Link> memakai data contoh tanpa menyentuh data asli.
+      </>,
+      <>
         Sekali saja: <Link href="/keuangan/penyesuaian">Penyesuaian laporan</Link> → verifikasi saldo awal neraca, agar laporan berstatus siap diperiksa.
       </>,
     ],
@@ -104,19 +107,19 @@ const SECTIONS: Section[] = [
     id: "ubah-data",
     title: "Mengubah dan menghapus data (owner)",
     roles: ["OWNER", "ADMIN"],
-    intro: "Owner bisa menambah, mengubah, dan menghapus di semua bagian. Data yang dihapus disimpan sebagai nonaktif/dibatalkan, jadi riwayat tidak hilang dan bisa dipulihkan.",
+    intro: "Owner bisa menambah, mengubah, dan menghapus di semua bagian. Data yang dihapus hilang dari aplikasi, tetapi barisnya tetap ada di spreadsheet (ditandai kolom dihapus_pada) agar riwayat lain tidak rusak.",
     steps: [
       <>
-        <b>Siswa</b>: buka profil siswa → ubah nama dan data lain → <b>Simpan perubahan</b>. Nama di akun login ikut berubah. <b>Nonaktifkan siswa</b> juga menutup akun loginnya; <b>Aktifkan kembali</b> membukanya lagi.
+        <b>Siswa</b>: buka profil siswa → ubah nama dan data lain → <b>Simpan perubahan</b>. Nama di akun login ikut berubah. <b>Nonaktifkan siswa</b> menutup akun loginnya sementara; <b>Hapus siswa</b> menghapus siswa beserta akunnya untuk data yang salah input.
       </>,
       <>
-        <b>Akun siswa</b>: Pengaturan → Akun → pilih siswa → <b>Reset PIN</b> bila lupa PIN.
+        <b>Akun</b>: Pengaturan → Akun → pilih akun → ubah data, <b>Reset PIN</b> bila lupa PIN, atau <b>Hapus akun</b>.
       </>,
       <>
-        <b>Presensi</b>: di halaman sesi, <b>Catat / ubah</b> pada nama siswa (pilih Belum dicatat untuk menghapus catatan). Sesi yang sudah selesai tetap bisa diubah nama/jamnya atau <b>Batalkan sesi</b>; sesi batal bisa dipulihkan.
+        <b>Presensi</b>: di halaman sesi, <b>Catat / ubah</b> pada nama siswa (pilih Belum dicatat untuk menghapus catatan). Sesi yang sudah selesai tetap bisa diubah nama/jamnya. Sesi salah input: <b>Hapus sesi</b>.
       </>,
       <>
-        <b>Tes Samapta</b>: kosongkan isian untuk menghapus nilai yang salah. Tes yang keliru dibuat: tab <b>Data tes</b> → <b>Batalkan tes</b> (bisa dipulihkan).
+        <b>Tes Samapta</b>: kosongkan isian untuk menghapus nilai yang salah. Tes yang salah input: tab <b>Data tes</b> → <b>Hapus tes</b>.
       </>,
       <>
         <b>Keuangan</b>: <b>Ubah / hapus</b> pada baris transaksi; akun kas/bank dan kategori diubah atau dinonaktifkan di <Link href="/keuangan/master">Akun & periode</Link>.

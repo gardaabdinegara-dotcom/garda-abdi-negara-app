@@ -85,3 +85,21 @@ export async function simpanPosSamapta(_prev: ActionState, formData: FormData): 
     return failure(error);
   }
 }
+
+/** Menghapus sesi tes yang salah input lalu kembali ke daftar tes. */
+export async function hapusTesSamapta(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor();
+  try {
+    const tesId = String(formData.get("tes_id") ?? "");
+    await mutate(actor, {
+      formData,
+      action: "hapusTesSamapta",
+      fingerprint: { tesId },
+      tables: SAMAPTA_TABLES,
+      apply: (t, ctx) => setSamaptaStatus(t, { tes_id: tesId, status: "DIHAPUS" }, ctx, actor),
+    });
+  } catch (error) {
+    return failure(error);
+  }
+  redirect("/samapta");
+}

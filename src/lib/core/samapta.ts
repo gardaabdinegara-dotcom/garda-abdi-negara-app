@@ -73,9 +73,9 @@ export const POS_INFO: Record<Pos, PosInfo> = {
 
 export const GAYA_RENANG = ["Bebas", "Dada", "Punggung", "Kupu-kupu"] as const;
 
-export const TEST_STATUS = ["BERJALAN", "SELESAI", "DIBATALKAN"] as const;
+export const TEST_STATUS = ["BERJALAN", "SELESAI", "DIBATALKAN", "DIHAPUS"] as const;
 export type SamaptaStatus = (typeof TEST_STATUS)[number];
-export const TEST_STATUS_LABEL: Record<SamaptaStatus, string> = { BERJALAN: "Berjalan", SELESAI: "Selesai", DIBATALKAN: "Dibatalkan" };
+export const TEST_STATUS_LABEL: Record<SamaptaStatus, string> = { BERJALAN: "Berjalan", SELESAI: "Selesai", DIBATALKAN: "Dibatalkan", DIHAPUS: "Dihapus" };
 
 export const KLASIFIKASI = ["Baik Sekali", "Baik", "Cukup", "Kurang"] as const;
 export type Klasifikasi = (typeof KLASIFIKASI)[number];
@@ -142,7 +142,7 @@ export const toSamaptaTest = (row: Row): SamaptaTest => ({
   tanggal: str(row.tanggal),
   jam_mulai: str(row.jam_mulai),
   tempat: str(row.tempat),
-  status: row.status === "SELESAI" || row.status === "DIBATALKAN" ? row.status : "BERJALAN",
+  status: row.status === "SELESAI" || row.status === "DIBATALKAN" || row.status === "DIHAPUS" ? row.status : "BERJALAN",
   peserta_ids: str(row.peserta_ids).split(",").map((s) => s.trim()).filter(Boolean),
   catatan: str(row.catatan),
 });
@@ -398,7 +398,9 @@ export function setSamaptaStatus(t: Tables, input: { tes_id: string; status: Sam
     message:
       input.status === "SELESAI"
         ? "Tes ditandai selesai. Isian dikunci; buka lagi bila perlu koreksi."
-        : input.status === "DIBATALKAN"
+        : input.status === "DIHAPUS"
+          ? "Tes dihapus."
+          : input.status === "DIBATALKAN"
           ? "Tes dibatalkan. Tidak dihitung di beranda dan riwayat siswa; isiannya tetap tersimpan."
           : "Tes dibuka lagi untuk diisi.",
     before: row,
@@ -430,6 +432,7 @@ export function saveSamaptaPos(t: Tables, input: SamaptaPosInput, ctx: Operation
   const { test } = testById(t, input.tes_id);
   if (test.status === "SELESAI") throw new AppError("Tes sudah ditandai selesai. Buka lagi untuk mengubah isian.", "CONFLICT", 409);
   if (test.status === "DIBATALKAN") throw new AppError("Tes ini dibatalkan. Pulihkan dulu bila ingin mengisi.", "CONFLICT", 409);
+  if (test.status === "DIHAPUS") throw notFound("Tes samapta");
   if (!test.peserta_ids.includes(input.siswa_id)) throw new AppError("Siswa bukan peserta tes ini.");
   const v = (key: string) => String(input[key] ?? "");
   let patch: Row;

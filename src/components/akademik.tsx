@@ -51,6 +51,7 @@ const SESSION_TONE: Record<SessionStatus, "neutral" | "success" | "info" | "dang
   AKTIF: "success",
   SELESAI: "info",
   DIBATALKAN: "danger",
+  DIHAPUS: "danger",
 };
 export const SessionStatusBadge = ({ status }: { status: SessionStatus }) => <Badge tone={SESSION_TONE[status]}>{SESSION_STATUS_LABEL[status]}</Badge>;
 

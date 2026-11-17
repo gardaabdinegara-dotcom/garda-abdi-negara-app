@@ -2852,3 +2852,7 @@ table.data th.num {
     break-inside: avoid;
   }
 }
+
+/* Banda mode pratinjau (data contoh) */
+.mode-banner-preview { background: var(--warning-soft, #fdeedd); color: var(--warning, #8a4b0a); font-weight: 600; }
+.mode-banner-preview a { color: inherit; text-decoration: underline; margin-left: 6px; }

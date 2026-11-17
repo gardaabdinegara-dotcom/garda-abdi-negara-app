@@ -6,7 +6,7 @@ import { fieldErrors } from "../core/validation";
 import { runOperation, type OperationContext, type OperationOutcome } from "../data/coordinator";
 import type { SpreadsheetKey } from "../data/schema";
 import { AppError, type Tables } from "../data/types";
-import { deps } from "../deps";
+import { dataDeps } from "./data";
 
 export function operationIdFrom(formData: FormData): string {
   return String(formData.get("operation_id") ?? "");
@@ -39,7 +39,7 @@ export async function mutate<T>(
     apply: (tables: Tables, ctx: OperationContext) => OperationOutcome<T>;
   },
 ) {
-  return runOperation<T>(deps(), {
+  return runOperation<T>(await dataDeps(), {
     sheet: options.sheet ?? "inti",
     operationId: operationIdFrom(options.formData),
     actorId: actor.user.user_id,

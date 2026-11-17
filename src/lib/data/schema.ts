@@ -41,6 +41,8 @@ export const INTI = {
     "aktif",
     "terakhir_masuk",
     ...audit,
+    // Hapus = baris ditandai, tidak dicabut (posisi baris spreadsheet harus tetap).
+    "dihapus_pada",
   ]),
   Tautan_Akun: def("Tautan_Akun", ["tautan_id", "user_id", "jenis", "siswa_id", "kelas_id", "aktif", ...audit]),
   Siswa: def("Siswa", [
@@ -60,6 +62,7 @@ export const INTI = {
     // Ditambahkan 17 Nov 2026 untuk blangko samapta. Selalu di ujung kanan agar tab lama cukup dilengkapi (setup --apply).
     "tempat_lahir",
     "asal_sekolah",
+    "dihapus_pada",
   ]),
   Program: def("Program", ["program_id", "nama_program", "target_seleksi", "aktif", ...audit]),
   Kelas: def("Kelas", ["kelas_id", "nama_kelas", "program_id", "angkatan", "aktif", ...audit]),

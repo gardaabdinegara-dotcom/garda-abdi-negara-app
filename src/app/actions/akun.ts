@@ -4,7 +4,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ActionState } from "@/lib/action-state";
 import { hashPassword, temporaryPassword } from "@/lib/auth/password";
-import { addLink, createUser, removeLink, resetPassword, revokeSessions, updateUser } from "@/lib/core/domain";
+import { addLink, createUser, deleteUser, removeLink, resetPassword, revokeSessions, updateUser } from "@/lib/core/domain";
 import { FITUR } from "@/lib/core/fitur";
 import { AppError } from "@/lib/data/types";
 import { resetPin } from "@/lib/core/pin";
@@ -156,4 +156,22 @@ export async function lepasTautan(_prev: ActionState, formData: FormData): Promi
   } catch (error) {
     return failure(error);
   }
+}
+
+/** Menghapus akun (bukan akun sendiri, bukan owner terakhir) lalu kembali ke daftar akun. */
+export async function hapusAkun(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor();
+  try {
+    const userId = String(formData.get("user_id") ?? "");
+    await mutate(actor, {
+      formData,
+      action: "hapusAkun",
+      fingerprint: { userId },
+      tables: ["Pengguna", "Tautan_Akun"],
+      apply: (t, ctx) => deleteUser(t, userId, ctx, actor),
+    });
+  } catch (error) {
+    return failure(error);
+  }
+  redirect("/pengaturan/akun");
 }

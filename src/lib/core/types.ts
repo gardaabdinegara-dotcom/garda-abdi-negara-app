@@ -49,6 +49,8 @@ export interface User {
   akses_keuangan: FinanceAccess;
   aktif: boolean;
   terakhir_masuk: string;
+  /** Terisi bila akun dihapus (disembunyikan dari aplikasi, baris tetap di spreadsheet). */
+  dihapus_pada: string;
 }
 
 export interface AccountLink {
@@ -75,6 +77,8 @@ export interface Student {
   catatan: string;
   tempat_lahir: string;
   asal_sekolah: string;
+  /** Terisi bila siswa dihapus (disembunyikan dari aplikasi, baris tetap di spreadsheet). */
+  dihapus_pada: string;
 }
 
 export interface Program {
@@ -116,6 +120,7 @@ export const toUser = (row: Row): User => ({
   akses_keuangan: oneOf(FINANCE_ACCESS, row.akses_keuangan, "TIDAK"),
   aktif: bool(row.aktif),
   terakhir_masuk: str(row.terakhir_masuk),
+  dihapus_pada: str(row.dihapus_pada),
 });
 
 export const toLink = (row: Row): AccountLink => ({
@@ -142,6 +147,7 @@ export const toStudent = (row: Row): Student => ({
   catatan: str(row.catatan),
   tempat_lahir: str(row.tempat_lahir),
   asal_sekolah: str(row.asal_sekolah),
+  dihapus_pada: str(row.dihapus_pada),
 });
 
 export const toProgram = (row: Row): Program => ({

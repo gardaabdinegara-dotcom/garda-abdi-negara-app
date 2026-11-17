@@ -196,6 +196,38 @@ export function updateStudent(t: Tables, siswaId: string, input: StudentInput, c
   return { entityType: "Siswa", entityId: siswaId, message: "Data siswa diperbarui.", before: found.row, after: row };
 }
 
+/** Akun yang dihapus: nonaktif, sesi berakhir, tautan dilepas, username dibebaskan agar bisa dipakai lagi. */
+function markUserDeleted(t: Tables, index: number, ctx: OperationContext): Row {
+  const row = rows(t, "Pengguna")[index]!;
+  const after = {
+    ...row,
+    aktif: false,
+    username: `${str(row.username)}~hapus-${str(row.user_id).slice(-6).toLowerCase()}`,
+    versi_otorisasi: num(row.versi_otorisasi, 1) + 1,
+    dihapus_pada: ctx.now,
+    ...updated(ctx),
+  };
+  replace(t, "Pengguna", index, after);
+  rows(t, "Tautan_Akun").forEach((link, i) => {
+    if (link.user_id === row.user_id && link.aktif) replace(t, "Tautan_Akun", i, { ...link, aktif: false, ...updated(ctx) });
+  });
+  return after;
+}
+
+/**
+ * Menghapus siswa: hilang dari daftar dan hitungan, akun loginnya ikut dihapus. Baris tetap ada di spreadsheet
+ * (ditandai dihapus_pada) agar riwayat presensi, tes, dan keuangan tidak rusak.
+ */
+export function deleteStudent(t: Tables, siswaId: string, ctx: OperationContext, actor: Actor): OperationOutcome {
+  if (!canManageStudents(actor)) throw forbidden();
+  const found = find(t, "Siswa", "siswa_id", siswaId);
+  if (!found || str(found.row.dihapus_pada)) throw notFound("Siswa");
+  const row = { ...found.row, aktif: false, dihapus_pada: ctx.now, ...updated(ctx) };
+  replace(t, "Siswa", found.index, row);
+  for (const account of studentAccounts(t, siswaId)) if (!str(account.row.dihapus_pada)) markUserDeleted(t, account.index, ctx);
+  return { entityType: "Siswa", entityId: siswaId, message: `Siswa ${str(found.row.nama)} dihapus.`, before: found.row, after: row };
+}
+
 export function setStudentActive(t: Tables, siswaId: string, active: boolean, ctx: OperationContext, actor: Actor): OperationOutcome {
   if (!canManageStudents(actor)) throw forbidden();
   const found = find(t, "Siswa", "siswa_id", siswaId);
@@ -330,6 +362,19 @@ function targetUser(t: Tables, userId: string) {
   const found = find(t, "Pengguna", "user_id", userId);
   if (!found) throw notFound("Akun");
   return { ...found, user: toUser(found.row) };
+}
+
+/** Menghapus akun (bukan akun sendiri, dan owner terakhir tidak boleh dihapus). */
+export function deleteUser(t: Tables, userId: string, ctx: OperationContext, actor: Actor): OperationOutcome {
+  const target = targetUser(t, userId);
+  if (str(target.row.dihapus_pada)) throw notFound("Akun");
+  if (!canManageAccount(actor, target.user.peran)) throw forbidden();
+  if (target.user.user_id === actor.user.user_id) throw new AppError("Akun yang sedang dipakai tidak bisa dihapus.");
+  if (target.user.peran === "OWNER" && activeOwners(t).filter((id) => id !== target.user.user_id).length === 0) {
+    throw new AppError("Owner terakhir tidak bisa dihapus.");
+  }
+  const after = markUserDeleted(t, target.index, ctx);
+  return { entityType: "Pengguna", entityId: userId, message: `Akun ${target.user.username} dihapus.`, before: target.row, after };
 }
 
 export function updateUser(t: Tables, input: UserUpdateInput, ctx: OperationContext, actor: Actor): OperationOutcome {

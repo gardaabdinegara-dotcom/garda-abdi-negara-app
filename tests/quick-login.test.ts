@@ -33,6 +33,7 @@ describe("masuk cepat (khusus uji coba lokal)", () => {
       versi_otorisasi: 1,
       akses_keuangan: "TIDAK",
       terakhir_masuk: "",
+      dihapus_pada: "",
     });
     const list = quickLoginUsers([
       user("w", "Wulan", "WALI"),

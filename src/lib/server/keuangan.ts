@@ -2,12 +2,12 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { canCorrectFinance, canRecordFinance, canSeeChildBills, canViewFinance, financeAccess, ownStudentIds } from "../core/permissions";
 import type { Actor } from "../core/types";
-import { deps } from "../deps";
 import { finance, invoiceSummary, num, setting, text, today } from "../keuangan/domain";
 import { accountName, familyBills, reversedIds, studentOf, userName } from "../keuangan/ringkasan";
 import { composeState, CORE_TABLES, FINANCE_TABLES, ledgerActor } from "../keuangan/sumber";
 import { buildReportDocument, PDF_REPORT_TITLES, validReportRange, type PdfReportKind, type PdfReportOptions } from "../keuangan/report-document";
 import { dataMode } from "../config";
+import { dataDeps } from "./data";
 
 /** Isi lengkap keuangan untuk pengguna yang berhak melihat keuangan (404 untuk yang lain). */
 export async function loadFinance(actor: Actor) {
@@ -16,7 +16,8 @@ export async function loadFinance(actor: Actor) {
 }
 
 async function financeData(actor: Actor) {
-  const [inti, keu] = await Promise.all([deps().store.read("inti", CORE_TABLES), deps().store.read("keuangan", FINANCE_TABLES)]);
+  const source = await dataDeps();
+  const [inti, keu] = await Promise.all([source.store.read("inti", CORE_TABLES), source.store.read("keuangan", FINANCE_TABLES)]);
   const state = composeState(inti, keu);
   const tz = setting(state, "timezone", "Asia/Jakarta");
   const date = today(tz);

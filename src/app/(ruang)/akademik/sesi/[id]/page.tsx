@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { randomUUID } from "node:crypto";
 import QRCode from "qrcode";
-import { catatPresensi, sahkanPresensi, simpanSesi, ubahStatusSesi } from "@/app/actions/akademik";
+import { catatPresensi, hapusSesi, sahkanPresensi, simpanSesi, ubahStatusSesi } from "@/app/actions/akademik";
 import { AttendanceBadge, SessionFields, SessionStatusBadge } from "@/components/akademik";
 import { AutoRefresh } from "@/components/akademik-client";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
@@ -80,6 +80,15 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
           {session.status === "SELESAI" && isToday ? <StatusButton sesiId={session.sesi_id} status="AKTIF" label="Buka kembali untuk koreksi" variant="secondary" /> : null}
           {session.status === "AKAN_DATANG" || session.status === "AKTIF" || (session.status === "SELESAI" && isAdmin) ? (
             <StatusButton sesiId={session.sesi_id} status="DIBATALKAN" label="Batalkan sesi" variant="danger" confirm="Batalkan sesi ini? Sesi batal tidak dihitung dalam rekap; catatan kehadirannya tetap tersimpan." />
+          ) : null}
+          {isAdmin ? (
+            <ActionForm action={hapusSesi} operationId={randomUUID()} confirm={`Hapus sesi "${session.nama}"? Sesi dan catatan kehadirannya hilang dari aplikasi dan rekap.`}>
+              <input type="hidden" name="sesi_id" value={session.sesi_id} />
+              <input type="hidden" name="tanggal" value={session.tanggal} />
+              <SubmitButton variant="ghost" pendingLabel="Menghapus…">
+                Hapus sesi
+              </SubmitButton>
+            </ActionForm>
           ) : null}
           {session.status === "DIBATALKAN" && isAdmin && session.peserta_ids.length ? (
             <StatusButton sesiId={session.sesi_id} status="SELESAI" label="Pulihkan sebagai selesai" variant="secondary" />

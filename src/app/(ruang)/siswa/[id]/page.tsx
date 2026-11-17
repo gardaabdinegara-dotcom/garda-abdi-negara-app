@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
-import { tambahPendaftaran, ubahSiswa, ubahStatusPendaftaran, ubahStatusSiswa } from "@/app/actions/siswa";
+import { hapusSiswa, tambahPendaftaran, ubahSiswa, ubahStatusPendaftaran, ubahStatusSiswa } from "@/app/actions/siswa";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { EnrollmentSetup } from "@/components/enrollment-setup";
 import { StudentFields } from "@/components/student-fields";
@@ -318,6 +318,20 @@ export default async function StudentPage({ params, searchParams }: { params: Pa
                     Aktifkan kembali
                   </SubmitButton>
                 )}
+              </ActionForm>
+            </section>
+            <section className="card">
+              <div className="card-head">
+                <div>
+                  <h2>Hapus siswa</h2>
+                  <p>Untuk data yang salah input. Siswa dan akun loginnya hilang dari aplikasi; riwayat lama tetap aman di spreadsheet.</p>
+                </div>
+              </div>
+              <ActionForm action={hapusSiswa} operationId={randomUUID()} confirm={`Hapus ${student.nama} (${student.kode_siswa})? Siswa tidak akan muncul lagi di aplikasi.`}>
+                <input type="hidden" name="siswa_id" value={student.siswa_id} />
+                <SubmitButton variant="danger" pendingLabel="Menghapus…">
+                  Hapus siswa
+                </SubmitButton>
               </ActionForm>
             </section>
           </div>

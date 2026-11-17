@@ -21,7 +21,7 @@ import {
   type Student,
   type User,
 } from "../core/types";
-import { deps } from "../deps";
+import { dataDeps } from "./data";
 
 /** Data akun yang aman dikirim ke tampilan (tanpa hash password). */
 /** Data akun tanpa hash; `punya_kredensial` = sudah punya password/PIN (untuk siswa: PIN sudah dibuat). */
@@ -29,7 +29,7 @@ export type PublicUser = Omit<User, "password_hash"> & { punya_kredensial: boole
 const publicUser = ({ password_hash, ...rest }: User): PublicUser => ({ ...rest, punya_kredensial: Boolean(password_hash) });
 
 async function read(tables: string[]) {
-  return deps().store.read("inti", tables);
+  return (await dataDeps()).store.read("inti", tables);
 }
 
 export interface Settings {
@@ -102,7 +102,7 @@ export async function loadStudents(actor: Actor): Promise<StudentListItem[]> {
   const enrollments = t.Pendaftaran!.map(toEnrollment);
   return t
     .Siswa!.map(toStudent)
-    .filter((student) => canViewStudent(actor, student.siswa_id, enrollments))
+    .filter((student) => !student.dihapus_pada && canViewStudent(actor, student.siswa_id, enrollments))
     .map((student) => ({ ...student, enrollments: enrollments.filter((e) => e.siswa_id === student.siswa_id) }))
     .sort((a, b) => Number(b.aktif) - Number(a.aktif) || a.nama.localeCompare(b.nama, "id"));
 }
@@ -119,7 +119,7 @@ export async function loadStudentProfile(actor: Actor, siswaId: string): Promise
   const enrollments = t.Pendaftaran!.map(toEnrollment);
   const row = t.Siswa!.find((r) => r.siswa_id === siswaId);
   // Siswa yang tidak boleh dilihat diperlakukan sama dengan yang tidak ada.
-  if (!row || !canViewStudent(actor, siswaId, enrollments)) notFound();
+  if (!row || str(row.dihapus_pada) || !canViewStudent(actor, siswaId, enrollments)) notFound();
   const canManage = canManageStudents(actor);
   const users = new Map(t.Pengguna!.map((r) => [str(r.user_id), toUser(r)]));
   const accounts = canManage
@@ -148,6 +148,7 @@ export async function loadAccounts(actor: Actor): Promise<AccountListItem[]> {
   const order: Role[] = ["OWNER", "ADMIN", "PENGAJAR", "WALI", "SISWA"];
   return t
     .Pengguna!.map(toUser)
+    .filter((user) => !user.dihapus_pada)
     .map((user) => ({
       ...publicUser(user),
       links: links.filter((link) => link.user_id === user.user_id),

@@ -21,10 +21,10 @@ import {
 } from "../core/samapta";
 import { linkedStudentIds, toStudent, type Actor, type Student } from "../core/types";
 import type { Tables } from "../data/types";
-import { deps } from "../deps";
+import { dataDeps } from "./data";
 
 const TABLES = ["Pengaturan", "Siswa", "Tes_Samapta", "Hasil_Samapta"] as const;
-const read = () => deps().store.read("inti", TABLES);
+const read = async () => (await dataDeps()).store.read("inti", TABLES);
 
 export interface SamaptaEntry {
   student: Student;
@@ -61,7 +61,7 @@ function today(t: Tables): string {
 function model(t: Tables) {
   const settings = samaptaSettings(t);
   const students = (t.Siswa ?? []).map(toStudent);
-  const tests = (t.Tes_Samapta ?? []).map(toSamaptaTest).sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.tes_id.localeCompare(a.tes_id));
+  const tests = (t.Tes_Samapta ?? []).map(toSamaptaTest).filter((x) => x.status !== "DIHAPUS").sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.tes_id.localeCompare(a.tes_id));
   const results = new Map<string, Map<string, SamaptaResult>>();
   for (const row of t.Hasil_Samapta ?? []) {
     const r = toSamaptaResult(row);
@@ -198,6 +198,6 @@ export async function loadBlangko(actor: Actor, tesId: string, siswa: string): P
 /** Pengaturan untuk blangko kosong. Khusus owner/staf. */
 export async function loadBlankSettings(actor: Actor) {
   requireStaff(actor);
-  const t = await deps().store.read("inti", ["Pengaturan"]);
+  const t = await (await dataDeps()).store.read("inti", ["Pengaturan"]);
   return samaptaSettings(t);
 }

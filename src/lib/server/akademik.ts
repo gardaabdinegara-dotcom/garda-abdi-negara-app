@@ -12,6 +12,7 @@ import {
   classesOfStudent,
   currentReport,
   isAcademicStaff,
+  liveSession,
   latestPublished,
   localClock,
   mean,
@@ -42,9 +43,9 @@ import {
 import { linkedStudentIds, taughtClassIds, toClass, toEnrollment, toLink, toStudent, toUser, type Actor, type ClassGroup, type Enrollment, type Student } from "../core/types";
 import { str } from "../data/rows";
 import type { Tables } from "../data/types";
-import { deps } from "../deps";
+import { dataDeps } from "./data";
 
-const read = (tables: readonly string[]) => deps().store.read("inti", tables);
+const read = async (tables: readonly string[]) => (await dataDeps()).store.read("inti", tables);
 
 /** Nama kelas sesi; sesi tanpa kelas berlaku untuk semua siswa aktif. */
 const kelasLabel = (names: ReadonlyMap<string, string>, id: string, unknown = "-") => (id ? (names.get(id) ?? unknown) : "Semua siswa");
@@ -152,7 +153,7 @@ export async function loadSchedule(actor: Actor, dateParam: unknown) {
   const t = await read(SCHEDULE_TABLES);
   const clock = clockOf(t);
   const { students, enrollments, classes, className } = base(t);
-  const sessions = (t.Sesi ?? []).map(toSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
   const attendance = (t.Presensi ?? []).map(toAttendance);
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
   const byTime = (a: Session, b: Session) => `${a.tanggal} ${a.jam_mulai}`.localeCompare(`${b.tanggal} ${b.jam_mulai}`);
@@ -199,7 +200,7 @@ export async function loadSessionDetail(actor: Actor, sesiId: string) {
   const clock = clockOf(t);
   const { students, enrollments, classes, studentById, className, userName } = base(t);
   const row = (t.Sesi ?? []).find((r) => r.sesi_id === sesiId);
-  if (!row) notFound();
+  if (!row || row.status === "DIHAPUS") notFound();
   const session = toSession(row);
   if (!visibleSession(actor, session, students, enrollments)) notFound();
   const records = (t.Presensi ?? []).map(toAttendance).filter((a) => a.sesi_id === sesiId);
@@ -522,7 +523,7 @@ export async function loadAcademicHome(actor: Actor) {
   const t = await read(["Pengaturan", "Pengguna", "Tautan_Akun", "Siswa", "Pendaftaran", "Kelas", "Sesi", "Presensi", "Hasil_Tes", "Tugas", "Pengumpulan", "Rapor"]);
   const clock = clockOf(t);
   const { students, enrollments, className } = base(t);
-  const sessions = (t.Sesi ?? []).map(toSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
   const attendance = (t.Presensi ?? []).map(toAttendance);
   const records = new Map(attendance.map((a) => [a.presensi_id, a]));
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
@@ -590,7 +591,7 @@ export async function loadAcademicHome(actor: Actor) {
 export async function loadStudentAcademic(actor: Actor, siswaId: string) {
   const t = await read(["Pengaturan", "Sesi", "Presensi", "Hasil_Tes", "Rapor"]);
   const clock = clockOf(t);
-  const sessions = (t.Sesi ?? []).map(toSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
   const records = new Map((t.Presensi ?? []).map((r) => [str(r.presensi_id), toAttendance(r)]));
   const skd = (t.Hasil_Tes ?? [])
     .map(toTest)

@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { saveSession, setSessionStatus, toSession } from "../src/lib/core/akademik";
-import { createStudent, setStudentActive, updateStudent } from "../src/lib/core/domain";
+import { createStudent, deleteStudent, deleteUser, setStudentActive, updateStudent } from "../src/lib/core/domain";
 import { createStudentAccount } from "../src/lib/core/pin";
 import { saveSamaptaPos, saveSamaptaTest, setSamaptaStatus, toSamaptaTest } from "../src/lib/core/samapta";
 import { samaptaPosInput } from "../src/lib/core/samapta-input";
@@ -67,5 +67,38 @@ describe("owner sebagai superadmin", () => {
     assert.throws(() => saveSamaptaPos(t, pos, ctx(), owner), /dibatalkan/);
     setSamaptaStatus(t, { tes_id: tesId, status: "BERJALAN" }, ctx(), owner);
     saveSamaptaPos(t, pos, ctx(), owner);
+  });
+
+  test("hapus siswa: hilang dari daftar, akunnya terhapus dan kode bisa dipakai akun baru", async () => {
+    const { t, siswaId, account } = await withStudent();
+    deleteStudent(t, siswaId, ctx(), owner);
+    const siswa = t.Siswa!.find((r) => r.siswa_id === siswaId)!;
+    assert.ok(siswa.dihapus_pada);
+    assert.equal(account().aktif, false);
+    assert.match(account().username, /~hapus-/);
+    assert.ok(t.Tautan_Akun!.every((l) => l.aktif === false));
+    assert.throws(() => deleteStudent(t, siswaId, ctx(), owner), /tidak ditemukan/);
+  });
+
+  test("hapus akun: bukan akun sendiri dan bukan owner terakhir", async () => {
+    const { t, account } = await withStudent();
+    assert.throws(() => deleteUser(t, owner.user.user_id, ctx(), owner), /sedang dipakai|terakhir/);
+    deleteUser(t, account().user_id, ctx(), owner);
+    assert.ok(account().dihapus_pada);
+    const other = actor("OWNER");
+    putUser(t, other.user);
+    deleteUser(t, other.user.user_id, ctx(), owner);
+    assert.ok(t.Pengguna!.find((u) => u.user_id === other.user.user_id)!.dihapus_pada, "owner lain boleh dihapus selama masih ada owner aktif");
+  });
+
+  test("hapus sesi dan tes samapta (owner); sesi terhapus tidak bisa diubah lagi", async () => {
+    const { t } = await withStudent();
+    const sesi = saveSession(t, { sesi_id: "", nama: "Salah input", tanggal: "2026-11-13", jam_mulai: "07:00", jam_selesai: "08:00", jenis: "FISIK", kelas_id: "", pengajar_id: "" }, ctx(), owner).entityId;
+    setSessionStatus(t, { sesi_id: sesi, status: "DIHAPUS" }, at("07:00"), owner);
+    assert.equal(t.Sesi!.find((r) => r.sesi_id === sesi)!.status, "DIHAPUS");
+    assert.throws(() => setSessionStatus(t, { sesi_id: sesi, status: "AKTIF" }, at("07:00"), owner), /tidak ditemukan/);
+    const tesId = saveSamaptaTest(t, { tes_id: "", nama: "Salah", tanggal: "2026-11-13", jam_mulai: "07:00", tempat: "", catatan: "" }, ctx(), owner).entityId;
+    setSamaptaStatus(t, { tes_id: tesId, status: "DIHAPUS" }, ctx(), owner);
+    assert.equal(toSamaptaTest(t.Tes_Samapta!.find((r) => r.tes_id === tesId)!).status, "DIHAPUS");
   });
 });

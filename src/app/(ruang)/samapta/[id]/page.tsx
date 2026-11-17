@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { randomUUID } from "node:crypto";
-import { simpanTesSamapta, tambahPesertaSamapta, ubahStatusTesSamapta } from "@/app/actions/samapta";
+import { hapusTesSamapta, simpanTesSamapta, tambahPesertaSamapta, ubahStatusTesSamapta } from "@/app/actions/samapta";
 import { Kpi } from "@/components/dashboard";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -482,25 +482,22 @@ function DataTab({ data }: { data: Data }) {
           </div>
         )}
       </section>
-      {test.status !== "DIBATALKAN" ? (
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Batalkan tes</h2>
-              <p>Untuk sesi tes yang keliru dibuat. Tes batal tidak dihitung di beranda dan riwayat siswa; isiannya tetap tersimpan dan bisa dipulihkan.</p>
-            </div>
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <h2>Hapus tes</h2>
+            <p>Untuk sesi tes yang salah input. Tes dan isiannya hilang dari aplikasi, beranda, dan riwayat siswa.</p>
           </div>
-          <ActionForm action={ubahStatusTesSamapta} operationId={randomUUID()} confirm={`Batalkan ${test.nama}?`} className="stack">
-            <input type="hidden" name="tes_id" value={test.tes_id} />
-            <input type="hidden" name="status" value="DIBATALKAN" />
-            <div className="form-actions">
-              <SubmitButton variant="danger" pendingLabel="Membatalkan…">
-                Batalkan tes
-              </SubmitButton>
-            </div>
-          </ActionForm>
-        </section>
-      ) : null}
+        </div>
+        <ActionForm action={hapusTesSamapta} operationId={randomUUID()} confirm={`Hapus ${test.nama}? Tes ini tidak akan muncul lagi di aplikasi.`} className="stack">
+          <input type="hidden" name="tes_id" value={test.tes_id} />
+          <div className="form-actions">
+            <SubmitButton variant="danger" pendingLabel="Menghapus…">
+              Hapus tes
+            </SubmitButton>
+          </div>
+        </ActionForm>
+      </section>
     </div>
   );
 }

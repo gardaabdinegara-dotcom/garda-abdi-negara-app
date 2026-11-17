@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
-import { buatPasswordSementara, cabutSesi, lepasTautan, resetPinSiswa, tambahTautan, ubahAkun } from "@/app/actions/akun";
+import { buatPasswordSementara, cabutSesi, hapusAkun, lepasTautan, resetPinSiswa, tambahTautan, ubahAkun } from "@/app/actions/akun";
 import { ActionForm, CheckField, Field, SubmitButton } from "@/components/form";
 import { ActiveBadge, Badge, Empty, Notice, PageHead, RoleBadge } from "@/components/ui";
 import { canManageAccount, canSetFinanceAccess } from "@/lib/core/permissions";
@@ -236,6 +236,22 @@ export default async function AccountPage({ params }: { params: Params }) {
                 </SubmitButton>
               </ActionForm>
             </section>
+            {!self ? (
+              <section className="card">
+                <div className="card-head">
+                  <div>
+                    <h2>Hapus akun</h2>
+                    <p>{account.peran === "SISWA" ? "Akun login siswa ini dihapus; data siswanya tetap ada dan akun baru bisa dibuat lagi. Untuk menghapus siswanya sekalian, pakai Hapus siswa di profil siswa." : "Akun ini tidak bisa dipakai masuk lagi dan hilang dari daftar."}</p>
+                  </div>
+                </div>
+                <ActionForm action={hapusAkun} operationId={randomUUID()} confirm={`Hapus akun ${account.username}?`}>
+                  <input type="hidden" name="user_id" value={account.user_id} />
+                  <SubmitButton variant="danger" pendingLabel="Menghapus…">
+                    Hapus akun
+                  </SubmitButton>
+                </ActionForm>
+              </section>
+            ) : null}
             {account.peran === "ADMIN" ? (
               <section className="card">
                 <div className="card-head">
