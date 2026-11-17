@@ -71,3 +71,19 @@ describe("validasi isian", () => {
     assert.equal(settingsInput.safeParse({ ...base, predikat_a: 60, predikat_b: 80, predikat_c: 40 }).success, false);
   });
 });
+
+describe("penulisan hanya sel yang berubah", () => {
+  test("rentang kolom berubah digabung bila berurutan", async () => {
+    const { changedRanges } = await import("../src/lib/data/rows");
+    const { INTI } = await import("../src/lib/data/schema");
+    const def = INTI.Hasil_Samapta;
+    const before = { hasil_id: "T:S", tes_id: "T", siswa_id: "S", lari_jarak: "", lari_nilai: "", situp_jumlah: 30 };
+    const after = { ...before, lari_jarak: 2400, lari_nilai: 80, updated_at: "x", updated_by: "y" };
+    const col = (name: string) => def.columns.indexOf(name);
+    assert.deepEqual(changedRanges(def, before, after), [
+      { start: col("lari_jarak"), end: col("lari_nilai") },
+      { start: col("updated_at"), end: col("updated_by") },
+    ]);
+    assert.deepEqual(changedRanges(def, before, { ...before }), []);
+  });
+});

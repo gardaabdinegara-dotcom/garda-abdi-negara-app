@@ -17,6 +17,7 @@
     "setup:sheets": "tsx scripts/setup-sheets.ts",
     "cek:env": "tsx scripts/cek-env.ts",
     "buat-owner": "tsx scripts/buat-owner.ts",
+    "password-awal": "tsx scripts/password-awal.ts",
     "dev:contoh": "tsx scripts/isi-contoh-lokal.ts"
   },
   "dependencies": {

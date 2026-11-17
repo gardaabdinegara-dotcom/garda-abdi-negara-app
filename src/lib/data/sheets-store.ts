@@ -1,5 +1,5 @@
 import { JWT } from "google-auth-library";
-import { diffTable, normalizeRow, validateRead } from "./rows";
+import { changedRanges, diffTable, normalizeRow, validateRead } from "./rows";
 import { OPERATION_TABLE, tableDef, type SpreadsheetKey, type TableDef } from "./schema";
 import { AppError, StoreError, type Cell, type Row, type Store, type Tables } from "./types";
 
@@ -164,9 +164,17 @@ export class SheetsStore implements Store {
       const sheetId = target.properties.sheetId;
       const { updates, appends } = diffTable(def, before[table] ?? [], rows);
       for (const update of updates) {
-        requests.push({
-          updateCells: { start: { sheetId, rowIndex: update.index + 1, columnIndex: 0 }, rows: [rowData(def, update.row)], fields: "userEnteredValue" },
-        });
+        // Hanya sel yang berubah yang ditulis (lihat changedRanges).
+        const old = normalizeRow(def, (before[table] ?? [])[update.index] ?? {});
+        for (const range of changedRanges(def, old, update.row)) {
+          requests.push({
+            updateCells: {
+              start: { sheetId, rowIndex: update.index + 1, columnIndex: range.start },
+              rows: [{ values: def.columns.slice(range.start, range.end + 1).map((column) => toCell(update.row[column] ?? "")) }],
+              fields: "userEnteredValue",
+            },
+          });
+        }
       }
       if (appends.length) {
         requests.push({ appendCells: { sheetId, rows: appends.map((row) => rowData(def, row)), fields: "userEnteredValue" } });

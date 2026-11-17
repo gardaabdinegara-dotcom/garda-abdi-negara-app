@@ -63,3 +63,43 @@ export async function createFirstOwner(deps: Deps, input: Pick<UserCreateInput, 
   });
   return { userId: result.outcome.entityId, password };
 }
+
+/** Password awal bawaan akun owner; wajib diganti saat pertama masuk (aktivasi). */
+export const DEFAULT_OWNER_PASSWORD = "admin";
+
+/**
+ * Mengatur password AWAL akun owner/admin dan mewajibkan penggantian saat masuk berikutnya.
+ * Semua sesi akun itu langsung berakhir (versi otorisasi naik). Password baru saat aktivasi tetap harus
+ * memenuhi aturan (minimal 14 karakter, huruf dan angka, tanpa username).
+ */
+export async function setInitialOwnerPassword(deps: Deps, username: string, password = DEFAULT_OWNER_PASSWORD) {
+  if (!password) throw new Error("Password awal tidak boleh kosong.");
+  const passwordHash = await hashPassword(password);
+  const name = username.trim().toLowerCase();
+  return runOperation(deps, {
+    sheet: "inti",
+    operationId: randomUUID(),
+    actorId: "SISTEM",
+    action: "aturPasswordAwal",
+    fingerprint: { username: name, at: Date.now() },
+    tables: ["Pengguna"],
+    apply: (t) => {
+      const list = t.Pengguna ?? [];
+      const index = list.findIndex((row) => String(row.username).toLowerCase() === name);
+      const row = list[index];
+      if (!row) throw new Error(`Akun ${name} tidak ditemukan.`);
+      if (row.peran !== "OWNER" && row.peran !== "ADMIN") throw new Error("Password awal hanya untuk akun owner/admin. Siswa memakai Reset PIN.");
+      list[index] = {
+        ...row,
+        password_hash: passwordHash,
+        wajib_ganti_password: true,
+        aktif: true,
+        versi_otorisasi: Number(row.versi_otorisasi || 1) + 1,
+        updated_at: new Date().toISOString(),
+        updated_by: "SISTEM",
+      };
+      return { entityType: "Pengguna", entityId: String(row.user_id), message: "Password awal diatur; wajib diganti saat masuk." };
+    },
+  });
+}
+

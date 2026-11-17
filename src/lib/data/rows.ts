@@ -41,6 +41,22 @@ function sameRow(def: TableDef, a: Row, b: Row): boolean {
 
 const cellText = (value: Cell | undefined): string => (value === undefined ? "" : String(value));
 
+/**
+ * Rentang kolom yang berubah antara dua versi baris, digabung bila berurutan: [{ start, end }] (indeks kolom, end inklusif).
+ * Dipakai agar penyimpanan hanya menulis sel yang berubah, sehingga dua penyimpanan bersamaan pada baris yang sama
+ * tetapi kolom berbeda (mis. dua pos samapta untuk satu siswa) tidak saling menimpa.
+ */
+export function changedRanges(def: TableDef, before: Row, after: Row): { start: number; end: number }[] {
+  const ranges: { start: number; end: number }[] = [];
+  def.columns.forEach((column, i) => {
+    if (cellText(before[column]) === cellText(after[column])) return;
+    const last = ranges.at(-1);
+    if (last && last.end === i - 1) last.end = i;
+    else ranges.push({ start: i, end: i });
+  });
+  return ranges;
+}
+
 /** Memeriksa baris hasil baca: header sesuai, tanpa ID kosong atau ganda. */
 export function validateRead(def: TableDef, header: Cell[], rows: Row[]): void {
   if (header.length < def.columns.length || def.columns.some((column, i) => header[i] !== column)) {

@@ -212,6 +212,7 @@ Perintah di atas hanya menampilkan pratinjau. Tambahkan `--terapkan` untuk menyi
 | `npm run build` lalu `npm start` | Versi produksi di komputer sendiri. Wajib mengisi `AUTH_SECRET`; untuk data lokal juga `ALLOW_LOCAL_DATA=1`. |
 | `npm run cek:env [-- --produksi]` | Periksa `.env.local` tanpa menampilkan rahasia; `--produksi` memakai syarat Vercel |
 | `npm run setup:sheets [-- --apply]` | Pratinjau atau buat tab dan header |
+| `npm run password-awal -- --username admin` | Pasang password awal `admin` untuk owner; wajib diganti saat masuk (aktivasi) |
 | `npm run buat-owner -- --username … --nama "…"` | Akun Owner pertama |
 | `npm run dev:contoh -- --ulang` | Isi ulang data contoh mode lokal |
 | `npx tsx scripts/impor-siswa.ts <daftar.txt> --jalur TNI [--perempuan 3,7] [--terapkan]` | Impor banyak siswa sekaligus beserta akunnya |
@@ -219,7 +220,7 @@ Perintah di atas hanya menampilkan pratinjau. Tambahkan `--terapkan` untuk menyi
 
 ## Pengujian
 
-`npm run check` menjalankan 234 tes otomatis:
+`npm run check` menjalankan 236 tes otomatis:
 
 - Tes Samapta: klasifikasi, IMT, Garjas B dan hasil akhir, durasi renang, simpan per pos tanpa menyentuh pos lain, kunci saat selesai, hak akses, serta pembantu tampilan
 - presensi untuk semua siswa tanpa kelas dan hadir lewat QR yang langsung sah
@@ -369,14 +370,18 @@ Fase 2 menambah kolom `komponen` (sesudah `kategori`) di tab `Hasil_Tes`. Bila t
    | `GOOGLE_SERVICE_ACCOUNT_JSON` | isi file kunci JSON dalam satu baris (`…_FILE` tidak berlaku di Vercel) |
    | `SHEET_ID_INTI`, `SHEET_ID_KEUANGAN` | ID spreadsheet Latihan dulu, nanti diganti ke yang asli |
    | `AUTH_SECRET` | secret acak baru minimal 32 karakter, berbeda dari milik komputer sendiri |
-   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | opsional; tanpa ini batas salah PIN disimpan di spreadsheet |
+   | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | **kosongkan** untuk murni spreadsheet (pilihan lembaga); batas salah PIN disimpan di tab `Batas_Masuk` |
    | `APP_TIMEZONE` | `Asia/Jakarta` |
 
-   Jangan isi `ALLOW_LOCAL_DATA` di Vercel. Tanpa Redis, antrean penyimpanan hanya berlaku per server, jadi pilih hosting satu server bila memungkinkan.
+   Jangan isi `ALLOW_LOCAL_DATA` di Vercel. Murni spreadsheet tetap aman untuk skala lembaga:
+   - penyimpanan hanya menulis sel yang berubah, jadi dua perubahan pada baris yang sama tetapi kolom berbeda tidak saling menimpa;
+   - baris hasil samapta disiapkan saat tes dibuat, jadi beberapa HP yang mengisi pos bersamaan tidak membuat baris ganda.
+
+   Yang masih bisa bertabrakan hanya dua perubahan pada **sel yang sama** di detik yang sama.
 
 5. **Subdomain.** Di Vercel → **Settings → Domains**, tambahkan misalnya `ruang.gardaabdinegara.com`. Di pengelola DNS domain, buat record **CNAME** sesuai petunjuk Vercel. Setelah sertifikat HTTPS aktif, buka subdomain itu.
 
-6. **Periksa setelah deploy.** Masuk sebagai Owner, ganti password sementara, lalu buka **Pengaturan → Sistem**. Semua baris harus OK dan badge menunjukkan **Siap dipakai**.
+6. **Periksa setelah deploy.** Masuk sebagai Owner (`admin`, password awal `admin`), lalu langsung ganti password saat diminta (aktivasi). Password awal bisa dipasang ulang kapan saja dengan `npm run password-awal -- --username admin`. Setelah itu buka **Pengaturan → Sistem**. Semua baris harus OK dan badge menunjukkan **Siap dipakai**.
 
 7. **Latihan dulu, lalu data nyata.**
    - Latih staf di spreadsheet Latihan dengan bantuan **Panduan singkat**.

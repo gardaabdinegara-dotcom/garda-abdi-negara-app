@@ -330,6 +330,13 @@ function tensi(text: string, label: string): string {
 
 const blank = (value: number | null) => (value === null ? "" : value);
 
+/** Baris hasil kosong untuk satu peserta (bila belum ada). */
+function prepareResult(t: Tables, tesId: string, siswaId: string, ctx: OperationContext): void {
+  const hasilId = `${tesId}:${siswaId}`;
+  if (find(t, "Hasil_Samapta", "hasil_id", hasilId)) return;
+  rows(t, "Hasil_Samapta").push({ hasil_id: hasilId, tes_id: tesId, siswa_id: siswaId, ...created(ctx) });
+}
+
 // ---------------------------------------------------------------- Perintah
 
 export interface SamaptaTestInput {
@@ -372,6 +379,9 @@ export function saveSamaptaTest(t: Tables, input: SamaptaTestInput, ctx: Operati
     ...created(ctx),
   };
   rows(t, "Tes_Samapta").push(after);
+  // Baris hasil disiapkan sejak awal: isian per pos nanti hanya memperbarui sel, tidak menambah baris, sehingga
+  // beberapa HP yang mengisi bersamaan tidak bisa membuat baris ganda.
+  for (const siswaId of peserta) prepareResult(t, after.tes_id, siswaId, ctx);
   return { entityType: "Tes_Samapta", entityId: after.tes_id, message: `Tes dibuat dengan ${peserta.length} peserta.`, after };
 }
 
@@ -405,6 +415,7 @@ export function addSamaptaParticipant(t: Tables, input: { tes_id: string; siswa_
   if (test.peserta_ids.includes(input.siswa_id)) throw new AppError("Siswa sudah menjadi peserta.", "DUPLICATE", 409);
   const after = { ...row, peserta_ids: [...test.peserta_ids, input.siswa_id].join(","), ...updated(ctx) };
   replace(t, "Tes_Samapta", index, after);
+  prepareResult(t, test.tes_id, input.siswa_id, ctx);
   return { entityType: "Tes_Samapta", entityId: test.tes_id, message: "Siswa ditambahkan ke peserta.", before: row, after };
 }
 

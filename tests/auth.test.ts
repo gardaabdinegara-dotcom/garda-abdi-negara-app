@@ -191,3 +191,16 @@ describe("pencabutan sesi", () => {
     assert.ok(resolveActor(await deps.store.read("inti", ["Pengguna", "Tautan_Akun"]), readSessionToken(createSessionToken(guruId, versi).token)));
   });
 });
+
+describe("password awal owner (aktivasi)", () => {
+  test("owner masuk dengan password awal lalu wajib menggantinya", async () => {
+    const { setInitialOwnerPassword, createFirstOwner } = await import("../src/lib/setup");
+    const { attemptLogin } = await import("../src/lib/auth/login");
+    const deps = await freshDeps();
+    await createFirstOwner(deps, { username: "admin", nama: "Admin" });
+    await setInitialOwnerPassword(deps, "admin");
+    const user = await attemptLogin(deps, { username: "admin", password: "admin", ip: "9.9.9.9" });
+    assert.equal(user.wajib_ganti_password, true);
+    await assert.rejects(setInitialOwnerPassword(deps, "tidak-ada"), /tidak ditemukan/);
+  });
+});

@@ -125,7 +125,7 @@ describe("perintah samapta", () => {
     assert.equal(r.lari_jarak, 2470);
     assert.equal(r.lari_nilai, 87);
     assert.equal(r.berat_kg, 69.5);
-    assert.equal(t.Hasil_Samapta!.length, 1);
+    assert.equal(t.Hasil_Samapta!.length, 2, "satu baris per peserta, disiapkan saat tes dibuat");
     assert.ok(posFilled(r, "lari") && posFilled(r, "badan") && !posFilled(r, "tensi"));
   });
 
@@ -133,7 +133,7 @@ describe("perintah samapta", () => {
     const { t, tesId } = await setup();
     saveSamaptaPos(t, pos({ tes_id: tesId, siswa_id: "S1", pos: "situp", situp_jumlah: "40", situp_nilai: "82" }), ctx(), owner);
     saveSamaptaPos(t, pos({ tes_id: tesId, siswa_id: "S1", pos: "situp", situp_jumlah: "40", situp_nilai: "" }), ctx(), owner);
-    const r = toSamaptaResult(t.Hasil_Samapta![0]!);
+    const r = toSamaptaResult(t.Hasil_Samapta!.find((row) => row.hasil_id === `${tesId}:S1`)!);
     assert.equal(r.situp_nilai, null);
     assert.equal(r.situp_jumlah, 40);
   });
@@ -144,7 +144,7 @@ describe("perintah samapta", () => {
     assert.throws(() => saveSamaptaPos(t, pos({ tes_id: tesId, siswa_id: "S1", pos: "lari", lari_jarak: "2400", lari_nilai: "101" }), ctx(), owner), /antara 0 dan 100/);
     assert.throws(() => saveSamaptaPos(t, pos({ tes_id: tesId, siswa_id: "S1", pos: "renang", renang_gaya: "Gaya katak", renang_waktu: "60" }), ctx(), owner), /gaya renang/);
     saveSamaptaPos(t, pos({ tes_id: tesId, siswa_id: "S1", pos: "tensi", tensi_1: "120 / 80", tensi_2: "118/78", tensi_3: "" }), ctx(), owner);
-    assert.equal(t.Hasil_Samapta![0]!.tensi_1, "120/80");
+    assert.equal(t.Hasil_Samapta!.find((row) => row.hasil_id === `${tesId}:S1`)!.tensi_1, "120/80");
   });
 
   it("siswa bukan peserta ditolak; bisa ditambahkan sebagai peserta", async () => {
