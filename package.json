@@ -1,0 +1,42 @@
+{
+  "name": "ruang-garda",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ruang Garda — presensi, penilaian, rapor, dan keuangan Garda Abdi Negara dalam satu aplikasi.",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3020",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3020",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"tests/**/*.test.ts\"",
+    "check": "npm run typecheck && npm run test",
+    "setup:sheets": "tsx scripts/setup-sheets.ts",
+    "cek:env": "tsx scripts/cek-env.ts",
+    "buat-owner": "tsx scripts/buat-owner.ts",
+    "dev:contoh": "tsx scripts/isi-contoh-lokal.ts"
+  },
+  "dependencies": {
+    "@upstash/redis": "1.41.0",
+    "google-auth-library": "11.3.4",
+    "jspdf": "4.2.1",
+    "jspdf-autotable": "5.0.9",
+    "next": "16.4.6",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/qrcode": "1.5.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,12 @@
+import { Tabs } from "@/components/ui";
+
+const ITEMS = [
+  { key: "akun", href: "/pengaturan/akun", label: "Akun" },
+  { key: "kelas-program", href: "/pengaturan/kelas-program", label: "Program & kelas" },
+  { key: "lembaga", href: "/pengaturan/lembaga", label: "Lembaga" },
+];
+
+export function SettingsTabs({ current, owner = false }: { current: "akun" | "kelas-program" | "lembaga" | "sistem"; owner?: boolean }) {
+  const items = owner ? [...ITEMS, { key: "sistem", href: "/pengaturan/sistem", label: "Sistem" }] : ITEMS;
+  return <Tabs items={items} current={current} label="Bagian pengaturan" />;
+}

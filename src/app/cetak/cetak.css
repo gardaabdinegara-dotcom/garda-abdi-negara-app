@@ -1,0 +1,434 @@
+/* Halaman cetak (di luar kerangka aplikasi): blangko tes samapta A4.
+   Semua aturan dibatasi kelas .cetak / .blangko agar tidak mengganggu halaman lain,
+   karena stylesheet ini tetap termuat setelah berpindah halaman di dalam aplikasi. */
+
+/* ---------------------------------------------------------------- Layar */
+
+.cetak {
+  --cetak-backdrop: #d6d5cf;
+  min-height: 100dvh;
+  background: var(--cetak-backdrop);
+  color: var(--ink);
+}
+
+html[data-color-mode="dark"] .cetak {
+  --cetak-backdrop: #24271f;
+}
+
+.cetak-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.cetak-bar-in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "back"
+    "text"
+    "hint"
+    "actions";
+  gap: 8px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 16px 14px;
+}
+
+.cetak-back {
+  grid-area: back;
+  justify-self: start;
+  margin-left: -10px;
+}
+
+.cetak-bar-text {
+  grid-area: text;
+  min-width: 0;
+}
+
+.cetak-bar-text h1 {
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+
+.cetak-bar-text p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.cetak-hint {
+  grid-area: hint;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.cetak-hint .icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--primary);
+}
+
+.cetak-bar-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.cetak-bar-actions > .btn {
+  flex: 1 1 auto;
+}
+
+.cetak-jumlah {
+  display: flex;
+  flex: 1 1 100%;
+  gap: 8px;
+  align-items: center;
+}
+
+.cetak-jumlah label {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cetak-jumlah input:not([type="checkbox"]):not([type="radio"]) {
+  width: 84px;
+  min-height: 40px;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+@media (min-width: 760px) {
+  .cetak-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .cetak-bar-in {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "back text actions"
+      ". hint actions";
+    column-gap: 18px;
+    row-gap: 4px;
+    align-items: center;
+    padding: 12px 24px;
+  }
+
+  .cetak-back {
+    align-self: start;
+    margin-left: 0;
+  }
+
+  .cetak-bar-actions {
+    justify-content: flex-end;
+  }
+
+  .cetak-bar-actions > .btn,
+  .cetak-jumlah {
+    flex: 0 0 auto;
+  }
+}
+
+.cetak-sheets {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 16px 56px;
+}
+
+/* Bingkai = satu lembar. Lebarnya 210 mm, atau selebar layar bila lebih sempit;
+   isi lembar ikut mengecil secara proporsional (satuan --u di bawah). */
+.blangko-frame {
+  container-type: inline-size;
+  width: min(210mm, 100%);
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #0000001f,
+    0 18px 40px -22px #00000099;
+}
+
+/* ---------------------------------------------------------------- Lembar A4 (hitam putih) */
+
+.blangko {
+  /* 1 piksel desain pada lembar selebar 210 mm (793,7 px). */
+  --u: calc(100cqw / 793.7008);
+  --mm: calc(var(--u) * 3.779528);
+  box-sizing: border-box;
+  width: calc(210 * var(--mm));
+  height: calc(297 * var(--mm));
+  padding: calc(12 * var(--mm)) calc(14 * var(--mm));
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  color-scheme: light;
+  font: 400 calc(12.5 * var(--u)) / 1.35 Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.blangko * {
+  color: #000;
+}
+
+.blangko-kop {
+  font-weight: 700;
+  font-size: calc(13 * var(--u));
+  text-decoration: underline;
+  text-underline-offset: calc(3 * var(--u));
+}
+
+.blangko-judul {
+  margin: calc(16 * var(--u)) 0 calc(12 * var(--u));
+  text-align: center;
+  font-weight: 700;
+  font-size: calc(14 * var(--u));
+  text-decoration: underline;
+  text-underline-offset: calc(3 * var(--u));
+}
+
+.blangko-sek {
+  display: grid;
+  grid-template-columns: calc(30 * var(--u)) minmax(0, 1fr);
+  margin-top: calc(9 * var(--u));
+}
+
+.blangko-sek > b {
+  font-weight: 700;
+}
+
+.blangko h4 {
+  margin: 0 0 calc(4 * var(--u));
+  font-size: calc(12.5 * var(--u));
+  font-weight: 700;
+  line-height: 1.35;
+  text-decoration: underline;
+}
+
+.blangko-isi {
+  display: grid;
+  grid-template-columns: calc(170 * var(--u)) calc(12 * var(--u)) minmax(0, 1fr);
+  row-gap: calc(3 * var(--u));
+}
+
+.blangko-v {
+  min-width: 0;
+  min-height: calc(16 * var(--u));
+  border-bottom: 1px dotted #444;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.blangko-v.blangko-panjang {
+  font-size: calc(10.5 * var(--u));
+  line-height: calc(16.9 * var(--u));
+}
+
+.blangko-split {
+  display: flex;
+  gap: calc(12 * var(--u));
+}
+
+.blangko-usia {
+  margin-left: auto;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.blangko-usia-v {
+  display: inline-block;
+  min-width: calc(26 * var(--u));
+  text-align: center;
+  font-weight: 600;
+}
+
+.blangko-usia-v.blangko-kosong {
+  min-width: calc(64 * var(--u));
+}
+
+.blangko-dua {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(268 * var(--u));
+  gap: calc(14 * var(--u));
+}
+
+.blangko table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.blangko th,
+.blangko td {
+  height: calc(23 * var(--u));
+  padding: calc(3 * var(--u)) calc(6 * var(--u));
+  border: 1px solid #000;
+  background: #fff;
+  font-size: calc(11.5 * var(--u));
+  line-height: 1.3;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.blangko th {
+  font-weight: 700;
+}
+
+.blangko th.blangko-w30 {
+  width: 30%;
+}
+
+.blangko th.blangko-r {
+  text-align: right;
+}
+
+.blangko td.blangko-l {
+  text-align: left;
+}
+
+.blangko td.blangko-n {
+  font-weight: 700;
+}
+
+.blangko td.blangko-tall {
+  height: calc(32 * var(--u));
+}
+
+/* Lebar kolom hasil akhir tetap, agar keterangan panjang tidak menggeser kolom nilai. */
+.blangko table.blangko-hasil {
+  table-layout: fixed;
+}
+
+.blangko-hasil th:nth-child(1),
+.blangko-hasil th:nth-child(2) {
+  width: 17%;
+}
+
+.blangko-hasil th:nth-child(3) {
+  width: 15%;
+}
+
+.blangko-hasil th:nth-child(4) {
+  width: 21%;
+}
+
+/* Teks bebas yang panjang dipotong agar lembar tetap muat satu halaman. */
+.blangko td.blangko-riwayat {
+  font-size: calc(11 * var(--u));
+}
+
+.blangko td.blangko-ket {
+  font-size: calc(10.5 * var(--u));
+}
+
+.blangko-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.blangko-clamp-3 {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.blangko-ttd {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: calc(18 * var(--u));
+}
+
+.blangko-ttd > div {
+  width: calc(240 * var(--u));
+  text-align: center;
+}
+
+.blangko-ttd-nama {
+  margin-top: calc(56 * var(--u));
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: calc(2 * var(--u));
+}
+
+/* Browser lama tanpa container query: lembar tetap ukuran asli dan bisa digeser. */
+@supports not (width: 1cqw) {
+  .cetak-sheets {
+    overflow-x: auto;
+    align-items: flex-start;
+  }
+
+  .blangko-frame {
+    width: 210mm;
+    margin: 0 auto;
+  }
+
+  .blangko {
+    --u: 1px;
+  }
+}
+
+/* ---------------------------------------------------------------- Cetak */
+
+/* Halaman bernama: hanya lembar blangko yang memakai A4 tanpa margin. */
+@page blangko {
+  size: A4;
+  margin: 0;
+}
+
+/* Browser yang belum mengenal halaman bernama. */
+@supports not (page: auto) {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
+@media print {
+  body:has(> .cetak) > :not(.cetak) {
+    display: none !important;
+  }
+
+  .cetak {
+    min-height: 0;
+    background: none;
+    page: blangko;
+  }
+
+  .cetak-bar {
+    display: none !important;
+  }
+
+  .cetak-sheets {
+    display: block;
+    padding: 0;
+  }
+
+  .blangko-frame {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    page: blangko;
+    break-inside: avoid;
+  }
+
+  .blangko-frame:not(:last-child) {
+    break-after: page;
+  }
+
+  .blangko {
+    --u: 1px;
+  }
+}

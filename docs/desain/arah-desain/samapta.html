@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup Tes Samapta · Ruang Garda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #e6e5df; color: #1c2014; font: 15px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; }
+.kepala { max-width: 1320px; margin: 0 auto; padding: 30px 24px 6px; }
+.kepala h1 { margin: 0 0 6px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.kepala p { margin: 0 0 12px; max-width: 920px; color: #464b3a; }
+.lompat { display: flex; flex-wrap: wrap; gap: 8px; }
+.lompat a { padding: 8px 14px; border-radius: 999px; background: #fff; border: 1px solid #d0cdc0; text-decoration: none; color: #1c2014; font-weight: 700; font-size: 14px; }
+.bagian { max-width: 1320px; margin: 0 auto; padding: 26px 24px 8px; }
+.bagian > h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.bagian > h2 span { color: #8a8a80; margin-right: 8px; }
+.bagian > p { margin: 0 0 14px; color: #464b3a; max-width: 900px; }
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 22px; align-items: start; }
+.bingkai { position: relative; width: 100%; aspect-ratio: 1280 / 780; overflow: hidden; border-radius: 14px; box-shadow: 0 18px 44px -22px #0006, 0 0 0 1px #0000001a; }
+.layar { position: absolute; inset: 0 auto auto 0; width: 1280px; height: 780px; transform-origin: 0 0; }
+.hp { width: 390px; height: 800px; border: 9px solid #222; border-radius: 34px; overflow: hidden auto; background: #f4f3ee; }
+.catatan { background: #fff; border-radius: 14px; padding: 16px 18px; font-size: 14px; border: 1px solid #d8d4c6; }
+.catatan h3 { margin: 0 0 8px; font-size: 15px; }
+.catatan ul { margin: 0; padding-left: 18px; }
+.catatan li { margin-bottom: 6px; }
+@media (max-width: 960px) { .duo { grid-template-columns: 1fr; } .hp { margin: 0 auto; } }
+
+/* ===== Aplikasi (token palet army) ===== */
+.app { --bg:#f4f3ee; --surface:#fff; --soft:#efede4; --ink:#1c2014; --muted:#5c6150; --line:#e4e1d6; --primary:#4b5d2a; --psoft:#eaeedd; --orange:#e07a1f; --gold:#8a4b0a; --goldsoft:#fdeedd; --red:#9c2f1f; --redsoft:#f9e8e4; --blue:#275b87; --bluesoft:#e6f0f9;
+  background: var(--bg); color: var(--ink); height: 100%; display: grid; grid-template-columns: 236px 1fr; font-family: "Plus Jakarta Sans", sans-serif; }
+svg.i { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.side { background: #fff; border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 3px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
+.brand img { width: 38px; height: 38px; }
+.brand b { display: block; font-size: 16px; font-weight: 800; }
+.brand small { font-size: 11px; color: var(--muted); }
+.lab { font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px 12px; letter-spacing: 0.06em; }
+.side a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: #464b3a; text-decoration: none; font-weight: 600; font-size: 14px; }
+.side a.on { background: var(--primary); color: #fff; }
+.user { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 14px; background: var(--soft); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: #fff; font-weight: 800; font-size: 12px; }
+.user b { display: block; font-size: 13px; } .user small { font-size: 12px; color: var(--muted); }
+.main { padding: 22px 28px; display: grid; gap: 16px; align-content: start; overflow: hidden; }
+.head { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
+.head small { color: var(--muted); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; }
+.head h1 { margin: 2px 0 2px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.head p { margin: 0; color: var(--muted); }
+.btns { display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1px solid var(--line); background: #fff; color: var(--ink); white-space: nowrap; }
+.btn.utama { background: var(--primary); color: #fff; border-color: var(--primary); }
+.kartu { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; box-shadow: 0 1px 2px #0000000d, 0 8px 24px -18px #4b5d2a40; }
+.kartu h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.sub { font-size: 12.5px; color: var(--muted); }
+.sesi { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+.pos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pos span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--soft); color: #464b3a; }
+.pos span.ok { background: var(--psoft); color: var(--primary); }
+.pos span.jalan { background: var(--goldsoft); color: var(--gold); }
+.bar { height: 8px; border-radius: 999px; background: #e7e5da; margin-top: 12px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 48%; background: var(--primary); border-radius: 999px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.mini b { display: block; font-size: 24px; font-weight: 800; }
+.tabel { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tabel th { text-align: left; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.tabel td { padding: 10px; border-bottom: 1px solid var(--line); }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.b-ok { background: var(--psoft); color: var(--primary); } .b-warn { background: var(--goldsoft); color: var(--gold); } .b-blue { background: var(--bluesoft); color: var(--blue); }
+
+/* ===== Ponsel: isi per pos ===== */
+.p-top { background: #fff; border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+.p-top b { font-size: 16px; } .p-top small { display: block; font-size: 12px; color: var(--muted); }
+.p-body { padding: 14px 14px 90px; display: grid; gap: 12px; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.chips span { flex-shrink: 0; padding: 9px 13px; border-radius: 999px; font-size: 13px; font-weight: 700; background: #fff; border: 1px solid var(--line); color: #464b3a; }
+.chips span.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.baris { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 92px 68px; gap: 8px; align-items: center; }
+.baris b { display: block; font-size: 13.5px; } .baris small { font-size: 11.5px; color: var(--muted); }
+.in { border: 1px solid #d8d4c6; border-radius: 10px; padding: 10px 8px; font: 700 15px "Plus Jakarta Sans"; text-align: center; background: #fff; color: var(--ink); min-height: 44px; display: grid; place-items: center; }
+.in.kosong { color: #a9ae99; font-weight: 500; }
+.in.nilai { background: var(--soft); }
+.lbl { font-size: 10.5px; color: var(--muted); text-align: center; margin-bottom: 2px; }
+.simpan { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 12px 14px; display: flex; gap: 10px; align-items: center; }
+.simpan .btn { flex: 1; justify-content: center; min-height: 48px; }
+.tip { background: var(--psoft); color: var(--primary); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; font-weight: 600; }
+
+/* ===== Blangko A4 (cetak hitam putih) ===== */
+.a4wrap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.a4box { position: relative; width: 100%; aspect-ratio: 794 / 1123; overflow: hidden; box-shadow: 0 18px 40px -22px #0007, 0 0 0 1px #0002; background: #fff; }
+.a4 { position: absolute; inset: 0 auto auto 0; width: 794px; height: 1123px; transform-origin: 0 0; padding: 46px 52px; font: 12.5px/1.35 Arial, Helvetica, sans-serif; color: #000; background: #fff; }
+.a4 .kop { font-weight: 700; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.a4 .judul { text-align: center; font-weight: 700; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; margin: 18px 0 14px; }
+.a4 .sek { display: grid; grid-template-columns: 30px 1fr; margin-top: 10px; }
+.a4 .sek > b:first-child { font-weight: 700; }
+.a4 .sek h4 { margin: 0 0 4px; font-size: 12.5px; font-weight: 700; text-decoration: underline; }
+.a4 .isi { display: grid; grid-template-columns: 170px 12px 1fr; row-gap: 3px; }
+.a4 .isi span.v { border-bottom: 1px dotted #777; min-height: 16px; font-weight: 600; }
+.a4 .dua { display: grid; grid-template-columns: 1fr 268px; gap: 14px; }
+.a4 table { width: 100%; border-collapse: collapse; }
+.a4 td, .a4 th { border: 1px solid #000; padding: 4px 6px; font-size: 11.5px; text-align: center; height: 24px; }
+.a4 th { font-weight: 700; }
+.a4 td.l { text-align: left; }
+.a4 td.v { font-weight: 700; }
+.a4 .ttd { margin-top: 22px; display: flex; justify-content: flex-end; }
+.a4 .ttd div { text-align: center; width: 240px; }
+.a4 .ttd .nama { margin-top: 58px; font-weight: 700; text-decoration: underline; }
+.label-contoh { position: absolute; top: 12px; right: 12px; z-index: 2; background: #8a4b0a; color: #fff; font: 700 12px "Plus Jakarta Sans"; padding: 5px 10px; border-radius: 999px; }
+@media (max-width: 960px) { .a4wrap { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="kepala">
+  <h1>Mockup modul Tes Samapta</h1>
+  <p>Contoh tampilan sebelum dibangun di aplikasi, sesuai keputusan yang Anda setujui. Menu hanya untuk Owner dan Siswa; kop menjadi Bimbel Garda Abdi Negara; isian militer diganti data siswa; nilai diisi manual dulu (rata-rata B, (A+B)/2, klasifikasi, dan IMT dihitung otomatis). <b>Semua angka di halaman ini hanya contoh</b>, bukan hasil tes siswa.</p>
+  <nav class="lompat"><a href="#daftar">1. Daftar sesi tes</a><a href="#pos">2. Isi per pos (HP)</a><a href="#hasil">3. Hasil siswa</a><a href="#cetak">4. Cetak blangko A4</a></nav>
+</header>
+
+<template id="sidebar">
+  <aside class="side">
+    <div class="brand"><img src="aset/garda-logo-192-v1.webp" alt="" width="38" height="38"><div><b>Ruang Garda</b><small>Garda Abdi Negara</small></div></div>
+    <div class="lab">MENU</div>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M9 11.5 11.5 14 16 9.5M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>Presensi</a>
+    <a class="on" href="#"><svg class="i" viewBox="0 0 24 24"><path d="M13 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M7 21l3-4 2 2 2-6 4 2M10 9l3-2 3 3 3 1M8 13l2-4"/></svg>Tes Samapta</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v3M3 7.5V18a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5"/></svg>Keuangan</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M20 20v-1.5a3.5 3.5 0 0 0-2.5-3.35M15.5 4.15a3.5 3.5 0 0 1 0 6.7"/></svg>Siswa</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M4 12h2M18 12h2M12 4v2M12 18v2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/></svg>Pengaturan</a>
+    <div class="user"><span class="av">AD</span><div><b>Admin</b><small>Owner · pelatih</small></div></div>
+  </aside>
+</template>
+
+<!-- ============ 1. Daftar sesi ============ -->
+<section class="bagian" id="daftar">
+  <h2><span>1</span>Daftar sesi tes</h2>
+  <p>Satu sesi = satu hari tes. Owner membuat sesi (tanggal, jam, tempat), peserta otomatis semua siswa aktif, lalu kemajuan tiap pos terlihat di sini.</p>
+  <div class="duo">
+    <div class="bingkai"><div class="layar"><div class="app" data-sidebar>
+      <div class="main">
+        <div class="head"><div><small>KESAMAPTAAN JASMANI</small><h1>Tes Samapta</h1><p>Garjas A, Garjas B, renang, tensi, serta tinggi dan berat badan.</p></div>
+          <div class="btns"><span class="btn">Cetak blangko kosong</span><span class="btn utama">+ Buat sesi tes</span></div></div>
+        <div class="grid3">
+          <div class="kartu mini"><span class="sub">Siswa aktif</span><b>25</b><span class="sub">24 putra · 1 putri</span></div>
+          <div class="kartu mini"><span class="sub">Sesi bulan ini</span><b>1</b><span class="sub">Lap. Syekh Yusuf</span></div>
+          <div class="kartu mini"><span class="sub">Rata-rata hasil akhir</span><b>-</b><span class="sub">Muncul setelah sesi selesai diisi</span></div>
+        </div>
+        <div class="kartu">
+          <div class="sesi"><div><h3>Selasa, 17 November 2026 · 07.00 s.d. selesai</h3><span class="sub">Lap. Syekh Yusuf · 25 peserta · Koordinator materi: Peltu. Adam Hidi</span></div>
+            <div class="btns"><span class="btn">Hasil &amp; cetak</span><span class="btn utama">Isi per pos</span></div></div>
+          <div class="bar"><i></i></div>
+          <div class="pos"><span class="ok">Tensi &amp; tinggi/berat 25/25</span><span class="ok">Lari 12 menit 25/25</span><span class="jalan">Pull up / Chinning 12/25</span><span>Sit up 0/25</span><span>Push up 0/25</span><span>Shuttle run 0/25</span><span>Renang 50 m 0/25</span></div>
+        </div>
+        <div class="kartu">
+          <h3>Sesi sebelumnya</h3>
+          <p class="sub" style="margin:6px 0 0">Belum ada. Setelah beberapa sesi, di sini tampil riwayat dan grafik perkembangan tiap siswa.</p>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="catatan"><h3>Yang terjadi di layar ini</h3><ul>
+      <li><b>Buat sesi tes:</b> tanggal, jam, dan tempat (bawaan Lap. Syekh Yusuf, bisa diubah di Pengaturan).</li>
+      <li><b>Peserta</b> = semua siswa aktif saat sesi dibuat; bisa ditambah atau dikurangi.</li>
+      <li><b>Kemajuan per pos</b> menunjukkan pos mana yang sudah lengkap, sedang diisi, atau belum.</li>
+      <li><b>Cetak blangko kosong:</b> pilih jumlah lembar untuk diisi tangan.</li>
+      <li>Menu kiri sudah versi ringkas: Beranda, Presensi, Tes Samapta, Keuangan, Siswa, Pengaturan.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 2. Isi per pos (HP) ============ -->
+<section class="bagian" id="pos">
+  <h2><span>2</span>Isi per pos di lapangan (HP)</h2>
+  <p>Pelatih memilih pos, lalu mengisi semua siswa berurutan. Tiap baris tersimpan otomatis begitu diisi, jadi aman walau sinyal sempat putus.</p>
+  <div class="duo">
+    <div class="hp"><div class="app" style="display:block;height:auto">
+      <div class="p-top"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><div><b>Isi per pos</b><small>Selasa, 17 Nov 2026 · Lap. Syekh Yusuf</small></div></div>
+      <div class="p-body">
+        <div class="chips"><span>Tensi</span><span>Tinggi/berat</span><span>Lari 12'</span><span class="on">Pull up</span><span>Sit up</span><span>Push up</span><span>Shuttle</span><span>Renang</span></div>
+        <div class="tip">Pull up untuk putra, Chinning untuk putri (otomatis dari jenis kelamin). Isi jumlah gerakan; nilai diisi dari tabel lembaga.</div>
+        <div class="baris"><div><b>CONTOH SISWA 1</b><small>GAN-0001 · putra</small></div><div><div class="lbl">Jumlah</div><div class="in">12</div></div><div><div class="lbl">Nilai</div><div class="in nilai">78</div></div></div>
+        <div class="baris"><div><b>CONTOH SISWA 2</b><small>GAN-0002 · putra</small></div><div><div class="lbl">Jumlah</div><div class="in">9</div></div><div><div class="lbl">Nilai</div><div class="in nilai">65</div></div></div>
+        <div class="baris"><div><b>CONTOH SISWA 3</b><small>GAN-0024 · putri · Chinning</small></div><div><div class="lbl">Jumlah</div><div class="in">25</div></div><div><div class="lbl">Nilai</div><div class="in nilai">70</div></div></div>
+        <div class="baris"><div><b>CONTOH SISWA 4</b><small>GAN-0004 · putra</small></div><div><div class="lbl">Jumlah</div><div class="in kosong">isi</div></div><div><div class="lbl">Nilai</div><div class="in nilai kosong">-</div></div></div>
+        <div class="baris"><div><b>CONTOH SISWA 5</b><small>GAN-0005 · putra</small></div><div><div class="lbl">Jumlah</div><div class="in kosong">isi</div></div><div><div class="lbl">Nilai</div><div class="in nilai kosong">-</div></div></div>
+      </div>
+      <div class="simpan"><span class="sub">12 dari 25 terisi</span><span class="btn utama">Pos berikutnya: Sit up</span></div>
+    </div></div>
+    <div class="catatan"><h3>Isian tiap pos</h3><ul>
+      <li><b>Tensi:</b> I, II, III (contoh 120/80), plus riwayat kesehatan 6 bulan terakhir (3 baris).</li>
+      <li><b>Tinggi/berat:</b> cm dan kg; IMT dan klasifikasinya dihitung otomatis.</li>
+      <li><b>Lari 12 menit:</b> jarak (meter) dan nilai.</li>
+      <li><b>Pull up/Chinning, Sit up, Push up:</b> jumlah dan nilai.</li>
+      <li><b>Shuttle run 6 × 10 m:</b> waktu (detik) dan nilai.</li>
+      <li><b>Renang 50 m:</b> gaya (bebas/dada/punggung) dan waktu.</li>
+      <li><b>Nilai</b> diisi manual sekarang; bila tabel nilai resmi dikirim, kolom ini terisi otomatis.</li>
+      <li>Tombol dan kolom berukuran besar supaya mudah diisi sambil berdiri di lapangan.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 3. Hasil siswa ============ -->
+<section class="bagian" id="hasil">
+  <h2><span>3</span>Hasil per siswa</h2>
+  <p>Ringkasan satu siswa pada satu sesi, lengkap dengan hitungan otomatis. Siswa juga melihat halaman ini dari akunnya (tanpa tombol ubah).</p>
+  <div class="duo">
+    <div class="bingkai"><div class="layar"><div class="app" data-sidebar>
+      <div class="main">
+        <div class="head"><div><small>TES SAMAPTA · 17 NOV 2026</small><h1>CONTOH SISWA 1</h1><p>GAN-0001 · TNI · putra · 18 tahun</p></div>
+          <div class="btns"><span class="btn">Ubah isian</span><span class="btn utama">Cetak blangko</span></div></div>
+        <div class="grid3">
+          <div class="kartu mini"><span class="sub">Garjas A (lari 12 menit)</span><b>72</b><span class="sub">2.800 meter</span></div>
+          <div class="kartu mini"><span class="sub">Garjas B (rata-rata 4 materi)</span><b>73,5</b><span class="sub">(78 + 70 + 76 + 70) ÷ 4</span></div>
+          <div class="kartu mini" style="background:#4b5d2a;color:#fff;border-color:#4b5d2a"><span class="sub" style="color:#eaeedd">Hasil akhir (A + B) ÷ 2</span><b>72,75</b><span class="badge" style="background:#ffffff26;color:#fff">Baik (61–80)</span></div>
+        </div>
+        <div class="kartu">
+          <table class="tabel"><thead><tr><th>MATERI</th><th>HASIL</th><th>NILAI</th><th>KETERANGAN</th></tr></thead><tbody>
+            <tr><td>Pull up</td><td>12 kali</td><td>78</td><td></td></tr>
+            <tr><td>Sit up</td><td>35 kali</td><td>70</td><td></td></tr>
+            <tr><td>Push up</td><td>38 kali</td><td>76</td><td></td></tr>
+            <tr><td>Shuttle run 6 × 10 m</td><td>17,2 detik</td><td>70</td><td></td></tr>
+            <tr><td>Renang dasar 50 m</td><td>Gaya dada · 55 detik</td><td>-</td><td>Ketangkasan</td></tr>
+            <tr><td>Tinggi / berat</td><td>170 cm / 62 kg</td><td>IMT 21,5</td><td><span class="badge b-ok">Normal</span></td></tr>
+            <tr><td>Tensi I / II / III</td><td>120/80 · 118/78 · 120/80</td><td></td><td></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div></div></div>
+    <div class="catatan"><h3>Hitungan otomatis</h3><ul>
+      <li><b>Rata-rata B</b> = rata-rata nilai Pull up/Chinning, Sit up, Push up, Shuttle run.</li>
+      <li><b>Hasil akhir</b> = (Garjas A + Garjas B) ÷ 2, sesuai rumus blangko.</li>
+      <li><b>Klasifikasi</b> memakai batas yang Anda setujui: Baik Sekali ≥ 81, Baik 61–80, Cukup 41–60, Kurang ≤ 40. Batasnya bisa diubah di Pengaturan.</li>
+      <li><b>IMT</b> = berat ÷ (tinggi dalam meter)², dengan klasifikasi Kurus/Normal/Gemuk/Obesitas.</li>
+      <li>Setelah 2 sesi atau lebih, muncul grafik perkembangan siswa.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 4. Cetak A4 ============ -->
+<section class="bagian" id="cetak">
+  <h2><span>4</span>Cetak blangko A4</h2>
+  <p>Kiri: blangko terisi dari data di aplikasi (bisa satu siswa, atau semua siswa satu sesi sekaligus). Kanan: blangko kosong untuk diisi tangan (jumlah lembar bebas). Bagian yang dicoret di blangko asli sudah dihapus.</p>
+  <div class="a4wrap">
+    <div class="a4box"><span class="label-contoh">CONTOH ISIAN</span><div class="a4" data-isi="1"></div></div>
+    <div class="a4box"><div class="a4" data-isi="0"></div></div>
+  </div>
+  <div style="height:40px"></div>
+</section>
+
+<template id="blangko">
+  <div class="kop">BIMBEL GARDA ABDI NEGARA</div>
+  <div class="judul">BLANGKO TES KESAMAPTAAN JASMANI</div>
+  <div class="sek"><b>I.</b><div><h4>Data Diri</h4>
+    <div class="isi"><span>Nama</span><span>:</span><span class="v" data-v="CONTOH SISWA 1"></span>
+      <span>Kode Siswa / Jalur</span><span>:</span><span class="v" data-v="GAN-0001 / TNI"></span>
+      <span>Tempat Tanggal Lahir</span><span>:</span><span class="v" data-v="Gowa, 12-05-2008          Usia : 18 Thn"></span>
+      <span>Asal Sekolah</span><span>:</span><span class="v" data-v="SMA CONTOH"></span></div></div></div>
+  <div class="sek"><b>II.</b><div class="dua"><div><h4>Pelaksanaan</h4>
+    <div class="isi"><span>Hari / Tanggal</span><span>:</span><span class="v" data-v="Selasa / 17-11-2026"></span>
+      <span>Pukul</span><span>:</span><span class="v" data-v="07.00 s.d. selesai"></span>
+      <span>Tempat</span><span>:</span><span class="v">Lap. Syekh Yusuf</span></div></div>
+    <table><tr><th>TENSI</th><th>I</th><th>II</th><th>III</th></tr><tr><td></td><td class="v" data-v="120/80"></td><td class="v" data-v="118/78"></td><td class="v" data-v="120/80"></td></tr>
+      <tr><th colspan="4">RIWAYAT KES 6 BLN TERAKHIR</th></tr><tr><td class="l" colspan="4">1. <b data-v="-"></b></td></tr><tr><td class="l" colspan="4">2.</td></tr><tr><td class="l" colspan="4">3.</td></tr></table></div></div>
+  <div class="sek"><b>III.</b><div><h4>Perbandingan Tinggi dan Berat Badan</h4>
+    <div class="isi"><span>Tinggi / Berat Badan</span><span>:</span><span class="v" data-v="170 Cm / 62 Kg"></span>
+      <span>Klasifikasi</span><span>:</span><span class="v" data-v="Normal (IMT 21,5)"></span></div></div></div>
+  <div class="sek"><b>IV.</b><div><h4>Kesegaran Jasmani "A"</h4>
+    <table><tr><th rowspan="2" style="width:30%">MATERI</th><th rowspan="2">JARAK</th><th rowspan="2">NILAI</th><th colspan="2">TANDA TANGAN</th><th rowspan="2">KETERANGAN</th></tr><tr><th>PESERTA</th><th>TESTOR</th></tr>
+      <tr><td class="l" style="height:34px">Lari 12 Menit</td><td class="v" data-v="2.800 m"></td><td class="v" data-v="72"></td><td></td><td></td><td></td></tr></table></div></div>
+  <div class="sek"><b>V.</b><div><h4>Kesegaran Jasmani "B"</h4>
+    <table><tr><th rowspan="2" style="width:30%">MATERI</th><th rowspan="2">JUMLAH</th><th rowspan="2">NILAI</th><th colspan="2">TANDA TANGAN</th><th rowspan="2">KETERANGAN</th></tr><tr><th>PESERTA</th><th>TESTOR</th></tr>
+      <tr><td class="l" data-label="1. Pull Up|1. Pull Up / Chinning"></td><td class="v" data-v="12"></td><td class="v" data-v="78"></td><td></td><td></td><td></td></tr>
+      <tr><td class="l">2. Sit Up</td><td class="v" data-v="35"></td><td class="v" data-v="70"></td><td></td><td></td><td></td></tr>
+      <tr><td class="l">3. Push Up</td><td class="v" data-v="38"></td><td class="v" data-v="76"></td><td></td><td></td><td></td></tr>
+      <tr><td class="l">4. Shuttle Run 6 x 10 M</td><td class="v" data-v="17,2 dtk"></td><td class="v" data-v="70"></td><td></td><td></td><td></td></tr>
+      <tr><th colspan="2" style="text-align:right">Rata - Rata "B"</th><td class="v" data-v="73,5"></td><td></td><td></td><td></td></tr></table></div></div>
+  <div class="sek"><b>VI.</b><div><h4>Ketangkasan</h4>
+    <table><tr><th rowspan="2" style="width:30%">RENANG DASAR</th><th rowspan="2">GAYA</th><th rowspan="2">WAKTU</th><th colspan="2">TANDA TANGAN</th><th rowspan="2">KETERANGAN</th></tr><tr><th>PESERTA</th><th>TESTOR</th></tr>
+      <tr><td class="l" style="height:34px">50 Meter</td><td class="v" data-v="Dada"></td><td class="v" data-v="55 dtk"></td><td></td><td></td><td></td></tr></table></div></div>
+  <div class="sek"><b>VII.</b><div><h4>Hasil Akhir</h4>
+    <table><tr><th>GARJAS "A"</th><th>GARJAS "B"</th><th>A + B / 2</th><th>KLASIFIKASI</th><th>KETERANGAN</th></tr>
+      <tr><td class="v" style="height:34px" data-v="72"></td><td class="v" data-v="73,5"></td><td class="v" data-v="72,75"></td><td class="v" data-v="Baik"></td><td></td></tr></table></div></div>
+  <div class="ttd"><div>Gowa, <span data-v="17 November"></span><span data-kosong="..........................."></span> 2026<br>Koordinator Materi<div class="nama">PELTU. ADAM HIDI</div></div></div>
+</template>
+
+<script>
+var side = document.getElementById("sidebar");
+document.querySelectorAll("[data-sidebar]").forEach(function (app) { app.insertBefore(side.content.cloneNode(true), app.firstChild); });
+var tpl = document.getElementById("blangko");
+document.querySelectorAll(".a4").forEach(function (page) {
+  var isi = page.dataset.isi === "1";
+  page.appendChild(tpl.content.cloneNode(true));
+  page.querySelectorAll("[data-v]").forEach(function (el) { el.textContent = isi ? el.dataset.v : ""; });
+  page.querySelectorAll("[data-kosong]").forEach(function (el) { el.textContent = isi ? "" : el.dataset.kosong; });
+  page.querySelectorAll("[data-label]").forEach(function (el) { var p = el.dataset.label.split("|"); el.textContent = isi ? p[0] : p[1]; });
+});
+function skala() {
+  document.querySelectorAll(".bingkai").forEach(function (b) { b.firstElementChild.style.transform = "scale(" + b.clientWidth / 1280 + ")"; });
+  document.querySelectorAll(".a4box").forEach(function (b) { b.querySelector(".a4").style.transform = "scale(" + b.clientWidth / 794 + ")"; });
+}
+window.addEventListener("resize", skala);
+skala();
+</script>
+</body>
+</html>

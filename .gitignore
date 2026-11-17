@@ -1,0 +1,20 @@
+# Rahasia: kunci service account, environment, dan data lokal
+.env
+.env.*
+!.env.example
+*.pem
+credentials*.json
+*service-account*.json
+.data/
+
+# Hasil build dan dependensi
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# Cadangan data
+backups/
+*backup*.json

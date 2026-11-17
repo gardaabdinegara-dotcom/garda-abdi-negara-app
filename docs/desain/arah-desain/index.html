@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilihan arah desain · Ruang Garda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: "Manrope"; src: url("aset/manrope.woff2") format("woff2"); font-weight: 200 800; }
+@font-face { font-family: "DM Sans"; src: url("aset/dm-sans.woff2") format("woff2"); font-weight: 100 1000; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #ecebe6; color: #222; font: 15px/1.5 system-ui, sans-serif; }
+a { color: inherit; }
+.intro { max-width: 1180px; margin: 0 auto; padding: 32px 20px 8px; }
+.intro h1 { font: 700 28px/1.2 system-ui, sans-serif; margin: 0 0 6px; }
+.intro p { margin: 0 0 12px; max-width: 760px; color: #444; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+.jump a { padding: 10px 16px; min-height: 44px; display: inline-flex; align-items: center; border: 1px solid #bbb; border-radius: 8px; background: #fff; text-decoration: none; font-weight: 600; }
+.jump a:hover { border-color: #333; }
+.arah { max-width: 1180px; margin: 0 auto; padding: 28px 20px 40px; border-bottom: 1px solid #cfcdc4; }
+.arah > h2 { font: 700 22px/1.2 system-ui, sans-serif; margin: 0 0 4px; }
+.arah > .dial { margin: 0 0 16px; color: #555; font-size: 14px; }
+.frame-desktop { container-type: inline-size; border: 1px solid #c9c7be; border-radius: 10px; overflow: hidden; background: #fff; }
+.bawah { display: grid; grid-template-columns: 375px minmax(0, 1fr); gap: 28px; margin-top: 20px; align-items: start; }
+.frame-phone { container-type: inline-size; width: 375px; height: 760px; overflow-y: auto; border: 8px solid #2b2b2b; border-radius: 28px; background: #fff; position: relative; }
+.alasan h3 { font: 700 16px/1.3 system-ui, sans-serif; margin: 0 0 8px; }
+.alasan ul { margin: 0 0 16px; padding-left: 20px; }
+.alasan li { margin-bottom: 6px; }
+@media (max-width: 760px) { .bawah { grid-template-columns: 1fr; } .frame-phone { margin: 0 auto; } }
+
+/* Kerangka bersama */
+.app { min-height: 100%; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 24px; height: 68px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.logo img { width: 40px; height: 40px; }
+.nav { display: flex; gap: 2px; flex: 1; }
+.nav a { padding: 10px 14px; min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; }
+.user { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.user .av { width: 36px; height: 36px; display: grid; place-items: center; font-weight: 700; }
+.isi { padding: 28px 28px 40px; }
+.tabnav { display: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 14px; text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; }
+@container (max-width: 600px) {
+  .bar { height: 60px; padding: 0 14px; }
+  .nav, .user-text { display: none; }
+  .isi { padding: 18px 16px 96px; }
+  .tabnav { display: grid; grid-template-columns: repeat(5, 1fr); position: sticky; bottom: 0; margin-top: -76px; }
+  .tabnav a { min-height: 56px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; font-weight: 600; text-decoration: none; padding: 4px 2px; }
+  .btn { min-height: 44px; }
+}
+
+/* ================= Pilihan A: Disiplin dan berwibawa ================= */
+.arah-a .app { background: #f4f2ec; color: #1d2a23; font-family: "Barlow", system-ui, sans-serif; }
+.arah-a .bar { background: #1d2a23; color: #f4f2ec; }
+.arah-a .logo b { font: 700 22px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.01em; color: #f4f2ec; }
+.arah-a .logo small { display: block; font: 500 11px/1.2 "Barlow", sans-serif; color: #c9c2a8; }
+.arah-a .nav a { color: #d8d4c6; font: 600 16px/1 "Barlow Condensed", sans-serif; border-bottom: 3px solid transparent; }
+.arah-a .nav a:hover { color: #fff; border-bottom-color: #6b7a70; }
+.arah-a .nav a[aria-current] { color: #fff; border-bottom-color: #c9a227; }
+.arah-a .user { color: #d8d4c6; }
+.arah-a .user .av { background: #8e1b2c; color: #fff; border-radius: 6px; }
+.arah-a .kepala { display: flex; align-items: end; justify-content: space-between; gap: 20px; flex-wrap: wrap; border-bottom: 2px solid #1d2a23; padding-bottom: 14px; margin-bottom: 22px; }
+.arah-a .kepala p { margin: 0; font: 600 15px/1.3 "Barlow Condensed", sans-serif; color: #55615a; }
+.arah-a .kepala h1 { margin: 2px 0 0; font: 700 40px/1.05 "Barlow Condensed", sans-serif; }
+.arah-a .kepala h1 em { font-style: normal; color: #8e1b2c; }
+.arah-a .kepala .waktu { font: 600 15px/1.3 "Barlow Condensed", sans-serif; color: #55615a; }
+.arah-a .grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; }
+.arah-a h2 { font: 700 20px/1.2 "Barlow Condensed", sans-serif; margin: 0 0 10px; }
+.arah-a .tindak { list-style: none; margin: 0; padding: 0; border-top: 1px solid #c9c4b4; }
+.arah-a .tindak li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid #c9c4b4; }
+.arah-a .tindak .no { font: 700 30px/1 "Barlow Condensed", sans-serif; color: #8e1b2c; }
+.arah-a .tindak b { display: block; font-size: 16px; }
+.arah-a .tindak span { color: #4d5a52; font-size: 14px; }
+.arah-a .btn { border: 1.5px solid #1d2a23; border-radius: 6px; color: #1d2a23; background: transparent; }
+.arah-a .btn:hover { background: #1d2a23; color: #f4f2ec; }
+.arah-a .jadwal { border: 1px solid #c9c4b4; border-radius: 6px; background: #fbfaf6; }
+.arah-a .jadwal .baris { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 12px; padding: 14px 16px; }
+.arah-a .jadwal .jam { font: 700 18px/1.2 "Barlow Condensed", sans-serif; }
+.arah-a .jadwal small { display: block; color: #4d5a52; font-size: 13px; }
+.arah-a .status { display: inline-block; margin-top: 6px; font: 600 13px/1 "Barlow Condensed", sans-serif; padding: 5px 8px; border-radius: 4px; background: #e6e2d4; color: #3b463f; }
+.arah-a .angka { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #c9c4b4; border-radius: 6px; margin-top: 28px; background: #fbfaf6; }
+.arah-a .angka div { padding: 14px 16px; border-left: 1px solid #c9c4b4; }
+.arah-a .angka div:first-child { border-left: 0; }
+.arah-a .angka span { display: block; font-size: 13px; color: #4d5a52; }
+.arah-a .angka b { font: 700 26px/1.1 "Barlow Condensed", sans-serif; }
+.arah-a .angka small { color: #4d5a52; font-size: 13px; }
+.arah-a .uang { margin-top: 22px; }
+.arah-a .uang dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0; border-top: 2px solid #1d2a23; }
+.arah-a .uang dl div { padding: 12px 16px 0 0; }
+.arah-a .uang dt { font-size: 13px; color: #4d5a52; }
+.arah-a .uang dd { margin: 2px 0 0; font: 700 22px/1.2 "Barlow Condensed", sans-serif; }
+.arah-a .tabnav { background: #1d2a23; }
+.arah-a .tabnav a { color: #d8d4c6; }
+.arah-a .tabnav a[aria-current] { color: #fff; box-shadow: inset 0 3px 0 #c9a227; }
+@container (max-width: 600px) {
+  .arah-a .kepala h1 { font-size: 32px; }
+  .arah-a .grid { grid-template-columns: 1fr; gap: 24px; }
+  .arah-a .tindak li { grid-template-columns: 34px minmax(0, 1fr); }
+  .arah-a .tindak .btn { grid-column: 2; justify-self: start; }
+  .arah-a .tindak .no { font-size: 24px; }
+  .arah-a .angka { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .arah-a .angka div:nth-child(3) { border-left: 0; }
+  .arah-a .angka div:nth-child(n+3) { border-top: 1px solid #c9c4b4; }
+  .arah-a .uang dl { grid-template-columns: 1fr; }
+}
+
+/* ================= Pilihan B: Tenang dan hangat ================= */
+.arah-b .app { background: #f7f6f0; color: #273e34; font-family: "DM Sans", system-ui, sans-serif; }
+.arah-b .bar { background: #fffef9; border-bottom: 1px solid #dfe5d7; }
+.arah-b .logo b { font: 800 22px/1 "Manrope", sans-serif; letter-spacing: -0.04em; color: #273e34; }
+.arah-b .logo b i { font-style: normal; color: #356c51; }
+.arah-b .logo small { display: block; font: 500 11px/1.2 "DM Sans", sans-serif; color: #5c6b58; }
+.arah-b .nav a { color: #4f5f4c; font-weight: 600; font-size: 14px; border-radius: 10px; }
+.arah-b .nav a:hover { background: #eff1e7; color: #273e34; }
+.arah-b .nav a[aria-current] { background: #e8efdf; color: #273e34; box-shadow: inset 0 -2px 0 #356c51; border-radius: 10px 10px 0 0; }
+.arah-b .user { color: #4f5f4c; }
+.arah-b .user .av { background: #e8efdf; color: #356c51; border-radius: 50%; }
+.arah-b .sapa p { margin: 0; color: #5c6b58; font-size: 14px; }
+.arah-b .sapa h1 { margin: 2px 0 20px; font: 700 26px/1.2 "Manrope", sans-serif; letter-spacing: -0.02em; }
+.arah-b .fokus { background: #e5ecdb; border-radius: 20px; padding: 26px 28px; display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 28px; }
+.arah-b .fokus .jumlah { font: 800 72px/1 "Manrope", sans-serif; color: #7a5a17; letter-spacing: -0.04em; }
+.arah-b .fokus .jumlah small { display: block; font: 600 15px/1.35 "DM Sans", sans-serif; color: #3e5a46; letter-spacing: 0; margin-top: 8px; }
+.arah-b .fokus ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.arah-b .fokus li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; background: #fffef9; border-radius: 14px; padding: 12px 16px; }
+.arah-b .fokus li b { display: block; }
+.arah-b .fokus li span { color: #5c6b58; font-size: 14px; }
+.arah-b .btn { border-radius: 999px; background: #356c51; color: #fffef8; }
+.arah-b .btn:hover { background: #28573f; }
+.arah-b .btn.ringan { background: transparent; color: #356c51; border: 1px solid #c9d4bd; }
+.arah-b .btn.ringan:hover { background: #eff1e7; }
+.arah-b .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; margin-top: 28px; }
+.arah-b h2 { font: 700 18px/1.2 "Manrope", sans-serif; margin: 0 0 12px; }
+.arah-b .kartu { background: #fffef9; border: 1px solid #dfe5d7; border-radius: 16px; padding: 20px 22px; }
+.arah-b .sesi { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.arah-b .sesi b { display: block; }
+.arah-b .sesi span { color: #5c6b58; font-size: 14px; }
+.arah-b .pil { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #eff1e7; color: #3e5a46; white-space: nowrap; }
+.arah-b .uang dl { margin: 0; display: grid; gap: 10px; }
+.arah-b .uang dt { color: #5c6b58; font-size: 13px; }
+.arah-b .uang dd { margin: 0; font: 700 18px/1.3 "Manrope", sans-serif; }
+.arah-b .angka { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 28px; color: #4f5f4c; font-size: 14px; border-top: 1px solid #dfe5d7; padding-top: 16px; }
+.arah-b .angka b { color: #273e34; font-family: "Manrope", sans-serif; }
+.arah-b .tabnav { background: #fffef9; border-top: 1px solid #dfe5d7; }
+.arah-b .tabnav a { color: #4f5f4c; }
+.arah-b .tabnav a[aria-current] { color: #356c51; background: #e8efdf; border-radius: 12px; margin: 4px; }
+@container (max-width: 600px) {
+  .arah-b .sapa h1 { font-size: 22px; margin-bottom: 14px; }
+  .arah-b .fokus { grid-template-columns: 1fr; padding: 20px 16px; gap: 14px; border-radius: 18px; }
+  .arah-b .fokus .jumlah { font-size: 52px; display: flex; align-items: baseline; gap: 10px; }
+  .arah-b .fokus .jumlah small { margin: 0; }
+  .arah-b .fokus li { grid-template-columns: 1fr; }
+  .arah-b .fokus li .btn { justify-self: start; }
+  .arah-b .grid { grid-template-columns: 1fr; }
+}
+
+/* ================= Pilihan C: Resmi kenegaraan ================= */
+.arah-c .app { background: #ffffff; color: #1c1c1c; font-family: "Source Sans 3", system-ui, sans-serif; }
+.arah-c .bar { height: auto; padding: 16px 28px 0; flex-wrap: wrap; gap: 0; }
+.arah-c .kop { display: flex; align-items: center; gap: 14px; width: 100%; padding-bottom: 12px; border-bottom: 3px double #a51c30; }
+.arah-c .kop img { width: 52px; height: 52px; }
+.arah-c .kop b { display: block; font: 700 22px/1.15 "Source Serif 4", serif; letter-spacing: 0.01em; }
+.arah-c .kop small { display: block; font-size: 14px; color: #4a4a4a; }
+.arah-c .user { margin-left: auto; color: #4a4a4a; }
+.arah-c .user .av { border: 1px solid #a51c30; color: #a51c30; border-radius: 2px; background: #fff; }
+.arah-c .nav { width: 100%; padding: 4px 0; border-bottom: 1px solid #d9d4cc; }
+.arah-c .nav a { color: #3a3a3a; font-weight: 600; font-size: 15px; padding: 10px 14px 10px 0; margin-right: 10px; border-bottom: 3px solid transparent; }
+.arah-c .nav a:hover { color: #a51c30; }
+.arah-c .nav a[aria-current] { color: #a51c30; border-bottom-color: #a51c30; }
+.arah-c .judul { margin-bottom: 24px; }
+.arah-c .judul p { margin: 0; color: #4a4a4a; }
+.arah-c .judul h1 { margin: 2px 0 0; font: 700 30px/1.2 "Source Serif 4", serif; }
+.arah-c h2 { font: 700 19px/1.3 "Source Serif 4", serif; margin: 28px 0 10px; display: flex; gap: 10px; }
+.arah-c h2 span { color: #a51c30; min-width: 28px; }
+.arah-c table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.arah-c th { text-align: left; font-weight: 700; font-size: 14px; color: #3a3a3a; padding: 8px 10px; border-top: 1px solid #1c1c1c; border-bottom: 1px solid #1c1c1c; }
+.arah-c td { padding: 10px; border-bottom: 1px solid #d9d4cc; vertical-align: middle; }
+.arah-c td.k { text-align: right; }
+.arah-c .btn { border: 1px solid #a51c30; color: #a51c30; border-radius: 2px; background: #fff; font-size: 14px; }
+.arah-c .btn:hover { background: #a51c30; color: #fff; }
+.arah-c .cap { display: inline-block; font-size: 13px; font-weight: 700; padding: 2px 8px; border: 1px solid #7a5a17; color: #7a5a17; border-radius: 2px; }
+.arah-c .dua { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.arah-c .tabnav { background: #fff; border-top: 3px double #a51c30; }
+.arah-c .tabnav a { color: #3a3a3a; }
+.arah-c .tabnav a[aria-current] { color: #a51c30; text-decoration: underline; text-underline-offset: 4px; }
+@container (max-width: 600px) {
+  .arah-c .bar { padding: 12px 14px 0; }
+  .arah-c .kop img { width: 40px; height: 40px; }
+  .arah-c .kop b { font-size: 18px; }
+  .arah-c .judul h1 { font-size: 24px; }
+  .arah-c .dua { grid-template-columns: 1fr; gap: 0; }
+  .arah-c table.rapat thead { display: none; }
+  .arah-c table.rapat tr { display: grid; grid-template-columns: 1fr; padding: 10px 0; border-bottom: 1px solid #d9d4cc; }
+  .arah-c table.rapat td { border: 0; padding: 2px 0; text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Pilihan arah desain Ruang Garda</h1>
+  <p>Contoh tampilan Beranda pemilik untuk tiga arah. Halaman ini hanya mockup statis, bukan aplikasi yang berjalan; angka diambil dari data contoh lokal per 14 November 2026. Ketiganya memakai susunan isi yang sama, yaitu yang perlu ditindak hari ini di atas dan angka pendukung di bawah, supaya perbedaannya hanya di arah visual.</p>
+  <nav class="jump" aria-label="Lompat ke pilihan">
+    <a href="#a">A. Disiplin dan berwibawa</a>
+    <a href="#b">B. Tenang dan hangat</a>
+    <a href="#c">C. Resmi kenegaraan</a>
+  </nav>
+</header>
+
+<!-- ============================ A ============================ -->
+<section class="arah arah-a" id="a">
+  <h2>A. Disiplin dan berwibawa</h2>
+  <p class="dial">Dial ENERGY 2 / RHYTHM 2 / MOTION 1 · Beranda sebagai "laporan pagi" yang padat dan tegas</p>
+  <div class="frame-desktop">
+    <div class="app" id="app-a">
+      <div class="bar">
+        <a class="logo" href="#a"><img src="aset/garda-logo-192-v1.webp" alt="" width="40" height="40"><span><b>Ruang Garda</b><small>Garda Abdi Negara</small></span></a>
+        <nav class="nav" aria-label="Menu utama"><a href="#a" aria-current="page">Beranda</a><a href="#a">Siswa</a><a href="#a">Akademik</a><a href="#a">Keuangan</a><a href="#a">Pengaturan</a></nav>
+        <div class="user"><span class="user-text">Pemilik Garda</span><span class="av">PG</span></div>
+      </div>
+      <main class="isi">
+        <div class="kepala">
+          <div><p>Laporan pagi · Sabtu, 14 November 2026</p><h1><em class="num">4</em> hal perlu ditindak hari ini</h1></div>
+        </div>
+        <div class="grid">
+          <div>
+            <ol class="tindak">
+              <li><span class="no num">01</span><div><b>1 pengajuan presensi menunggu pengesahan</b><span>Perlu disahkan sebelum sesi ditutup.</span></div><a class="btn" href="#a">Sahkan presensi</a></li>
+              <li><span class="no num">02</span><div><b>Tagihan lewat jatuh tempo Rp10.000.000</b><span>Terbesar: Rizky Ramadhan Rp2.800.000, Bagus Setiawan Rp1.500.000.</span></div><a class="btn" href="#a">Lihat tagihan</a></li>
+              <li><span class="no num">03</span><div><b>Salsa Amelia, kehadiran 63% bulan ini</b><span>Hadir 5 dari 8 sesi, di bawah batas 75%.</span></div><a class="btn" href="#a">Buka profil</a></li>
+              <li><span class="no num">04</span><div><b>1 tugas perlu diperiksa</b><span>Pengumpulan siswa belum dinilai.</span></div><a class="btn" href="#a">Periksa tugas</a></li>
+            </ol>
+          </div>
+          <div>
+            <h2>Jadwal hari ini</h2>
+            <div class="jadwal">
+              <div class="baris"><span class="jam num">13:00<br>14:30</span><div><b>Psikotes</b><small>Kedinasan A · Pengajar: Pemilik Garda</small><span class="status">Akan datang</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="angka">
+          <div><span>Siswa aktif</span><b class="num">11</b> <small>dari 30</small></div>
+          <div><span>Kehadiran November</span><b class="num">85%</b></div>
+          <div><span>Rata-rata SKD</span><b class="num">362</b> <small>dari 550, 22 tes</small></div>
+          <div><span>Kelas aktif</span><b class="num">4</b> <small>10 pendaftaran, 1 cuti</small></div>
+        </div>
+        <div class="uang">
+          <h2>Keuangan November</h2>
+          <dl>
+            <div><dt>Saldo kas dan bank</dt><dd class="num">Rp20.420.000</dd></div>
+            <div><dt>Masuk / keluar</dt><dd class="num">Rp3.500.000 / Rp3.380.000</dd></div>
+            <div><dt>Piutang siswa</dt><dd class="num">Rp20.200.000</dd></div>
+          </dl>
+        </div>
+      </main>
+      <nav class="tabnav" aria-label="Menu ponsel"><a href="#a" aria-current="page">Beranda</a><a href="#a">Siswa</a><a href="#a">Akademik</a><a href="#a">Keuangan</a><a href="#a">Lainnya</a></nav>
+    </div>
+  </div>
+  <div class="bawah">
+    <div class="frame-phone" data-dari="app-a" aria-label="Tampilan ponsel pilihan A"></div>
+    <div class="alasan">
+      <h3>Alasan setiap keputusan</h3>
+      <ul>
+        <li><b>Warna:</b> tinta hijau tua untuk kerangka, merah marun dari cincin logo hanya untuk nomor tindakan, emas dari bintang logo hanya untuk penanda menu aktif.</li>
+        <li><b>Huruf:</b> Barlow Condensed untuk judul dan angka, karena huruf rapat dan tegak ini terasa seperti papan pengumuman atau papan apel. Barlow biasa untuk isi agar tetap mudah dibaca.</li>
+        <li><b>Susunan:</b> daftar tindakan bernomor seperti butir briefing menjadi titik fokus. Angka lembaga turun menjadi satu baris pendukung tanpa kartu.</li>
+        <li><b>Bentuk:</b> sudut 6 px, tanpa bentuk pil dan tanpa bayangan, supaya terasa rapi dan tegas.</li>
+        <li><b>Motif identitas:</b> nomor 01 sampai 04 berwarna marun, dan garis tebal di bawah kepala laporan.</li>
+      </ul>
+      <h3>Cocok bila</h3>
+      <ul><li>Anda ingin aplikasi terasa seperti markas latihan calon TNI/Polri: serius, terukur, dan siap tugas.</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ B ============================ -->
+<section class="arah arah-b" id="b">
+  <h2>B. Tenang dan hangat</h2>
+  <p class="dial">Dial ENERGY 1 / RHYTHM 2 / MOTION 1 · Melanjutkan Terrace, dengan satu kartu fokus</p>
+  <div class="frame-desktop">
+    <div class="app" id="app-b">
+      <div class="bar">
+        <a class="logo" href="#b"><img src="aset/garda-logo-192-v1.webp" alt="" width="40" height="40"><span><b>Ruang <i>Garda</i></b><small>Garda Abdi Negara</small></span></a>
+        <nav class="nav" aria-label="Menu utama"><a href="#b" aria-current="page">Beranda</a><a href="#b">Siswa</a><a href="#b">Akademik</a><a href="#b">Keuangan</a><a href="#b">Pengaturan</a></nav>
+        <div class="user"><span class="user-text">Pemilik Garda</span><span class="av">PG</span></div>
+      </div>
+      <main class="isi">
+        <div class="sapa"><p>Sabtu, 14 November 2026</p><h1>Selamat pagi, Pemilik</h1></div>
+        <section class="fokus" aria-label="Perlu ditindak hari ini">
+          <div class="jumlah num">4<small>hal perlu Anda tindak hari ini</small></div>
+          <ul>
+            <li><div><b>1 pengajuan presensi menunggu</b><span>Sahkan sebelum sesi ditutup.</span></div><a class="btn" href="#b">Sahkan presensi</a></li>
+            <li><div><b>Rp10.000.000 tagihan lewat jatuh tempo</b><span>Terbesar: Rizky Ramadhan Rp2.800.000.</span></div><a class="btn ringan" href="#b">Lihat tagihan</a></li>
+            <li><div><b>Salsa Amelia hadir 63% bulan ini</b><span>5 dari 8 sesi, di bawah batas 75%.</span></div><a class="btn ringan" href="#b">Buka profil</a></li>
+            <li><div><b>1 tugas belum dinilai</b><span>Pengumpulan siswa menunggu diperiksa.</span></div><a class="btn ringan" href="#b">Periksa tugas</a></li>
+          </ul>
+        </section>
+        <div class="grid">
+          <section class="kartu">
+            <h2>Jadwal hari ini</h2>
+            <div class="sesi"><div><b class="num">13:00–14:30 · Psikotes</b><span>Kedinasan A · Pengajar: Pemilik Garda</span></div><span class="pil">Akan datang</span></div>
+          </section>
+          <section class="kartu uang">
+            <h2>Keuangan November</h2>
+            <dl>
+              <div><dt>Saldo kas dan bank</dt><dd class="num">Rp20.420.000</dd></div>
+              <div><dt>Piutang siswa</dt><dd class="num">Rp20.200.000</dd></div>
+            </dl>
+          </section>
+        </div>
+        <div class="angka">
+          <span>Siswa aktif <b class="num">11</b> dari 30</span>
+          <span>Kehadiran November <b class="num">85%</b></span>
+          <span>Rata-rata SKD <b class="num">362</b> dari 550</span>
+          <span>Kelas aktif <b class="num">4</b></span>
+        </div>
+      </main>
+      <nav class="tabnav" aria-label="Menu ponsel"><a href="#b" aria-current="page">Beranda</a><a href="#b">Siswa</a><a href="#b">Akademik</a><a href="#b">Keuangan</a><a href="#b">Lainnya</a></nav>
+    </div>
+  </div>
+  <div class="bawah">
+    <div class="frame-phone" data-dari="app-b" aria-label="Tampilan ponsel pilihan B"></div>
+    <div class="alasan">
+      <h3>Alasan setiap keputusan</h3>
+      <ul>
+        <li><b>Warna:</b> hijau sage dan krem Terrace dipertahankan karena sudah dikenal staf dari aplikasi lama. Emas tua dari logo hanya dipakai di angka fokus.</li>
+        <li><b>Huruf:</b> Manrope untuk judul dan DM Sans untuk isi tetap dipakai karena bulat dan ramah dibaca siswa dan wali.</li>
+        <li><b>Susunan:</b> satu kartu fokus berlatar hijau muda menjadi pusat perhatian. Tujuh kartu angka diganti satu baris teks tenang di bawah.</li>
+        <li><b>Bentuk:</b> sudut lembut 16 px untuk kartu. Bentuk pil hanya untuk tombol tindakan, tidak untuk semua kontrol.</li>
+        <li><b>Motif identitas:</b> kartu fokus hijau muda dengan butir putih, ditambah angka emas besar.</li>
+      </ul>
+      <h3>Cocok bila</h3>
+      <ul><li>Anda ingin perubahan terasa halus dari tampilan sekarang, dan aplikasi terasa membimbing, bukan menekan.</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ C ============================ -->
+<section class="arah arah-c" id="c">
+  <h2>C. Resmi kenegaraan</h2>
+  <p class="dial">Dial ENERGY 1 / RHYTHM 1 / MOTION 1 · Beranda seperti lembar laporan resmi berkop</p>
+  <div class="frame-desktop">
+    <div class="app" id="app-c">
+      <div class="bar">
+        <div class="kop">
+          <img src="aset/garda-logo-192-v1.webp" alt="" width="52" height="52">
+          <div><b>Garda Abdi Negara</b><small>Ruang Garda · Bimbingan TNI, Polri, dan Kedinasan</small></div>
+          <div class="user"><span class="user-text">Pemilik Garda</span><span class="av">PG</span></div>
+        </div>
+        <nav class="nav" aria-label="Menu utama"><a href="#c" aria-current="page">Beranda</a><a href="#c">Siswa</a><a href="#c">Akademik</a><a href="#c">Keuangan</a><a href="#c">Pengaturan</a></nav>
+      </div>
+      <main class="isi">
+        <div class="judul"><p>Sabtu, 14 November 2026</p><h1>Laporan harian lembaga</h1></div>
+        <h2><span>I.</span> Perlu ditindak (4)</h2>
+        <table class="rapat">
+          <thead><tr><th>Hal</th><th>Keterangan</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Pengajuan presensi</b></td><td>1 menunggu pengesahan</td><td class="k"><a class="btn" href="#c">Sahkan</a></td></tr>
+            <tr><td><b>Tagihan lewat jatuh tempo</b></td><td class="num">Rp10.000.000, terbesar Rizky Ramadhan Rp2.800.000</td><td class="k"><a class="btn" href="#c">Lihat tagihan</a></td></tr>
+            <tr><td><b>Kehadiran di bawah 75%</b></td><td>Salsa Amelia, 63% (5 dari 8 sesi)</td><td class="k"><a class="btn" href="#c">Buka profil</a></td></tr>
+            <tr><td><b>Tugas belum dinilai</b></td><td>1 pengumpulan</td><td class="k"><a class="btn" href="#c">Periksa</a></td></tr>
+          </tbody>
+        </table>
+        <div class="dua">
+          <div>
+            <h2><span>II.</span> Jadwal hari ini</h2>
+            <table class="rapat"><thead><tr><th>Waktu</th><th>Sesi</th><th>Status</th></tr></thead>
+              <tbody><tr><td class="num">13:00–14:30</td><td>Psikotes, Kedinasan A</td><td><span class="cap">Akan datang</span></td></tr></tbody></table>
+          </div>
+          <div>
+            <h2><span>III.</span> Keuangan November</h2>
+            <table><tbody>
+              <tr><td>Saldo kas dan bank</td><td class="k num"><b>Rp20.420.000</b></td></tr>
+              <tr><td>Masuk / keluar</td><td class="k num">Rp3.500.000 / Rp3.380.000</td></tr>
+              <tr><td>Piutang siswa</td><td class="k num">Rp20.200.000</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <h2><span>IV.</span> Angka lembaga</h2>
+        <table class="rapat"><thead><tr><th>Siswa aktif</th><th>Kehadiran November</th><th>Rata-rata SKD</th><th>Kelas aktif</th></tr></thead>
+          <tbody><tr><td class="num">11 dari 30</td><td class="num">85%</td><td class="num">362 dari 550 (22 tes)</td><td class="num">4</td></tr></tbody></table>
+      </main>
+      <nav class="tabnav" aria-label="Menu ponsel"><a href="#c" aria-current="page">Beranda</a><a href="#c">Siswa</a><a href="#c">Akademik</a><a href="#c">Keuangan</a><a href="#c">Lainnya</a></nav>
+    </div>
+  </div>
+  <div class="bawah">
+    <div class="frame-phone" data-dari="app-c" aria-label="Tampilan ponsel pilihan C"></div>
+    <div class="alasan">
+      <h3>Alasan setiap keputusan</h3>
+      <ul>
+        <li><b>Warna:</b> putih dan merah dari cincin logo, merujuk merah putih. Emas tua hanya untuk cap status.</li>
+        <li><b>Huruf:</b> Source Serif 4 untuk judul, seperti dokumen resmi dan pita tulisan di logo. Source Sans 3 untuk isi dan angka.</li>
+        <li><b>Susunan:</b> bagian bernomor I sampai IV dengan tabel bergaris, seperti laporan dinas. Ritmenya sengaja seragam.</li>
+        <li><b>Bentuk:</b> sudut hampir siku (2 px), tanpa kartu dan tanpa bayangan.</li>
+        <li><b>Motif identitas:</b> kop dengan garis ganda merah di bawah logo, seperti kop surat resmi.</li>
+      </ul>
+      <h3>Cocok bila</h3>
+      <ul><li>Anda ingin kesan formal dan terpercaya untuk orang tua dan mitra, dan tidak keberatan aplikasi terasa lebih kaku.</li></ul>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll(".frame-phone").forEach(function (frame) {
+  var copy = document.getElementById(frame.dataset.dari).cloneNode(true);
+  copy.removeAttribute("id");
+  frame.appendChild(copy);
+});
+</script>
+</body>
+</html>
