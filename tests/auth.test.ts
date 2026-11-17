@@ -34,12 +34,11 @@ describe("password", () => {
   });
 
   test("aturan password baru", () => {
-    assert.match(passwordProblem("pendek12", "budi", false)!, /minimal 12/);
-    assert.equal(passwordProblem("belajartiap1hari", "budi", false), null);
-    assert.equal(passwordProblem("belajarrajin1", "budi", false), null);
-    assert.match(passwordProblem("belajarrajin1", "budi", true)!, /minimal 14/, "akun keuangan butuh 14");
-    assert.match(passwordProblem("budi12345678xyz", "budi", false)!, /username/);
-    assert.match(passwordProblem("hanyahurufsaja", "budi", false)!, /huruf dan angka/);
+    // Aturan dilonggarkan atas permintaan owner: password bebas, asal tidak kosong dan tidak terlalu panjang.
+    assert.equal(passwordProblem("pendek", "budi", true), null);
+    assert.equal(passwordProblem("budi", "budi", true), null);
+    assert.match(passwordProblem("", "budi", false)!, /wajib/);
+    assert.match(passwordProblem("a".repeat(129), "budi", false)!, /maksimal/);
   });
 });
 

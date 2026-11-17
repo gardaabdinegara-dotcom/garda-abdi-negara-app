@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 import { gantiPassword, keluar } from "@/app/actions/auth";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Wordmark } from "@/components/shell";
-import { canViewFinance } from "@/lib/core/permissions";
 import { PIN_LENGTH } from "@/lib/core/pin";
 import { requireActor } from "@/lib/server/session";
 
@@ -14,7 +13,6 @@ export default async function ChangePasswordPage() {
   const actor = await requireActor({ allowPasswordChange: true });
   if (actor.user.peran === "SISWA") return <ChangePin />;
   const forced = actor.user.wajib_ganti_password;
-  const min = canViewFinance(actor) || actor.user.peran === "OWNER" ? 14 : 12;
 
   return (
     <div className="standalone">
@@ -38,7 +36,7 @@ export default async function ChangePasswordPage() {
             name="password_baru"
             type="password"
             autoComplete="new-password"
-            hint={`Minimal ${min} karakter, memuat huruf dan angka, tidak memuat username.`}
+            hint="Bebas, asal berbeda dari password sekarang."
             required
           />
           <Field label="Ulangi password baru" name="password_ulang" type="password" autoComplete="new-password" required />

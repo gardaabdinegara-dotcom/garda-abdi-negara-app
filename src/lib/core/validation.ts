@@ -150,12 +150,14 @@ export const linkInput = z.object({
 export type LinkInput = z.infer<typeof linkInput>;
 
 /** Akun yang bisa membuka keuangan wajib memakai password lebih panjang (PRD bagian 7). */
-export function passwordProblem(password: string, username: string, financeCapable: boolean): string | null {
-  const min = financeCapable ? 14 : 12;
-  if (password.length < min) return `Password minimal ${min} karakter.`;
+/**
+ * Aturan password akun owner/admin. Atas permintaan owner (17 Nov 2026) tidak ada syarat panjang, huruf/angka,
+ * atau larangan memuat username; perlindungan tetap dari kunci sementara setelah 5 kali salah masuk.
+ * Parameter username dan financeCapable dipertahankan agar pemanggil lama tidak berubah.
+ */
+export function passwordProblem(password: string, _username = "", _financeCapable = false): string | null {
+  if (!password) return "Password wajib diisi.";
   if (password.length > 128) return "Password maksimal 128 karakter.";
-  if (password.toLowerCase().includes(username.toLowerCase())) return "Password tidak boleh memuat username.";
-  if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) return "Password harus memuat huruf dan angka.";
   return null;
 }
 

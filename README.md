@@ -84,7 +84,7 @@ npm install
 npm run dev:contoh -- --ulang
 ```
 
-Perintah ini mengisi data contoh di `.data/lokal.json`: 12 siswa fiktif, 3 program, 4 kelas, 5 akun (`pemilik`, `admin.rina`, `pengajar.dimas`, `siswa.arif`, `wali.sari`), serta sesi 8 hari kerja terakhir dengan presensinya, satu sesi yang sedang berlangsung hari ini, nilai, tugas, pengukuran kesehatan, satu rapor terbit, serta pembukuan contoh (akun kas/bank, tarif, tagihan paket dan bulanan, pembayaran dengan tunggakan, biaya, transfer, dan dasar laporan). Password semua akun contoh ditampilkan **sekali** di layar. Isi variabel `CONTOH_PASSWORD` sebelum menjalankannya bila ingin menentukan password sendiri (minimal 14 karakter, berisi huruf dan angka).
+Perintah ini mengisi data contoh di `.data/lokal.json`: 12 siswa fiktif, 3 program, 4 kelas, 5 akun (`pemilik`, `admin.rina`, `pengajar.dimas`, `siswa.arif`, `wali.sari`), serta sesi 8 hari kerja terakhir dengan presensinya, satu sesi yang sedang berlangsung hari ini, nilai, tugas, pengukuran kesehatan, satu rapor terbit, serta pembukuan contoh (akun kas/bank, tarif, tagihan paket dan bulanan, pembayaran dengan tunggakan, biaya, transfer, dan dasar laporan). Password semua akun contoh ditampilkan **sekali** di layar. Isi variabel `CONTOH_PASSWORD` sebelum menjalankannya bila ingin menentukan password sendiri.
 
 ```bash
 npm run dev
@@ -174,7 +174,7 @@ Password sementara tampil sekali di layar dan tidak disimpan di file mana pun. P
 npm run dev
 ```
 
-Masuk di http://127.0.0.1:3020 dengan akun Owner, lalu ganti password sementara. Password akun yang bisa membuka keuangan minimal 14 karakter. Setelah itu:
+Masuk di http://127.0.0.1:3020 dengan akun Owner, lalu ganti password sementara (bebas, asal berbeda). Setelah itu:
 
 1. **Pengaturan → Sistem**: pastikan semua baris OK.
 2. **Pengaturan → Lembaga**: periksa nama, kapasitas, dan acuan nilai.

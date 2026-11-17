@@ -1,6 +1,6 @@
 // Mengisi data contoh untuk mode lokal (.data/lokal.json). Tidak pernah menyentuh Google Sheets.
 //   npm run dev:contoh -- --ulang
-// Semua akun contoh memakai satu password. Isi CONTOH_PASSWORD (min. 14 karakter, huruf + angka)
+// Semua akun contoh memakai satu password. Isi CONTOH_PASSWORD
 // bila ingin menentukan sendiri; bila kosong, password acak dibuat dan ditampilkan sekali di layar.
 import fs from "node:fs";
 import { randomUUID } from "node:crypto";

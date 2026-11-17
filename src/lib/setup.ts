@@ -70,7 +70,7 @@ export const DEFAULT_OWNER_PASSWORD = "admin";
 /**
  * Mengatur password AWAL akun owner/admin dan mewajibkan penggantian saat masuk berikutnya.
  * Semua sesi akun itu langsung berakhir (versi otorisasi naik). Password baru saat aktivasi tetap harus
- * memenuhi aturan (minimal 14 karakter, huruf dan angka, tanpa username).
+ * diisi bebas, asal berbeda dari password awal.
  */
 export async function setInitialOwnerPassword(deps: Deps, username: string, password = DEFAULT_OWNER_PASSWORD) {
   if (!password) throw new Error("Password awal tidak boleh kosong.");

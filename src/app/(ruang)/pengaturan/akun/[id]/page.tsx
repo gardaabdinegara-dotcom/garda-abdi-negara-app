@@ -242,7 +242,7 @@ export default async function AccountPage({ params }: { params: Params }) {
                   <h2>Akses keuangan</h2>
                   <Badge tone={account.akses_keuangan === "TIDAK" ? "neutral" : "warning"}>{FINANCE_ACCESS_LABEL[account.akses_keuangan]}</Badge>
                 </div>
-                <p className="muted">Admin dengan akses keuangan wajib memakai password minimal 14 karakter.</p>
+                <p className="muted">Admin dengan akses keuangan bisa melihat atau mencatat transaksi sesuai tingkat aksesnya.</p>
               </section>
             ) : null}
           </div>
