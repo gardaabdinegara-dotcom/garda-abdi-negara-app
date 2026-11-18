@@ -339,15 +339,16 @@ for (const [n, tanggal] of samaptaDays.entries()) {
     const peserta = String(t.Tes_Samapta!.find((r) => r.tes_id === tesId)!.peserta_ids).split(",");
     peserta.forEach((siswaId, i) => {
       const put = (pos: string, values: Record<string, string>) => saveSamaptaPos(t, samaptaPosInput.parse({ tes_id: tesId, siswa_id: siswaId, pos, ...values }), ctx, owner);
+      const putri = t.Siswa!.find((s) => s.siswa_id === siswaId)?.jenis_kelamin === "P";
       const naik = n * between(2, 8);
       const tinggi = between(160, 180);
       put("tensi", { tensi_1: `${between(110, 128)}/${between(70, 84)}`, tensi_2: `${between(110, 128)}/${between(70, 84)}`, tensi_3: `${between(110, 128)}/${between(70, 84)}`, riwayat_1: i === 2 ? "Cedera ringan pergelangan kaki" : "" });
       put("badan", { tinggi_cm: String(tinggi), berat_kg: String(Math.round(between(19, 24) * (tinggi / 100) ** 2)) });
-      put("lari", { lari_jarak: String(between(2300, 3000)), lari_nilai: String(Math.min(100, between(55, 85) + naik)) });
-      put("pull", { pull_jumlah: String(between(4, 15)), pull_nilai: String(Math.min(100, between(50, 85) + naik)) });
-      put("situp", { situp_jumlah: String(between(28, 45)), situp_nilai: String(Math.min(100, between(55, 90) + naik)) });
-      put("pushup", { pushup_jumlah: String(between(25, 45)), pushup_nilai: String(Math.min(100, between(55, 90) + naik)) });
-      if (!(n === 1 && i === 4)) put("shuttle", { shuttle_waktu: (between(165, 195) / 10).toFixed(1), shuttle_nilai: String(Math.min(100, between(55, 88) + naik)) });
+      put("lari", { lari_jarak: String((putri ? between(1750, 2550) : between(2300, 3000)) + naik * 15) });
+      put("pull", { pull_jumlah: String(putri ? between(29, 61) : between(4, 15)) });
+      put("situp", { situp_jumlah: String(between(28, 42)) });
+      put("pushup", { pushup_jumlah: String(putri ? between(14, 28) : between(25, 43)) });
+      if (!(n === 1 && i === 4)) put("shuttle", { shuttle_waktu: ((putri ? between(174, 209) : between(165, 195)) / 10).toFixed(1) });
       if (!(n === 1 && i >= peserta.length - 2)) put("renang", { renang_gaya: ["Bebas", "Dada", "Punggung"][i % 3]!, renang_waktu: String(between(45, 95)) });
     });
     if (n === 0) setSamaptaStatus(t, { tes_id: tesId, status: "SELESAI" }, ctx, owner);

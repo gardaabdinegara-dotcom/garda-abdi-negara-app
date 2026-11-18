@@ -64,7 +64,7 @@ const SECTIONS: Section[] = [
     id: "samapta",
     title: "Tes Samapta",
     roles: ["OWNER", "ADMIN", "PENGAJAR"],
-    intro: "Garjas A = nilai lari 12 menit. Garjas B = rata-rata nilai pull up (putra) atau chinning (putri), sit up, push up, dan shuttle run. Hasil akhir = (A + B) / 2. Renang dicatat tanpa nilai.",
+    intro: "Garjas A = nilai lari 12 menit. Garjas B = rata-rata nilai pull up (putra) atau chinning (putri), sit up, push up, dan shuttle run. Hasil akhir = (A + B) / 2. Nilai renang gaya dada ditampilkan terpisah.",
     steps: [
       <>
         <Link href="/samapta">Tes Samapta</Link> → <b>Tes baru</b>. Semua siswa aktif otomatis jadi peserta.
@@ -73,7 +73,7 @@ const SECTIONS: Section[] = [
         Di lapangan, ketuk <b>Lanjut isi</b> atau salah satu kotak pos. Mode lapangan menampilkan satu siswa per layar dengan papan angka besar; tekan <b>Simpan & lanjut</b> untuk siswa berikutnya. Semua tersimpan otomatis.
       </>,
       <>
-        Nilai (0–100) diisi manual dari tabel nilai resmi. IMT, rata-rata B, hasil akhir, dan klasifikasi dihitung otomatis.
+        Isi jarak, jumlah gerakan, atau waktu sesuai pos. Nilai dihitung dari tabel berdasarkan jenis kelamin dan usia pada tanggal tes. Bila tanggal lahir kosong, acuan latihan memakai kelompok 18–25 tahun.
       </>,
       <>
         Tab <b>Hasil</b> menampilkan peringkat dan klasifikasi. Cetak blangko A4 per siswa atau semua sekaligus; <b>Cetak blangko kosong</b> untuk diisi tangan.

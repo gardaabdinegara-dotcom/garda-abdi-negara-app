@@ -52,7 +52,7 @@ async function StaffOverview({ actor, openCreate }: { actor: Actor; openCreate: 
       <header className="sam-top">
         <div>
           <h1>Tes Samapta</h1>
-          <p>Isi nilai per pos dari HP, lalu lihat hasil dan cetak blangko.</p>
+          <p>Isi hasil ukur per pos dari HP. Nilai dihitung otomatis dari tabel Garjas.</p>
         </div>
         <div className="sam-top-act">{create}</div>
       </header>
@@ -64,7 +64,7 @@ async function StaffOverview({ actor, openCreate }: { actor: Actor; openCreate: 
           ) : (
             <section className="card sam-card">
               <Empty title={data.tests.length ? "Tidak ada tes yang berjalan" : "Belum ada tes"}>
-                Buat tes baru untuk mulai mengisi nilai di lapangan. Semua siswa aktif otomatis jadi peserta.
+                Buat tes baru untuk mulai mencatat hasil di lapangan. Semua siswa aktif otomatis jadi peserta.
               </Empty>
             </section>
           )}

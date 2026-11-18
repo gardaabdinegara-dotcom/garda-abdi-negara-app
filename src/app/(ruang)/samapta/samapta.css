@@ -1792,6 +1792,10 @@ dialog.sam-sheet::backdrop {
   border-radius: 6px;
 }
 
+.sam-big-v.is-long {
+  font-size: clamp(19px, 7vw, 29px);
+}
+
 .sam-big-v small {
   margin-left: 5px;
   font-size: 14px;

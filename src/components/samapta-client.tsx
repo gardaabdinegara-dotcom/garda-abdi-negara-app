@@ -10,9 +10,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { simpanPosSamapta, simpanTesSamapta } from "@/app/actions/samapta";
-import { fmt, isPosComplete, KLAS_TONE, normalizeDuration, normalizeTensi, posValuesBrief, POS_TITLE } from "@/app/(ruang)/samapta/samapta-ui";
+import { fmt, isPosComplete, KLAS_TONE, normalizeDuration, normalizeTensi, posValuesBrief, posValuesWithScore, POS_TITLE } from "@/app/(ruang)/samapta/samapta-ui";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { GAYA_RENANG, imtLabel, imtOf, parseDuration, pullLabel, type Klasifikasi, type Pos } from "@/lib/core/samapta";
+import { GARJAS_FIELDS, garjasAgeBand, isGarjasPos, type GarjasPos } from "@/lib/core/samapta-garjas";
 import { ActionForm, Field, SubmitButton } from "./form";
 import { Icon } from "./icon";
 import { SamIcon } from "./samapta-icon";
@@ -25,7 +26,8 @@ export interface FieldStudent {
   inisial: string;
   no: number;
   jk: "L" | "P" | "";
-  /** Isian tersimpan (nama kolom = POS_INFO[pos].fields). */
+  usia: number | null;
+  /** Isian tersimpan beserta nilai untuk pos ini. */
   values: Record<string, string>;
   /** Hasil pos ini di tes sebelumnya. */
   prev: { main: string; sub: string } | null;
@@ -55,11 +57,13 @@ interface FDef {
   unit: string;
   kind: Kind;
   max: number;
-  range?: [number, number];
+  range?: readonly [number, number];
 }
 
-const nilai = (name: string, what: string): FDef => ({ name, label: "Nilai", what: `Nilai ${what}`, unit: "", kind: "dec", max: 5, range: [0, 100] });
-const jumlah = (name: string, what: string): FDef => ({ name, label: "Jumlah", what: `Jumlah ${what}`, unit: "kali", kind: "int", max: 3, range: [0, 200] });
+function garjasField(pos: GarjasPos, label: string, unit: string, max: number): FDef {
+  const { field, label: what, integer, range } = GARJAS_FIELDS[pos];
+  return { name: field, label, what, unit, max, range, kind: integer ? "int" : "dec" };
+}
 
 const FIELDS: Record<Pos, FDef[]> = {
   tensi: ["I", "II", "III"].map((n, i) => ({ name: `tensi_${i + 1}`, label: `Tensi ${n}`, what: `Tensi ${n}`, unit: "", kind: "tensi", max: 7 })),
@@ -67,14 +71,14 @@ const FIELDS: Record<Pos, FDef[]> = {
     { name: "tinggi_cm", label: "Tinggi", what: "Tinggi badan", unit: "cm", kind: "dec", max: 5, range: [100, 230] },
     { name: "berat_kg", label: "Berat", what: "Berat badan", unit: "kg", kind: "dec", max: 5, range: [25, 200] },
   ],
-  lari: [{ name: "lari_jarak", label: "Jarak", what: "Jarak lari", unit: "m", kind: "int", max: 4, range: [0, 6000] }, nilai("lari_nilai", "lari")],
-  pull: [jumlah("pull_jumlah", "pull up/chinning"), nilai("pull_nilai", "pull up/chinning")],
-  situp: [jumlah("situp_jumlah", "sit up"), nilai("situp_nilai", "sit up")],
-  pushup: [jumlah("pushup_jumlah", "push up"), nilai("pushup_nilai", "push up")],
-  shuttle: [{ name: "shuttle_waktu", label: "Waktu", what: "Waktu shuttle run", unit: "dtk", kind: "dec", max: 4, range: [5, 90] }, nilai("shuttle_nilai", "shuttle run")],
+  lari: [garjasField("lari", "Jarak", "m", 4)],
+  pull: [garjasField("pull", "Jumlah", "kali", 3)],
+  situp: [garjasField("situp", "Jumlah", "kali", 3)],
+  pushup: [garjasField("pushup", "Jumlah", "kali", 3)],
+  shuttle: [garjasField("shuttle", "Waktu", "dtk", 5)],
   renang: [
     { name: "renang_gaya", label: "Gaya", what: "Gaya renang", unit: "", kind: "gaya", max: 0 },
-    { name: "renang_waktu", label: "Waktu", what: "Waktu renang", unit: "dtk", kind: "dur", max: 5 },
+    { name: "renang_waktu", label: "Waktu", what: "Waktu renang", unit: "dtk", kind: "dur", max: 6 },
   ],
 };
 
@@ -83,12 +87,12 @@ const RIWAYAT = ["riwayat_1", "riwayat_2", "riwayat_3"];
 const TIP: Record<Pos, string> = {
   tensi: "Ketuk kotak, lalu ketik seperti 120/80. Garis miring otomatis setelah 3 angka.",
   badan: "Tinggi dalam cm, berat dalam kg. IMT dihitung sendiri.",
-  lari: "Isi jarak dalam meter, lalu nilainya. Nilai lari menjadi Garjas A.",
-  pull: "Pull up untuk putra, chinning untuk putri. Isi jumlah, lalu nilainya.",
-  situp: "Isi jumlah sit up dalam 1 menit, lalu nilainya.",
-  pushup: "Isi jumlah push up dalam 1 menit, lalu nilainya.",
-  shuttle: "Isi waktu dalam detik (contoh 17,4), lalu nilainya.",
-  renang: "Pilih gaya, lalu waktu. Lebih dari 1 menit: ketik 1,05 untuk 1:05.",
+  lari: "Isi jarak dalam meter. Nilai Garjas A langsung terbaca dari tabel.",
+  pull: "Isi jumlah gerakan yang sah dalam 1 menit.",
+  situp: "Isi jumlah sit up dalam 1 menit. Putri memakai gerakan modifikasi.",
+  pushup: "Isi jumlah push up dalam 1 menit. Putri memakai gerakan modifikasi.",
+  shuttle: "Isi waktu dalam detik, mis. 17,4.",
+  renang: "Pilih gaya dan isi waktu. Ketik 1,05 untuk 1:05.",
 };
 
 type Values = Record<string, string>;
@@ -301,7 +305,8 @@ function FieldModeInner(props: FieldModeProps) {
   const keyDef = activeDef.kind === "gaya" ? keyDefs[0]! : activeDef;
 
   function setValues(s: FieldStudent, next: Values) {
-    setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], values: next, base: prev[s.id]?.base ?? snap(s.values) } }));
+    const measured = posValuesWithScore(pos, next, s.jk, s.usia);
+    setDrafts((prev) => ({ ...prev, [s.id]: { ...prev[s.id], values: measured, base: prev[s.id]?.base ?? snap(s.values) } }));
     if (error?.id === s.id) setError(null);
   }
 
@@ -343,7 +348,9 @@ function FieldModeInner(props: FieldModeProps) {
       formData.set("tes_id", tesId);
       formData.set("siswa_id", s.id);
       formData.set("pos", pos);
-      for (const [key, value] of Object.entries(clean)) formData.set(key, value);
+      for (const [key, value] of Object.entries(clean)) {
+        if (key !== `${pos}_nilai`) formData.set(key, value);
+      }
       const result = await callSave(formData);
       if (result.ok) {
         if (opIds.current[s.id]?.op === op) delete opIds.current[s.id];
@@ -521,7 +528,7 @@ function FieldModeInner(props: FieldModeProps) {
 
   const empty = firstEmpty(values);
   const activeFilled = Boolean((values[active] ?? "").trim());
-  const complete = !empty;
+  const complete = isPosComplete(pos, values);
   let mainLabel: string;
   if (locked) mainLabel = "Berikutnya";
   else if (activeFilled && empty) mainLabel = `Berikutnya: ${defs.find((d) => d.name === empty)!.label}`;
@@ -545,6 +552,13 @@ function FieldModeInner(props: FieldModeProps) {
   const hasRiwayat = RIWAYAT.some((k) => (values[k] ?? "").trim() !== "");
   const riwayatShown = pos === "tensi" && (hasRiwayat || riwayatOpen[cur.id]);
   const who = `${cur.jk === "P" ? "Putri" : cur.jk === "L" ? "Putra" : "-"} · no. ${cur.no}${pos === "pull" ? ` · ${pullLabel(cur.jk)}` : ""}`;
+  const showScore = isGarjasPos(pos) || pos === "renang";
+  const score = values[`${pos}_nilai`] ?? "";
+  const scoreHint = pos === "renang" && values.renang_gaya && values.renang_gaya !== "Dada"
+    ? "Acuan untuk gaya dada"
+    : isGarjasPos(pos) && !cur.jk
+      ? "Isi jenis kelamin siswa"
+      : `Acuan ${garjasAgeBand(cur.usia)} th`;
 
   const box = (def: FDef, extra?: React.ReactNode) => {
     const value = values[def.name] ?? "";
@@ -567,7 +581,7 @@ function FieldModeInner(props: FieldModeProps) {
         disabled={locked}
       >
         <span className="sam-big-l">{def.label}</span>
-        <span className={`sam-big-v${value ? "" : " is-ph"}`}>
+        <span className={`sam-big-v${value ? "" : " is-ph"}${shown.length > 5 ? " is-long" : ""}`}>
           <span className="sam-big-n">{value ? shown : on ? "" : "-"}</span>
           {on ? <i className="sam-caret" aria-hidden="true" /> : null}
           {value && def.unit ? <small>{minutes ? "mnt" : def.unit}</small> : null}
@@ -706,13 +720,13 @@ function FieldModeInner(props: FieldModeProps) {
                   {imt !== null ? <span className="sam-big-s">{imtLabel(imt)}</span> : null}
                 </div>
               ) : null}
-              {pos === "renang" ? (
-                <div className="sam-big is-auto">
+              {showScore ? (
+                <div className="sam-big is-auto" aria-live="polite">
                   <span className="sam-big-l">Nilai</span>
-                  <span className="sam-big-v is-ph">
-                    <span className="sam-big-n">-</span>
+                  <span className={`sam-big-v${score ? "" : " is-ph"}`}>
+                    <span className="sam-big-n">{score || "-"}</span>
                   </span>
-                  <span className="sam-big-s">tanpa nilai</span>
+                  <span className="sam-big-s">{scoreHint}</span>
                 </div>
               ) : null}
             </div>

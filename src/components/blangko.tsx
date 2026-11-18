@@ -117,6 +117,8 @@ export function BlangkoSheet({ settings, isi = null }: { settings: SamaptaSettin
   const pukul = t?.jam_mulai ? `${t.jam_mulai.replace(":", ".")} s.d. selesai` : "";
   const tempat = t ? t.tempat || settings.tempat : settings.tempat;
   const tanggalTtd = t ? tanggalPanjang(t.tanggal) : "";
+  const renangWaktu = formatDuration(r?.renang_waktu ?? null);
+  const renangNilai = angka(sc?.renang ?? null);
 
   return (
     <article className="blangko">
@@ -237,9 +239,9 @@ export function BlangkoSheet({ settings, isi = null }: { settings: SamaptaSettin
         <div>
           <h4>Ketangkasan</h4>
           <table>
-            <KepalaTtd materi="RENANG DASAR" kolom2="GAYA" kolom3="WAKTU" />
+            <KepalaTtd materi="RENANG DASAR" kolom2="GAYA" kolom3={renangNilai ? "WAKTU / NILAI" : "WAKTU"} />
             <tbody>
-              <BarisMateri label="50 Meter" a={r?.renang_gaya ?? ""} b={formatDuration(r?.renang_waktu ?? null)} tall />
+              <BarisMateri label="50 Meter" a={r?.renang_gaya ?? ""} b={renangNilai ? `${renangWaktu} / ${renangNilai}` : renangWaktu} tall />
             </tbody>
           </table>
         </div>

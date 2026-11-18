@@ -160,7 +160,7 @@ export const INTI = {
   ]),
   /** Satu sesi Tes Samapta (kesamaptaan jasmani). Peserta dibekukan saat sesi dibuat. */
   Tes_Samapta: def("Tes_Samapta", ["tes_id", "nama", "tanggal", "jam_mulai", "tempat", "status", "peserta_ids", "catatan", ...audit]),
-  /** Isian blangko per siswa per tes (kunci: tes_id:siswa_id). Nilai diisi manual sampai tabel nilai resmi tersedia. */
+  /** Isian blangko per siswa per tes (kunci: tes_id:siswa_id), termasuk nilai Garjas saat disimpan. */
   Hasil_Samapta: def("Hasil_Samapta", [
     "hasil_id",
     "tes_id",

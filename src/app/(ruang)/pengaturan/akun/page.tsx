@@ -21,7 +21,7 @@ export default async function AccountsPage({ searchParams }: { searchParams: Sea
   const filter = typeof params.peran === "string" && (ROLES as readonly string[]).includes(params.peran) ? (params.peran as Role) : null;
   const accounts = await loadAccounts(actor);
   const shown = filter ? accounts.filter((a) => a.peran === filter) : accounts;
-  const creatable = ROLES.filter((role) => canManageAccount(actor, role));
+  const creatable = ROLES.filter((role) => (FITUR.peranTambahan || role === "OWNER") && canManageAccount(actor, role));
   const owner = canSetFinanceAccess(actor);
 
   return (
@@ -29,6 +29,9 @@ export default async function AccountsPage({ searchParams }: { searchParams: Sea
       <PageHead
         eyebrow="Pengaturan"
         title="Akun pengguna"
+        actions={!FITUR.peranTambahan && creatable.length > 0 ? (
+          <Link href="#buat-akun" className="btn btn-secondary only-mobile">Tambah Owner</Link>
+        ) : null}
         description={
           !FITUR.peranTambahan
             ? "Akun Owner dan akun siswa. Reset PIN siswa yang lupa dari sini."
@@ -103,63 +106,70 @@ export default async function AccountsPage({ searchParams }: { searchParams: Sea
           )}
         </section>
 
-        {!FITUR.peranTambahan ? (
-          <section className="card">
-            <div className="card-head">
-              <div>
-                <h2>Akun siswa dibuat otomatis</h2>
-                <p>Ruang Garda kini hanya untuk Owner dan Siswa.</p>
+        <div className="stack">
+          {creatable.length > 0 ? (
+            <section className="card" id="buat-akun">
+              <div className="card-head">
+                <div>
+                  <h2>{FITUR.peranTambahan ? "Buat akun" : "Buat akun Owner"}</h2>
+                  <p>
+                    {FITUR.peranTambahan ? null : "Owner memiliki akses penuh sebagai superadmin. "}
+                    Password sementara dibuat otomatis dan hanya ditampilkan sekali.
+                  </p>
+                </div>
               </div>
-            </div>
-            <ol className="guide-steps">
-              <li>
-                Tambah atau impor siswa dari menu <Link href="/siswa">Siswa</Link>. Akunnya langsung dibuat dengan username = kode siswa (mis. <span className="mono">gan-0001</span>).
-              </li>
-              <li>Saat masuk pertama, siswa mengisi kode siswa, mengosongkan PIN, lalu membuat PIN 6 angka.</li>
-              <li>Siswa lupa PIN? Buka akunnya di daftar ini, lalu tekan Reset PIN.</li>
-            </ol>
-          </section>
-        ) : (
-        <section className="card">
-          <div className="card-head">
-            <div>
-              <h2>Buat akun</h2>
-              <p>Password sementara dibuat otomatis dan hanya ditampilkan sekali.</p>
-            </div>
-          </div>
-          <ActionForm action={buatAkun} operationId={randomUUID()} resetOnSuccess className="stack">
-            <Field label="Nama" name="nama" required autoComplete="off" />
-            <Field
-              label="Username"
-              name="username"
-              required
-              autoComplete="off"
-              placeholder="mis. budi.santoso"
-              hint="Huruf kecil, angka, titik, garis bawah, atau tanda hubung. Tidak bisa diubah."
-            />
-            <Field
-              label="Peran"
-              name="peran"
-              type="select"
-              defaultValue={creatable.includes("SISWA") ? "SISWA" : creatable[0]}
-              options={creatable.map((role) => ({ value: role, label: ROLE_LABEL[role] }))}
-            />
-            {owner ? (
-              <Field
-                label="Akses keuangan"
-                name="akses_keuangan"
-                type="select"
-                defaultValue="TIDAK"
-                options={FINANCE_ACCESS.map((v) => ({ value: v, label: FINANCE_ACCESS_LABEL[v] }))}
-                hint="Hanya berlaku untuk peran Admin."
-              />
-            ) : null}
-            <div className="form-actions">
-              <SubmitButton pendingLabel="Membuat…">Buat akun</SubmitButton>
-            </div>
-          </ActionForm>
-        </section>
-        )}
+              <ActionForm action={buatAkun} operationId={randomUUID()} resetOnSuccess className="stack">
+                <Field label="Nama" name="nama" required autoComplete="off" />
+                <Field
+                  label="Username"
+                  name="username"
+                  required
+                  autoComplete="off"
+                  placeholder="mis. budi.santoso"
+                  hint="Huruf kecil, angka, titik, garis bawah, atau tanda hubung. Tidak bisa diubah."
+                />
+                {FITUR.peranTambahan ? (
+                  <Field
+                    label="Peran"
+                    name="peran"
+                    type="select"
+                    defaultValue={creatable.includes("SISWA") ? "SISWA" : creatable[0]}
+                    options={creatable.map((role) => ({ value: role, label: ROLE_LABEL[role] }))}
+                  />
+                ) : (
+                  <input type="hidden" name="peran" value="OWNER" />
+                )}
+                {FITUR.peranTambahan && owner ? (
+                  <Field
+                    label="Akses keuangan"
+                    name="akses_keuangan"
+                    type="select"
+                    defaultValue="TIDAK"
+                    options={FINANCE_ACCESS.map((v) => ({ value: v, label: FINANCE_ACCESS_LABEL[v] }))}
+                    hint="Hanya berlaku untuk peran Admin."
+                  />
+                ) : null}
+                <div className="form-actions">
+                  <SubmitButton pendingLabel="Membuat…">{FITUR.peranTambahan ? "Buat akun" : "Buat akun Owner"}</SubmitButton>
+                </div>
+              </ActionForm>
+            </section>
+          ) : null}
+          {!FITUR.peranTambahan ? (
+            <section className="card">
+              <div className="card-head">
+                <h2>Akun siswa dibuat otomatis</h2>
+              </div>
+              <ol className="guide-steps">
+                <li>
+                  Tambah atau impor siswa dari menu <Link href="/siswa">Siswa</Link>. Akunnya langsung dibuat dengan username = kode siswa (mis. <span className="mono">gan-0001</span>).
+                </li>
+                <li>Saat masuk pertama, siswa mengisi kode siswa, mengosongkan PIN, lalu membuat PIN 6 angka.</li>
+                <li>Siswa lupa PIN? Buka akunnya di daftar ini, lalu tekan Reset PIN.</li>
+              </ol>
+            </section>
+          ) : null}
+        </div>
       </div>
     </div>
   );

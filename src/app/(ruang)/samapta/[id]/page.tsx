@@ -82,7 +82,12 @@ function rankRows(data: Data): RankRowData[] {
       delta: diff(old?.[i]?.nilai, m.nilai),
     }));
     const renang = renangText(e.result);
-    cells.push({ label: "Renang 50 m", value: renang ? renang.replace("Gaya ", "").replace(/^./, (c) => c.toUpperCase()) : "Belum diisi", delta: null });
+    const gayaWaktu = renang?.replace("Gaya ", "").replace(/^./, (c) => c.toUpperCase());
+    cells.push({
+      label: "Renang 50 m",
+      value: gayaWaktu ? `${gayaWaktu}${e.score.renang === null ? "" : ` · nilai ${fmt(e.score.renang)}`}` : "Belum diisi",
+      delta: diff(pe?.score.renang, e.score.renang),
+    });
     cells.push({
       label: "Tensi I · II · III",
       value: e.result.tensi.some((t) => t) ? e.result.tensi.map((t) => t || "-").join(" · ") : "Belum diisi",

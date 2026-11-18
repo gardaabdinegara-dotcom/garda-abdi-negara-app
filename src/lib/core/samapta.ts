@@ -1,11 +1,11 @@
 // Tes Samapta (kesamaptaan jasmani): sesi tes, isian blangko per pos, dan perhitungan hasil akhir.
 // Mengikuti blangko lembaga: Garjas A = nilai lari 12 menit; Garjas B = rata-rata nilai pull up/chinning,
-// sit up, push up, dan shuttle run; hasil akhir = (A + B) / 2. Renang dicatat tanpa nilai (ketangkasan).
-// Nilai diisi manual sampai tabel nilai resmi tersedia.
+// sit up, push up, dan shuttle run; hasil akhir = (A + B) / 2. Nilai renang gaya dada ditampilkan terpisah.
 import type { OperationContext, OperationOutcome } from "../data/coordinator";
 import { num, str } from "../data/rows";
 import { DEFAULT_SETTINGS } from "../data/schema";
 import { AppError, type Row, type Tables } from "../data/types";
+import { ageAt, GARJAS_FIELDS, garjasScore, nilaiRenang } from "./samapta-garjas";
 import { find, forbidden, notFound, replace, rows, updated, upsert, created } from "./table-ops";
 import { toStudent, type Actor, type Gender, type Student } from "./types";
 
@@ -43,30 +43,30 @@ export const POS_INFO: Record<Pos, PosInfo> = {
     label: "Lari 12 menit (Garjas A)",
     short: "Lari",
     satuan: "meter",
-    tip: "Catat jarak yang ditempuh dalam 12 menit, lalu nilainya (0–100) dari tabel nilai.",
+    tip: "Catat jarak yang ditempuh dalam 12 menit. Nilai Garjas A dihitung dari tabel.",
     fields: ["lari_jarak", "lari_nilai"],
   },
   pull: {
     label: "Pull up / Chinning",
     short: "Pull up",
     satuan: "kali",
-    tip: "Pull up untuk putra, chinning untuk putri. Catat jumlah gerakan yang sah, lalu nilainya.",
+    tip: "Catat jumlah pull up (putra) atau chinning (putri) yang sah dalam 1 menit.",
     fields: ["pull_jumlah", "pull_nilai"],
   },
-  situp: { label: "Sit up", short: "Sit up", satuan: "kali", tip: "Jumlah sit up dalam 1 menit, lalu nilainya.", fields: ["situp_jumlah", "situp_nilai"] },
-  pushup: { label: "Push up", short: "Push up", satuan: "kali", tip: "Jumlah push up dalam 1 menit, lalu nilainya.", fields: ["pushup_jumlah", "pushup_nilai"] },
+  situp: { label: "Sit up", short: "Sit up", satuan: "kali", tip: "Catat jumlah sit up dalam 1 menit.", fields: ["situp_jumlah", "situp_nilai"] },
+  pushup: { label: "Push up", short: "Push up", satuan: "kali", tip: "Catat jumlah push up dalam 1 menit.", fields: ["pushup_jumlah", "pushup_nilai"] },
   shuttle: {
     label: "Shuttle run 6 × 10 m",
     short: "Shuttle",
     satuan: "detik",
-    tip: "Waktu tempuh dalam detik (contoh 17,4), lalu nilainya.",
+    tip: "Catat waktu tempuh dalam detik, mis. 17,4.",
     fields: ["shuttle_waktu", "shuttle_nilai"],
   },
   renang: {
     label: "Renang dasar 50 m",
     short: "Renang",
     satuan: "detik",
-    tip: "Pilih gaya dan catat waktunya (detik, atau menit:detik seperti 1:05). Renang tidak masuk hitungan nilai akhir.",
+    tip: "Pilih gaya dan catat waktunya, mis. 1:05. Nilai tersedia untuk gaya dada 50 m.",
     fields: ["renang_gaya", "renang_waktu"],
   },
 };
@@ -222,19 +222,26 @@ export interface SamaptaScore {
   imtKlas: string;
   garjasA: number | null;
   garjasB: number | null;
+  renang: number | null;
   akhir: number | null;
   klas: Klasifikasi | null;
   pullLabel: string;
 }
 
 /** Garjas B hanya dihitung bila keempat nilai sudah ada; hasil akhir bila A dan B ada. */
-export function scoreOf(result: SamaptaResult, gender: Gender | "", s: Pick<SamaptaSettings, "baik_sekali" | "baik" | "cukup">): SamaptaScore {
+export function scoreOf(
+  result: SamaptaResult,
+  gender: Gender | "",
+  s: Pick<SamaptaSettings, "baik_sekali" | "baik" | "cukup">,
+  usia: number | null = null,
+): SamaptaScore {
   const imt = imtOf(result.tinggi_cm, result.berat_kg);
   const garjasA = result.lari_nilai;
   const bParts = [result.pull_nilai, result.situp_nilai, result.pushup_nilai, result.shuttle_nilai];
   const garjasB = bParts.every((v) => v !== null) ? round((bParts as number[]).reduce((a, b) => a + b, 0) / 4, 2) : null;
   const akhir = garjasA !== null && garjasB !== null ? round((garjasA + garjasB) / 2, 2) : null;
-  return { imt, imtKlas: imtLabel(imt), garjasA, garjasB, akhir, klas: classify(akhir, s), pullLabel: pullLabel(gender) };
+  const renang = nilaiRenang(result.renang_gaya, result.renang_waktu, usia);
+  return { imt, imtKlas: imtLabel(imt), garjasA, garjasB, renang, akhir, klas: classify(akhir, s), pullLabel: pullLabel(gender) };
 }
 
 /** Apakah isian satu pos sudah lengkap untuk siswa ini. */
@@ -264,22 +271,30 @@ export function testProgress(pesertaIds: readonly string[], results: ReadonlyMap
   return Object.fromEntries(POS.map((pos) => [pos, pesertaIds.filter((id) => { const r = results.get(id); return r ? posFilled(r, pos) : false; }).length])) as Record<Pos, number>;
 }
 
-/** Durasi untuk tampilan: di bawah 60 detik "49 dtk" / "17,4 dtk", selebihnya "1:05". */
+/** Durasi untuk tampilan: "49 dtk" atau "1:05,5", termasuk pecahan detik. */
 export function formatDuration(seconds: number | null): string {
   if (seconds === null) return "";
-  if (seconds < 60) return `${seconds.toLocaleString("id-ID", { maximumFractionDigits: 1 })} dtk`;
-  const total = Math.round(seconds);
-  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+  const total = Math.round(seconds * 100);
+  if (total < 6000) return `${(total / 100).toLocaleString("id-ID", { maximumFractionDigits: 2 })} dtk`;
+  const rest = (total % 6000) / 100;
+  return `${Math.floor(total / 6000)}:${rest.toLocaleString("id-ID", { minimumIntegerDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/** Pintasan papan angka "1.05" atau "1,05" berarti "1:05". */
+export function normalizeDuration(text: string): string {
+  const value = text.trim();
+  const mss = /^(\d)[.,]([0-5]\d)$/.exec(value);
+  return mss ? `${mss[1]}:${mss[2]}` : value;
 }
 
 /** Membaca "65", "65,5", atau "1:05" menjadi detik. Teks kosong → null. */
 export function parseDuration(text: string, label: string): number | null {
-  const value = text.trim();
+  const value = normalizeDuration(text);
   if (!value) return null;
-  const mmss = /^(\d{1,2}):([0-5]?\d(?:[.,]\d)?)$/.exec(value);
+  const mmss = /^(\d{1,2}):([0-5]?\d(?:[.,]\d{1,2})?)$/.exec(value);
   const seconds = mmss ? Number(mmss[1]) * 60 + Number(mmss[2]!.replace(",", ".")) : Number(value.replace(",", "."));
   if (!Number.isFinite(seconds) || seconds <= 0 || seconds > 900) throw new AppError(`${label} tidak valid. Tulis dalam detik (65) atau menit:detik (1:05).`);
-  return round(seconds, 1);
+  return round(seconds, 2);
 }
 
 /** Peserta tes: daftar beku saat tes dibuat, diurutkan kode siswa. */
@@ -315,8 +330,6 @@ function numberIn(text: string, label: string, min: number, max: number, integer
   if (integer && !Number.isInteger(parsed)) throw new AppError(`${label} harus bilangan bulat.`);
   return parsed;
 }
-
-const nilai = (text: string, label: string) => numberIn(text, `Nilai ${label}`, 0, 100);
 
 /** Tensi "120/80" (sistolik 60–260, diastolik 30–160). */
 function tensi(text: string, label: string): string {
@@ -451,20 +464,19 @@ export function saveSamaptaPos(t: Tables, input: SamaptaPosInput, ctx: Operation
       patch = { tinggi_cm: blank(numberIn(v("tinggi_cm"), "Tinggi badan", 100, 230)), berat_kg: blank(numberIn(v("berat_kg"), "Berat badan", 25, 200)) };
       break;
     case "lari":
-      patch = { lari_jarak: blank(numberIn(v("lari_jarak"), "Jarak lari", 0, 6000, true)), lari_nilai: blank(nilai(v("lari_nilai"), "lari")) };
-      break;
     case "pull":
-      patch = { pull_jumlah: blank(numberIn(v("pull_jumlah"), "Jumlah pull up/chinning", 0, 200, true)), pull_nilai: blank(nilai(v("pull_nilai"), "pull up/chinning")) };
-      break;
     case "situp":
-      patch = { situp_jumlah: blank(numberIn(v("situp_jumlah"), "Jumlah sit up", 0, 200, true)), situp_nilai: blank(nilai(v("situp_nilai"), "sit up")) };
-      break;
     case "pushup":
-      patch = { pushup_jumlah: blank(numberIn(v("pushup_jumlah"), "Jumlah push up", 0, 200, true)), pushup_nilai: blank(nilai(v("pushup_nilai"), "push up")) };
+    case "shuttle": {
+      const { field, label, range: [min, max], integer } = GARJAS_FIELDS[input.pos];
+      const raw = numberIn(v(field), label, min, max, integer);
+      const found = find(t, "Siswa", "siswa_id", input.siswa_id);
+      const student = found ? toStudent(found.row) : null;
+      const usia = ageAt(student?.tanggal_lahir ?? "", test.tanggal);
+      const score = garjasScore(input.pos, raw, student?.jenis_kelamin ?? "", usia);
+      patch = { [field]: blank(raw), [`${input.pos}_nilai`]: blank(score) };
       break;
-    case "shuttle":
-      patch = { shuttle_waktu: blank(numberIn(v("shuttle_waktu"), "Waktu shuttle run", 5, 90)), shuttle_nilai: blank(nilai(v("shuttle_nilai"), "shuttle run")) };
-      break;
+    }
     case "renang": {
       const gaya = v("renang_gaya").trim();
       if (gaya && !(GAYA_RENANG as readonly string[]).includes(gaya)) throw new AppError("Pilih gaya renang.");

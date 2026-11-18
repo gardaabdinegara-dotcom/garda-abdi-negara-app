@@ -2,6 +2,8 @@
 import {
   formatDuration,
   KLASIFIKASI,
+  normalizeDuration,
+  parseDuration,
   POS,
   posFilled,
   type Klasifikasi,
@@ -10,6 +12,10 @@ import {
   type SamaptaScore,
   type SamaptaSettings,
 } from "@/lib/core/samapta";
+import { GARJAS_FIELDS, garjasScore, isGarjasPos, nilaiRenang } from "@/lib/core/samapta-garjas";
+import type { Gender } from "@/lib/core/types";
+
+export { normalizeDuration };
 
 /** Angka gaya Indonesia (koma desimal). Kosong → "-". */
 export function fmt(value: number | null | undefined, digits = 2): string {
@@ -130,7 +136,7 @@ export function materiOf(result: SamaptaResult, pullLabel: string): Materi[] {
     { key: "pull", label: pullLabel, short: pullLabel === "Chinning" ? "Chinning" : "Pull up", hasil: kali(result.pull_jumlah), nilai: result.pull_nilai },
     { key: "situp", label: "Sit up", short: "Sit up", hasil: kali(result.situp_jumlah), nilai: result.situp_nilai },
     { key: "pushup", label: "Push up", short: "Push up", hasil: kali(result.pushup_jumlah), nilai: result.pushup_nilai },
-    { key: "shuttle", label: "Shuttle run 6 × 10 m", short: "Shuttle", hasil: result.shuttle_waktu === null ? "-" : `${fmt(result.shuttle_waktu, 1)} detik`, nilai: result.shuttle_nilai },
+    { key: "shuttle", label: "Shuttle run 6 × 10 m", short: "Shuttle", hasil: result.shuttle_waktu === null ? "-" : `${fmt(result.shuttle_waktu)} detik`, nilai: result.shuttle_nilai },
   ];
 }
 
@@ -187,15 +193,11 @@ export const decInput = (value: number | null) => (value === null ? "" : String(
 
 /** Detik → isian: di bawah 60 "49,5"; selebihnya "1:05". */
 export function durationInput(seconds: number | null): string {
-  if (seconds === null) return "";
-  if (seconds < 60) return decInput(seconds);
-  const m = Math.floor(seconds / 60);
-  const rest = Math.round((seconds - m * 60) * 10) / 10;
-  return `${m}:${rest < 10 ? "0" : ""}${decInput(rest)}`;
+  return formatDuration(seconds).replace(/ dtk$/, "");
 }
 
-/** Nilai awal kolom isian satu pos (nama kolom sama dengan POS_INFO[pos].fields). */
-export function posInputValues(result: SamaptaResult, pos: Pos): Record<string, string> {
+/** Isian satu pos dan nilai tersimpan untuk tampilan awal. */
+export function posInputValues(result: SamaptaResult, pos: Pos, renang: number | null = null): Record<string, string> {
   switch (pos) {
     case "tensi":
       return {
@@ -208,19 +210,33 @@ export function posInputValues(result: SamaptaResult, pos: Pos): Record<string, 
       };
     case "badan":
       return { tinggi_cm: decInput(result.tinggi_cm), berat_kg: decInput(result.berat_kg) };
-    case "lari":
-      return { lari_jarak: decInput(result.lari_jarak), lari_nilai: decInput(result.lari_nilai) };
-    case "pull":
-      return { pull_jumlah: decInput(result.pull_jumlah), pull_nilai: decInput(result.pull_nilai) };
-    case "situp":
-      return { situp_jumlah: decInput(result.situp_jumlah), situp_nilai: decInput(result.situp_nilai) };
-    case "pushup":
-      return { pushup_jumlah: decInput(result.pushup_jumlah), pushup_nilai: decInput(result.pushup_nilai) };
-    case "shuttle":
-      return { shuttle_waktu: decInput(result.shuttle_waktu), shuttle_nilai: decInput(result.shuttle_nilai) };
     case "renang":
-      return { renang_gaya: result.renang_gaya, renang_waktu: durationInput(result.renang_waktu) };
+      return { renang_gaya: result.renang_gaya, renang_waktu: durationInput(result.renang_waktu), renang_nilai: decInput(renang) };
+    default: {
+      const { field } = GARJAS_FIELDS[pos];
+      const scoreKey = `${pos}_nilai` as const;
+      return { [field]: decInput(result[field]), [scoreKey]: decInput(result[scoreKey]) };
+    }
   }
+}
+
+/** Pratinjau nilai saat hasil ukur diubah. Server menghitung ulang ketika menyimpan. */
+export function posValuesWithScore(pos: Pos, values: Record<string, string>, gender: Gender | "", usia: number | null): Record<string, string> {
+  if (isGarjasPos(pos)) {
+    const text = values[GARJAS_FIELDS[pos].field]?.trim();
+    const raw = text ? Number(text.replace(",", ".")) : null;
+    return { ...values, [`${pos}_nilai`]: decInput(garjasScore(pos, raw, gender, usia)) };
+  }
+  if (pos === "renang") {
+    let detik: number | null = null;
+    try {
+      detik = parseDuration((values.renang_waktu ?? "").replace(/,$/, ""), "Waktu renang");
+    } catch {
+      // Ketikan belum valid; pesan validasi tampil saat menyimpan.
+    }
+    return { ...values, renang_nilai: decInput(nilaiRenang(values.renang_gaya ?? "", detik, usia)) };
+  }
+  return values;
 }
 
 /** Isian pos lengkap (cermin posFilled untuk teks di form). Riwayat kesehatan tidak wajib. */
@@ -234,7 +250,7 @@ export function isPosComplete(pos: Pos, values: Record<string, string>): boolean
     case "renang":
       return has("renang_gaya") && has("renang_waktu");
     default:
-      return Object.keys(values).every(has);
+      return has(GARJAS_FIELDS[pos].field) && has(`${pos}_nilai`);
   }
 }
 
@@ -249,13 +265,6 @@ export function normalizeTensi(text: string): string {
     return `${value.slice(0, cut)}/${value.slice(cut)}`;
   }
   return value;
-}
-
-/** Waktu renang "1.05" atau "1,05" (menit.detik) → "1:05". Detik biasa dibiarkan. */
-export function normalizeDuration(text: string): string {
-  const value = text.trim();
-  const mss = /^(\d)[.,]([0-5]\d)$/.exec(value);
-  return mss ? `${mss[1]}:${mss[2]}` : value;
 }
 
 // ---------------------------------------------------------------- Mode lapangan & hasil
@@ -301,7 +310,7 @@ export function deltaText(d: number | null, digits = 2): string {
 export const deltaTone = (d: number | null) => (d === null || d === 0 ? "flat" : d > 0 ? "up" : "down");
 
 /** Ringkas hasil satu pos dari data tersimpan, mis. { main: "18,2 dtk", sub: "nilai 74" }. */
-export function posBrief(pos: Pos, r: SamaptaResult): { main: string; sub: string } | null {
+export function posBrief(pos: Pos, r: SamaptaResult, renang: number | null = null): { main: string; sub: string } | null {
   const nilai = (n: number | null) => (n === null ? "nilai belum" : `nilai ${fmt(n)}`);
   switch (pos) {
     case "tensi": {
@@ -320,9 +329,12 @@ export function posBrief(pos: Pos, r: SamaptaResult): { main: string; sub: strin
       return jumlah === null && n === null ? null : { main: jumlah === null ? "-" : `${fmt(jumlah, 0)} kali`, sub: nilai(n) };
     }
     case "shuttle":
-      return r.shuttle_waktu === null && r.shuttle_nilai === null ? null : { main: r.shuttle_waktu === null ? "-" : `${fmt(r.shuttle_waktu, 1)} dtk`, sub: nilai(r.shuttle_nilai) };
+      return r.shuttle_waktu === null && r.shuttle_nilai === null ? null : { main: r.shuttle_waktu === null ? "-" : `${fmt(r.shuttle_waktu)} dtk`, sub: nilai(r.shuttle_nilai) };
     case "renang":
-      return r.renang_waktu === null && !r.renang_gaya ? null : { main: r.renang_waktu === null ? "-" : formatDuration(r.renang_waktu), sub: r.renang_gaya ? `gaya ${r.renang_gaya.toLowerCase()}` : "gaya belum" };
+      return r.renang_waktu === null && !r.renang_gaya ? null : {
+        main: formatDuration(r.renang_waktu) || "-",
+        sub: [r.renang_gaya ? `gaya ${r.renang_gaya.toLowerCase()}` : "gaya belum", renang === null ? "" : nilai(renang)].filter(Boolean).join(" · "),
+      };
   }
 }
 
@@ -350,10 +362,10 @@ export function posValuesBrief(pos: Pos, v: Record<string, string>): string {
     case "pushup":
       return `${part(inputNum(v[`${pos}_jumlah`], 0), "kali", "jumlah belum")} · ${nilai(`${pos}_nilai`)}`;
     case "shuttle":
-      return `${part(inputNum(v.shuttle_waktu, 1), "dtk", "waktu belum")} · ${nilai("shuttle_nilai")}`;
+      return `${part(inputNum(v.shuttle_waktu), "dtk", "waktu belum")} · ${nilai("shuttle_nilai")}`;
     case "renang": {
       const waktu = normalizeDuration(v.renang_waktu ?? "");
-      return `${v.renang_gaya || "gaya belum"} · ${waktu ? (waktu.includes(":") ? waktu : `${waktu} dtk`) : "waktu belum"}`;
+      return `${v.renang_gaya || "gaya belum"} · ${waktu ? (waktu.includes(":") ? waktu : `${waktu} dtk`) : "waktu belum"}${v.renang_nilai ? ` · ${nilai("renang_nilai")}` : ""}`;
     }
   }
 }

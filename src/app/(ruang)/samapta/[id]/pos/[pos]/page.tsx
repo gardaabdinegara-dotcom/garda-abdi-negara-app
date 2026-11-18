@@ -33,8 +33,9 @@ export default async function FieldModePage({ params, searchParams }: { params: 
       inisial: initials(e.student.nama),
       no: i + 1,
       jk: e.student.jenis_kelamin,
-      values: posInputValues(e.result, pos),
-      prev: pe ? posBrief(pos, pe.result) : null,
+      usia: e.usia,
+      values: posInputValues(e.result, pos, e.score.renang),
+      prev: pe ? posBrief(pos, pe.result, pe.score.renang) : null,
     };
   });
 

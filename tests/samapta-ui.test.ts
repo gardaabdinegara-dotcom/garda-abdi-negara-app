@@ -11,6 +11,7 @@ import {
   normalizeTensi,
   overallProgress,
   posInputValues,
+  posValuesWithScore,
   progressSentence,
   roman,
 } from "../src/app/(ruang)/samapta/samapta-ui";
@@ -84,17 +85,27 @@ describe("tampilan samapta", () => {
   });
 
   it("nilai awal isian per pos memakai koma desimal", () => {
-    const { result } = scored(full);
+    const { result, score } = scored(full);
     assert.deepEqual(posInputValues(result, "badan"), { tinggi_cm: "170", berat_kg: "64,5" });
     assert.deepEqual(posInputValues(result, "shuttle"), { shuttle_waktu: "17,4", shuttle_nilai: "70" });
-    assert.deepEqual(posInputValues(result, "renang"), { renang_gaya: "Dada", renang_waktu: "1:05" });
+    assert.deepEqual(posInputValues(result, "renang", score.renang), { renang_gaya: "Dada", renang_waktu: "1:05", renang_nilai: "80" });
     for (const pos of POS) assert.equal(isPosComplete(pos, posInputValues(result, pos)), true, pos);
   });
 
   it("kelengkapan: riwayat tidak wajib, kolom kosong belum lengkap", () => {
     assert.equal(isPosComplete("tensi", { tensi_1: "120/80", tensi_2: "120/80", tensi_3: "120/80", riwayat_1: "" }), true);
+    assert.equal(isPosComplete("lari", {}), false);
     assert.equal(isPosComplete("lari", { lari_jarak: "2400", lari_nilai: "" }), false);
     assert.deepEqual(missingPos(scored({ ...full, renang_gaya: "", shuttle_nilai: "" }).result), ["shuttle", "renang"]);
+  });
+
+  it("nilai otomatis mengikuti ketikan jarak, repetisi, waktu, dan gaya", () => {
+    assert.deepEqual(posValuesWithScore("lari", { lari_jarak: "2500" }, "L", null), { lari_jarak: "2500", lari_nilai: "47" });
+    assert.equal(posValuesWithScore("pull", { pull_jumlah: "0" }, "P", 18).pull_nilai, "0");
+    assert.equal(posValuesWithScore("shuttle", { shuttle_waktu: "17,41" }, "L", 18).shuttle_nilai, "84");
+    assert.equal(posValuesWithScore("renang", { renang_gaya: "Dada", renang_waktu: "1,05" }, "P", 26).renang_nilai, "83");
+    assert.equal(posValuesWithScore("renang", { renang_gaya: "Bebas", renang_waktu: "65", renang_nilai: "83" }, "P", 26).renang_nilai, "");
+    assert.equal(posValuesWithScore("renang", { renang_gaya: "Dada", renang_waktu: "1:90" }, "L", 18).renang_nilai, "");
   });
 
   it("kemajuan isian dan pos bawaan", () => {

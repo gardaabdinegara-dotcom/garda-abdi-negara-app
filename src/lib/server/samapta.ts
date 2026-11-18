@@ -1,6 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { academicSettings, localClock } from "../core/akademik";
+import { ageAt } from "../core/samapta-garjas";
 import {
   canManageSamapta,
   emptyResult,
@@ -46,14 +47,6 @@ export interface TestSummary {
   klas: Record<Klasifikasi, number>;
 }
 
-/** Usia (tahun penuh) pada tanggal tertentu. */
-export function ageAt(tanggalLahir: string, tanggal: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggalLahir)) return null;
-  const [y1, m1, d1] = tanggalLahir.split("-").map(Number) as [number, number, number];
-  const [y2, m2, d2] = tanggal.split("-").map(Number) as [number, number, number];
-  return y2 - y1 - (m2 < m1 || (m2 === m1 && d2 < d1) ? 1 : 0);
-}
-
 function today(t: Tables): string {
   return localClock(academicSettings(t).zona_waktu, new Date().toISOString()).date;
 }
@@ -75,7 +68,8 @@ function entriesOf(test: SamaptaTest, m: ReturnType<typeof model>): SamaptaEntry
   const byStudent = m.results.get(test.tes_id) ?? new Map<string, SamaptaResult>();
   const base = participantsOfTest(test, m.students).map((student) => {
     const result = byStudent.get(student.siswa_id) ?? emptyResult(test.tes_id, student.siswa_id);
-    return { student, result, score: scoreOf(result, student.jenis_kelamin, m.settings), usia: ageAt(student.tanggal_lahir, test.tanggal) };
+    const usia = ageAt(student.tanggal_lahir, test.tanggal);
+    return { student, result, score: scoreOf(result, student.jenis_kelamin, m.settings, usia), usia };
   });
   const ranks = rankOf(base.filter((e) => e.score.akhir !== null).map((e) => ({ siswa_id: e.student.siswa_id, akhir: e.score.akhir })));
   return base.map((e) => ({ ...e, rank: ranks.get(e.student.siswa_id) ?? null }));

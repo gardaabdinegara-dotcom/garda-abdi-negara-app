@@ -16,7 +16,8 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
   - Hasil diisi per pos dari HP: tensi I–III dan riwayat kesehatan, tinggi/berat (IMT otomatis), lari 12 menit, pull up (putra) atau chinning (putri), sit up, push up, shuttle run 6 × 10 m, dan renang 50 m.
   - Garjas A = nilai lari. Garjas B = rata-rata empat nilai B. Hasil akhir = (A + B) / 2.
   - Klasifikasi: Baik Sekali ≥ 81, Baik 61–80, Cukup 41–60, Kurang ≤ 40 (bisa diubah).
-  - Nilai diisi manual sampai tabel nilai resmi tersedia.
+  - Nilai Garjas dihitung dari jarak, jumlah gerakan, dan waktu berdasarkan tabel lapangan yang dilampirkan, jenis kelamin, dan usia pada tanggal tes. Usia kosong memakai kelompok 18–25 tahun. Usia di luar tabel memakai kelompok terdekat sebagai acuan latihan.
+  - Renang 50 m gaya dada mendapat nilai ketangkasan tersendiri sesuai tabel yang dilampirkan.
   - Blangko A4 bisa dicetak terisi (per siswa atau semua) di `/cetak/samapta/[tes]` atau kosong di `/cetak/samapta/kosong`. Kop, tempat, kota, dan penanda tangan diatur di Pengaturan → Lembaga.
 - **Latihan psikotes** (`/latihan`):
   - Empat jenis: Kraepelin, Pauli, angka hilang, dan simbol hilang (simbol berupa karakter Unicode, seperti Insert Symbol di Word).

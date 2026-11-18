@@ -225,6 +225,7 @@ export function RincianList({ entry, prev, prevName, edit }: { entry: SamaptaEnt
   const cur = materiOf(result, score.pullLabel);
   const old = prev ? materiOf(prev.result, score.pullLabel) : null;
   const renang = renangText(result);
+  const swimDelta = diff(prev?.score.renang, score.renang);
   const tensi = result.tensi.filter((t) => t !== "");
   const riwayat = result.riwayat.filter((r) => r.trim() !== "");
   const badan = [
@@ -265,8 +266,9 @@ export function RincianList({ entry, prev, prevName, edit }: { entry: SamaptaEnt
           <b>Renang 50 m</b>
           <span>{renang ?? "Belum diisi"}</span>
         </div>
-        <span className="sam-nl is-empty" title="Renang tidak masuk nilai akhir">
-          -
+        {swimDelta !== null ? <Delta value={swimDelta} digits={2} /> : null}
+        <span className={`sam-nl${score.renang === null ? " is-empty" : ""}`} title="Nilai ketangkasan gaya dada 50 m">
+          {fmt(score.renang)}
         </span>
         {editLink("renang", "renang")}
       </li>
@@ -333,7 +335,7 @@ export function HowCalculated({ entry, settings }: { entry: SamaptaEntry; settin
       <li>
         <b>Klasifikasi</b>: {ranges.map((r) => `${r.klas} ${r.teks}`).join(" · ")}.
       </li>
-      <li>Renang dicatat sebagai ketangkasan dan tidak masuk hitungan hasil akhir.</li>
+      <li>Nilai renang gaya dada 50 m tercatat terpisah sebagai nilai ketangkasan.</li>
     </ol>
   );
 }
