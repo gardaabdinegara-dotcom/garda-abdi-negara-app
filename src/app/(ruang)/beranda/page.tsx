@@ -5,7 +5,7 @@ import { AttendanceChart, DonutCard, Hero, Kpi, ListCard, RingCard, rpShort, Sho
 import { rp } from "@/components/keuangan";
 import { monthLabel } from "@/components/report-document";
 import { Badge, Empty, Notice } from "@/components/ui";
-import { disciplineLabel, SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/core/akademik";
+import { disciplineLabel, SESSION_STATUS_LABEL, sessionTypeLabel } from "@/lib/core/akademik";
 import { FITUR } from "@/lib/core/fitur";
 import { canManageStudents, canRecordFinance } from "@/lib/core/permissions";
 import { canManageSamapta, classify, KLASIFIKASI, POS, POS_INFO } from "@/lib/core/samapta";
@@ -61,7 +61,7 @@ function sessionItems(sessions: SessionCard[]): ListItem[] {
     icon: "clock",
     tone: s.status === "AKTIF" ? "green" : "blue",
     title: `${s.jam_mulai}–${s.jam_selesai} · ${s.nama}`,
-    sub: `${s.kelas} · ${SESSION_TYPE_LABEL[s.jenis]} · ${s.menunggu ? `${s.menunggu} menunggu pengesahan` : SESSION_STATUS_LABEL[s.status]}`,
+    sub: `${s.kelas} · ${sessionTypeLabel(s.jenis)} · ${s.menunggu ? `${s.menunggu} menunggu pengesahan` : SESSION_STATUS_LABEL[s.status]}`,
     href: `/akademik/sesi/${s.sesi_id}`,
   }));
 }
@@ -390,7 +390,7 @@ function FamilyHome({ actor, academic, money, samapta }: { actor: Actor; academi
                   icon: "clock",
                   tone: s.status === "AKTIF" ? "green" : "blue",
                   title: `${s.jam_mulai}–${s.jam_selesai} · ${s.nama}`,
-                  sub: SESSION_TYPE_LABEL[s.jenis],
+                  sub: sessionTypeLabel(s.jenis),
                   href: wali ? undefined : "/akademik",
                   side: s.record && s.record.status !== "KOSONG" ? <AttendanceBadge status={s.record.status} late={s.record.terlambat} /> : <SessionStatusBadge status={s.status} />,
                 }))}

@@ -1,6 +1,6 @@
 // Validasi isian form modul akademik. Angka dibiarkan berupa teks; rentangnya diperiksa di domain.
 import { z } from "zod";
-import { SELF_MARKS, SESSION_STATUS, SESSION_TYPES, TEACHER_MARKS, TEST_CATEGORIES } from "./akademik";
+import { normalizeSessionTypeName, PRESENSI_TYPE_NAME_MAX, SELF_MARKS, SESSION_STATUS, SESSION_TYPES, TEACHER_MARKS, TEST_CATEGORIES } from "./akademik";
 
 const text = (max: number, label: string) => z.string().trim().max(max, `${label} maksimal ${max} karakter.`).default("");
 const required = (min: number, max: number, label: string) =>
@@ -16,10 +16,14 @@ export const sessionInput = z.object({
   tanggal: date("Tanggal"),
   jam_mulai: time("Jam mulai"),
   jam_selesai: time("Jam selesai"),
-  jenis: z.enum(SESSION_TYPES, { message: "Pilih bidang." }),
+  jenis: id("Bidang"),
   /** Kosong = semua siswa aktif (tanpa kelas). */
   kelas_id: z.string().trim().max(120).default(""),
   pengajar_id: z.string().default(""),
+});
+
+export const sessionTypeInput = z.object({
+  nama: z.string().transform(normalizeSessionTypeName).pipe(required(1, PRESENSI_TYPE_NAME_MAX, "Nama bidang")),
 });
 
 export const sessionStatusInput = z.object({ sesi_id: id("Sesi"), status: z.enum(SESSION_STATUS) });

@@ -2,10 +2,30 @@
 
 import { refresh } from "next/cache";
 import type { ActionState } from "@/lib/action-state";
+import { addSessionType } from "@/lib/core/akademik";
+import { sessionTypeInput } from "@/lib/core/akademik-input";
 import { saveClass, saveProgram, updateSettings } from "@/lib/core/domain";
 import { classInput, programInput, settingsInput } from "@/lib/core/validation";
 import { failure, formObject, mutate, parse, success } from "@/lib/server/mutate";
 import { requireActor } from "@/lib/server/session";
+
+export async function tambahBidangPresensi(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
+  try {
+    const input = parse(sessionTypeInput, formObject(formData));
+    const result = await mutate(actor, {
+      formData,
+      action: "tambahBidangPresensi",
+      fingerprint: input,
+      tables: ["Pengaturan"],
+      apply: (t, ctx) => addSessionType(t, input.nama, ctx, actor),
+    });
+    refresh();
+    return success(result.outcome.message);
+  } catch (error) {
+    return failure(error);
+  }
+}
 
 export async function simpanLembaga(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();

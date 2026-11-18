@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   applicationName: "Ruang Garda",
   robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Ruang Garda" },
+  other: { "mobile-web-app-capable": "yes" },
   icons: {
     icon: [
       { url: "/brand/garda-favicon-v1.ico", sizes: "any" },
@@ -38,6 +40,21 @@ export const viewport: Viewport = {
 /** Dijalankan sebelum halaman tampil agar tidak berkedip saat memakai mode gelap. */
 const THEME_SCRIPT = `(function(){try{var s=localStorage.getItem("garda.appearance.v1");var d=s==="dark"||(s!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.colorMode=d?"dark":"light"}catch(e){document.documentElement.dataset.colorMode="light"}})();`;
 
+// Simpan prompt sebelum React siap, agar tombol bisa memakainya setelah navigasi atau login.
+const PWA_SCRIPT = `
+window.addEventListener("beforeinstallprompt", function (event) {
+  event.preventDefault();
+  window.gardaInstallPrompt = event;
+});
+window.addEventListener("appinstalled", function () {
+  window.gardaInstallPrompt = undefined;
+  window.gardaAppInstalled = true;
+});
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(function () {});
+}
+`;
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const scriptNonce = await nonce();
   return (
@@ -45,6 +62,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <Script id="tema-tampilan" strategy="beforeInteractive" nonce={scriptNonce}>
           {THEME_SCRIPT}
+        </Script>
+        <Script id="ruang-garda-pwa" strategy="beforeInteractive" nonce={scriptNonce}>
+          {PWA_SCRIPT}
         </Script>
         {children}
       </body>

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { Fragment } from "react";
-import { DISCIPLINE, SESSION_TYPE_LABEL, type AttendanceStatus, type SessionStatus } from "@/lib/core/akademik";
+import { DISCIPLINE, sessionTypeLabel, type AttendanceStatus, type SessionStatus, type SessionTypeOption } from "@/lib/core/akademik";
 import type { ClassGroup } from "@/lib/core/types";
 import { initials } from "@/lib/format";
 import type { Clock, FamilyAttendance, MonthlyRecap, MySession, SessionCard, SessionWorkspace } from "@/lib/server/akademik";
@@ -35,11 +35,17 @@ export function PresensiHead({ tab, create }: { tab?: PresensiTab; create?: Reac
   );
 }
 
-/** Tombol + lembar Buat sesi. Isian sama dengan form lama (nama, tanggal, jam, bidang, peserta, pengajar). */
-export function CreateSessionButton({ classes, teachers, date }: { classes: ClassGroup[]; teachers: { user_id: string; nama: string }[]; date: string }) {
+type SessionOptions = {
+  classes: ClassGroup[];
+  teachers: { user_id: string; nama: string }[];
+  sessionTypes: SessionTypeOption[];
+};
+
+/** Tombol + lembar Buat sesi. */
+export function CreateSessionButton({ date, ...options }: SessionOptions & { date: string }) {
   return (
     <CreateSession operationId={randomUUID()}>
-      <SessionFields classes={classes} teachers={teachers} date={date} />
+      <SessionFields {...options} date={date} />
     </CreateSession>
   );
 }
@@ -165,7 +171,7 @@ export function SessionHero({
           <span className="pr-dk-only">
             {longDay(s.tanggal)} · {timeRange(s.jam_mulai, s.jam_selesai)} ·{" "}
           </span>
-          {SESSION_TYPE_LABEL[s.jenis]} · {s.kelas === "Semua siswa" ? "Semua siswa" : `Kelas ${s.kelas}`} · {s.peserta} siswa
+          {sessionTypeLabel(s.jenis)} · {s.kelas === "Semua siswa" ? "Semua siswa" : `Kelas ${s.kelas}`} · {s.peserta} siswa
           {s.canManage ? null : ` · ${s.pengajar}`}
         </p>
       </div>
@@ -230,11 +236,11 @@ export function SessionWorkspaceView({
   );
 }
 
-export function EditSessionFields({ ws, classes, teachers }: { ws: SessionWorkspace; classes: ClassGroup[]; teachers: { user_id: string; nama: string }[] }) {
+export function EditSessionFields({ ws, ...options }: SessionOptions & { ws: SessionWorkspace }) {
   return (
     <>
       <input type="hidden" name="sesi_id" value={ws.session.sesi_id} />
-      <SessionFields classes={classes} teachers={teachers} session={ws.session} date={ws.session.tanggal} />
+      <SessionFields {...options} session={ws.session} date={ws.session.tanggal} />
     </>
   );
 }
@@ -389,7 +395,7 @@ function ScheduleItem({ s, today }: { s: SessionCard; today: string }) {
       <span className="pr-main">
         <b>{s.nama}</b>
         <span className="n">
-          {timeRange(s.jam_mulai, s.jam_selesai)} · {SESSION_TYPE_LABEL[s.jenis]} · {s.kelas === "Semua siswa" ? "Semua siswa" : s.kelas}
+          {timeRange(s.jam_mulai, s.jam_selesai)} · {sessionTypeLabel(s.jenis)} · {s.kelas === "Semua siswa" ? "Semua siswa" : s.kelas}
         </span>
         <span className="n">
           {s.status === "AKAN_DATANG" ? `${s.peserta} siswa` : `${s.hadir}/${s.peserta} hadir`}

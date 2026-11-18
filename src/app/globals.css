@@ -440,6 +440,48 @@ p {
   display: none;
 }
 
+.app-install-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.app-install-dialog {
+  width: min(420px, calc(100% - 32px));
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.app-install-dialog::backdrop {
+  background: #10120c99;
+}
+
+.app-install-dialog .app-install-title {
+  font-size: 20px;
+}
+
+.app-install-dialog ol {
+  margin: 0;
+  padding-inline-start: 22px;
+}
+
+.app-install-dialog li + li {
+  margin-top: 8px;
+}
+
+.app-install-dialog .form-actions {
+  justify-content: flex-end;
+}
+
+@media (display-mode: standalone) {
+  .app-install-button {
+    display: none;
+  }
+}
+
 html[data-color-mode="dark"] .appearance-toggle .when-dark {
   display: inline-flex;
 }
@@ -541,7 +583,8 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
   .sidebar,
   .appbar-search,
   .appbar-date,
-  .mode-label {
+  .mode-label,
+  .app-install-label {
     display: none;
   }
 
@@ -581,7 +624,8 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
     text-decoration: none;
   }
 
-  .appearance-toggle {
+  .appearance-toggle,
+  .app-install-button {
     padding: 9px;
   }
 
@@ -627,6 +671,28 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
   .bottomnav a[aria-current="page"] {
     color: var(--primary);
     background: var(--primary-soft);
+  }
+}
+
+@media (max-width: 350px) {
+  .appbar {
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .appbar-brand {
+    gap: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .appbar-brand img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .appbar-tools {
+    gap: 5px;
   }
 }
 
@@ -1353,6 +1419,7 @@ textarea:focus {
 .welcome-top {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 /* Masuk cepat: hanya tampil saat uji coba lokal (npm run dev + data contoh). */
@@ -2318,6 +2385,11 @@ textarea:disabled {
 .item-list {
   display: flex;
   flex-direction: column;
+}
+
+.session-type-list {
+  margin: 0;
+  padding: 0;
 }
 
 .item {

@@ -8,7 +8,7 @@ import { ActionForm, SubmitButton } from "@/components/form";
 import { Wordmark } from "@/components/shell";
 import { Notice } from "@/components/ui";
 import { readQrToken } from "@/lib/auth/qr";
-import { SESSION_TYPE_LABEL } from "@/lib/core/akademik";
+import { sessionTypeLabel } from "@/lib/core/akademik";
 import { formatDate } from "@/lib/format";
 import { loadQrSession } from "@/lib/server/akademik";
 import { getActor } from "@/lib/server/session";
@@ -39,7 +39,7 @@ export default async function QrPage({ searchParams }: { searchParams: Search })
             <h2>{data ? data.session.nama : "Presensi sesi"}</h2>
             {data ? (
               <p>
-                {formatDate(data.session.tanggal, "long")} · {data.session.jam_mulai}–{data.session.jam_selesai} · {data.kelas} · {SESSION_TYPE_LABEL[data.session.jenis]}
+                {formatDate(data.session.tanggal, "long")} · {data.session.jam_mulai}–{data.session.jam_selesai} · {data.kelas} · {sessionTypeLabel(data.session.jenis)}
               </p>
             ) : null}
           </div>

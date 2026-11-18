@@ -4,11 +4,13 @@ import {
   SESSION_STATUS_LABEL,
   SESSION_TYPE_LABEL,
   SESSION_TYPES,
+  sessionTypeLabel,
   SUBMISSION_LABEL,
   type AttendanceStatus,
   type ReportSection,
   type Session,
   type SessionStatus,
+  type SessionTypeOption,
   type SubmissionStatus,
 } from "@/lib/core/akademik";
 import { FITUR } from "@/lib/core/fitur";
@@ -81,19 +83,25 @@ export const typeOptions = SESSION_TYPES.map((t) => ({ value: t, label: SESSION_
 export function SessionFields({
   classes,
   teachers,
+  sessionTypes,
   session,
   date,
 }: {
   classes: ClassGroup[];
   teachers: { user_id: string; nama: string }[];
+  sessionTypes: SessionTypeOption[];
   session?: Session;
   date: string;
 }) {
+  const jenis = session?.jenis ?? "FISIK";
+  const options = sessionTypes.some(({ value }) => value === jenis)
+    ? sessionTypes
+    : [...sessionTypes, { value: jenis, label: sessionTypeLabel(jenis) }];
   return (
     <div className="form-grid two">
       <Field label="Nama kegiatan" name="nama" defaultValue={session?.nama} placeholder="mis. Latihan jasmani pagi" required className="span-all" />
       <Field label="Tanggal" name="tanggal" type="date" defaultValue={session?.tanggal ?? date} required />
-      <Field label="Bidang" name="jenis" type="select" defaultValue={session?.jenis ?? "FISIK"} options={typeOptions} />
+      <Field label="Bidang" name="jenis" type="select" defaultValue={jenis} options={options} />
       <Field label="Jam mulai" name="jam_mulai" type="time" defaultValue={session?.jam_mulai ?? "07:00"} required />
       <Field label="Jam selesai" name="jam_selesai" type="time" defaultValue={session?.jam_selesai ?? "09:00"} required />
       <Field

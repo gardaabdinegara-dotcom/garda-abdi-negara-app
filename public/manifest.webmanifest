@@ -3,6 +3,7 @@
   "short_name": "Ruang Garda",
   "description": "Ruang kerja akademik dan keuangan Garda Abdi Negara.",
   "lang": "id",
+  "id": "/beranda",
   "start_url": "/beranda",
   "scope": "/",
   "display": "standalone",

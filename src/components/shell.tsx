@@ -4,6 +4,7 @@ import { dataMode } from "@/lib/config";
 import { canManageStudents, menuFor } from "@/lib/core/permissions";
 import { ROLE_LABEL, type Actor } from "@/lib/core/types";
 import { formatToday, initials } from "@/lib/format";
+import { AppInstallButton } from "./app-install";
 import { Icon } from "./icon";
 import { BottomNav, SideNav } from "./nav";
 import { ThemeToggle } from "./theme-toggle";
@@ -79,6 +80,7 @@ export function Shell({ actor, preview = false, children }: { actor: Actor; prev
           <div className="appbar-tools">
             <span className="appbar-date">{formatToday()}</span>
             <ThemeToggle />
+            <AppInstallButton />
             <Link href="/akun-saya" className="appbar-avatar" aria-label={`Akun saya: ${name}`}>
               {short}
             </Link>

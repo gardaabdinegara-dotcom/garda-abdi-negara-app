@@ -52,7 +52,8 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
   }
 
   const tab: PresensiTab = params.tab === "jadwal" ? "jadwal" : params.tab === "rekap" ? "rekap" : "hari";
-  const { clock, selected } = data;
+  const { clock, selected, classes, teachers, sessionTypes } = data;
+  const sessionOptions = { classes, teachers, sessionTypes };
   const isAdmin = actor.user.peran === "OWNER" || actor.user.peran === "ADMIN";
   const canCreate = !(actor.user.peran === "PENGAJAR" && data.classes.length === 0);
   const live = selected && selected.session.status === "AKTIF" && selected.session.canManage && selected.session.tanggal === clock.today;
@@ -65,7 +66,7 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
         tab={tab}
         create={
           canCreate ? (
-            <CreateSessionButton key={`${tab}:${selected?.session.sesi_id ?? ""}:${createDate}`} classes={data.classes} teachers={data.teachers} date={createDate} />
+            <CreateSessionButton key={`${tab}:${selected?.session.sesi_id ?? ""}:${createDate}`} {...sessionOptions} date={createDate} />
           ) : null
         }
       />
@@ -81,7 +82,7 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
                 clock={clock}
                 isAdmin={isAdmin}
                 qr={qr}
-                editFields={selected.session.canManage ? <EditSessionFields ws={selected} classes={data.classes} teachers={data.teachers} /> : null}
+                editFields={selected.session.canManage ? <EditSessionFields ws={selected} {...sessionOptions} /> : null}
                 side={
                   <>
                     <NearbyCard items={data.nearby} today={clock.today} />

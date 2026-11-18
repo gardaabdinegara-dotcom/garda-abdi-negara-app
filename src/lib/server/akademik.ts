@@ -19,6 +19,7 @@ import {
   mean,
   participantsOf,
   REPORT_TABLES,
+  sessionTypeOptions,
   SKD_KEYS,
   skdPasses,
   teachesClass,
@@ -47,6 +48,10 @@ import type { Tables } from "../data/types";
 import { dataDeps } from "./data";
 
 const read = async (tables: readonly string[]) => (await dataDeps()).store.read("inti", tables);
+
+export async function loadSessionTypes() {
+  return sessionTypeOptions(await read(["Pengaturan"]));
+}
 
 /** Nama kelas sesi; sesi tanpa kelas berlaku untuk semua siswa aktif. */
 const kelasLabel = (names: ReadonlyMap<string, string>, id: string, unknown = "-") => (id ? (names.get(id) ?? unknown) : "Semua siswa");
@@ -262,6 +267,7 @@ export async function loadPresensi(actor: Actor, params: { sesi?: unknown; tangg
         previous: cards(visible.filter((s) => s.tanggal < date).sort((a, b) => byTime(b, a)).slice(0, 6)),
       },
       recap: monthlyRecap(actor, students, enrollments, sessions, records, periode, visible),
+      sessionTypes: sessionTypeOptions(t),
       classes: creatableClasses(actor, classes),
       teachers: actor.user.peran === "PENGAJAR" ? [] : teacherOptions(t),
     };

@@ -13,6 +13,42 @@ export const SESSION_TYPES = ["AKADEMIK", "SKD", "PSIKOTES", "FISIK"] as const;
 export type SessionType = (typeof SESSION_TYPES)[number];
 export const SESSION_TYPE_LABEL: Record<SessionType, string> = { AKADEMIK: "Akademik", SKD: "SKD", PSIKOTES: "Psikotes", FISIK: "Fisik" };
 
+const PRESENSI_TYPE_LABEL: Record<string, string> = {
+  ...SESSION_TYPE_LABEL,
+  KESWA: "KESWA (Kesehatan Jiwa)",
+  MI: "MI (Mental Ideologi)",
+  ADIRAGA: "ADIRAGA",
+};
+const PRESENSI_TYPE_PREFIX = "presensi_bidang:";
+export const PRESENSI_TYPE_NAME_MAX = 60;
+
+export interface SessionTypeOption {
+  value: string;
+  label: string;
+}
+
+export function sessionTypeLabel(value: string): string {
+  return Object.hasOwn(PRESENSI_TYPE_LABEL, value) ? PRESENSI_TYPE_LABEL[value]! : value;
+}
+
+export const normalizeSessionTypeName = (name: string) => name.normalize("NFC").trim().replace(/\s+/g, " ");
+const sessionTypeNameKey = (name: string) => normalizeSessionTypeName(name).toLowerCase();
+
+export function sessionTypeOptions(t: Tables): SessionTypeOption[] {
+  const options = Object.entries(PRESENSI_TYPE_LABEL).map(([value, label]) => ({ value, label }));
+  const seen = new Set(options.flatMap(({ value, label }) => [sessionTypeNameKey(value), sessionTypeNameKey(label)]));
+  for (const row of t.Pengaturan ?? []) {
+    if (!str(row.key).startsWith(PRESENSI_TYPE_PREFIX)) continue;
+    const name = normalizeSessionTypeName(str(row.value));
+    const key = sessionTypeNameKey(name);
+    if (!name || name.length > PRESENSI_TYPE_NAME_MAX || seen.has(key)) continue;
+    seen.add(key);
+    // Nama bidang tambahan disimpan di sesi agar riwayat tetap bisa menampilkannya.
+    options.push({ value: name, label: name });
+  }
+  return options;
+}
+
 export const SESSION_STATUS = ["AKAN_DATANG", "AKTIF", "SELESAI", "DIBATALKAN", "DIHAPUS"] as const;
 export type SessionStatus = (typeof SESSION_STATUS)[number];
 export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
@@ -75,7 +111,7 @@ export interface Session {
   tanggal: string;
   jam_mulai: string;
   jam_selesai: string;
-  jenis: SessionType;
+  jenis: string;
   kelas_id: string;
   pengajar_id: string;
   status: SessionStatus;
@@ -181,7 +217,7 @@ export const toSession = (row: Row): Session => ({
   tanggal: str(row.tanggal),
   jam_mulai: str(row.jam_mulai),
   jam_selesai: str(row.jam_selesai),
-  jenis: oneOf(SESSION_TYPES, row.jenis, "AKADEMIK"),
+  jenis: str(row.jenis).trim() || "AKADEMIK",
   kelas_id: str(row.kelas_id),
   pengajar_id: str(row.pengajar_id),
   status: oneOf(SESSION_STATUS, row.status, "AKAN_DATANG"),
@@ -430,13 +466,26 @@ function clock(t: Tables, ctx: OperationContext) {
 
 // ---------------------------------------------------------------- Sesi
 
+export function addSessionType(t: Tables, name: string, ctx: OperationContext, actor: Actor): OperationOutcome {
+  if (!isAdmin(actor)) throw forbidden();
+  const label = normalizeSessionTypeName(name);
+  if (!label || label.length > PRESENSI_TYPE_NAME_MAX) throw new AppError("Nama bidang tidak valid.");
+  const key = sessionTypeNameKey(label);
+  if (sessionTypeOptions(t).some((option) => [option.value, option.label].some((text) => sessionTypeNameKey(text) === key))) {
+    throw new AppError("Nama bidang ini sudah ada.");
+  }
+  const row = { key: `${PRESENSI_TYPE_PREFIX}${ctx.newId("BDG")}`, value: label, ...updated(ctx) };
+  rows(t, "Pengaturan").push(row);
+  return { entityType: "Pengaturan", entityId: row.key, message: "Bidang presensi ditambahkan.", after: row };
+}
+
 export interface SessionInput {
   sesi_id: string;
   nama: string;
   tanggal: string;
   jam_mulai: string;
   jam_selesai: string;
-  jenis: SessionType;
+  jenis: string;
   kelas_id: string;
   pengajar_id: string;
 }
@@ -465,9 +514,14 @@ export function saveSession(t: Tables, input: SessionInput, ctx: OperationContex
     if (!teaches) throw new AppError("Pengajar belum ditautkan ke kelas yang dipilih.");
   }
 
-  if (input.sesi_id) {
-    const { row, index, session } = sessionById(t, input.sesi_id);
-    if (!canManageSession(actor, session)) throw forbidden("Sesi ini bukan penugasan Anda.");
+  const existing = input.sesi_id ? sessionById(t, input.sesi_id) : null;
+  if (existing && !canManageSession(actor, existing.session)) throw forbidden("Sesi ini bukan penugasan Anda.");
+  if (input.jenis !== existing?.session.jenis && !sessionTypeOptions(t).some((option) => option.value === input.jenis)) {
+    throw new AppError("Pilih bidang yang tersedia di Presensi.");
+  }
+
+  if (existing) {
+    const { row, index, session } = existing;
     // Owner/admin boleh merapikan sesi yang sudah selesai (nama, jam, bidang); pengajar harus membukanya kembali.
     if (session.status === "SELESAI" && !isAdmin(actor)) throw new AppError("Sesi selesai tidak dapat diubah. Buka kembali bila perlu koreksi.", "CONFLICT", 409);
     if ((session.status === "AKTIF" || session.status === "SELESAI") && (input.kelas_id !== session.kelas_id || input.tanggal !== session.tanggal)) {

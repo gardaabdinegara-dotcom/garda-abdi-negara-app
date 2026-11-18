@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { masuk, masukCepat } from "@/app/actions/auth";
+import { AppInstallButton } from "@/components/app-install";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Wordmark } from "@/components/shell";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -62,6 +63,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
       <section className="welcome-access">
         <div className="welcome-top">
           <ThemeToggle />
+          <AppInstallButton />
         </div>
         <div className="welcome-access-inner">
           <div className="stack">

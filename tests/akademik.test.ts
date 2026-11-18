@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { describe, test } from "node:test";
 import {
+  addSessionType,
   approveAttendance,
   archiveTest,
   attendanceSummary,
@@ -21,6 +22,8 @@ import {
   saveReportNote,
   saveSession,
   saveTest,
+  sessionTypeLabel,
+  sessionTypeOptions,
   setSessionStatus,
   skdPasses,
   submitAssignment,
@@ -33,9 +36,10 @@ import {
   visibleSession,
   type TestInput,
 } from "../src/lib/core/akademik";
+import { sessionInput } from "../src/lib/core/akademik-input";
 import { createQrToken, readQrToken, rotatingQrToken } from "../src/lib/auth/qr";
 import { createEnrollment, createStudent, saveClass, saveProgram, setStudentActive, updateEnrollmentStatus } from "../src/lib/core/domain";
-import { toEnrollment, toStudent, type Actor, type User } from "../src/lib/core/types";
+import { toEnrollment, toStudent, type Actor, type Role, type User } from "../src/lib/core/types";
 import { studentInput } from "../src/lib/core/validation";
 import { runOperation, type OperationContext } from "../src/lib/data/coordinator";
 import { AppError, type Tables } from "../src/lib/data/types";
@@ -60,7 +64,7 @@ function linkRow(t: Tables, u: User, jenis: "SISWA" | "WALI" | "PENGAJAR_KELAS",
   return { ...row };
 }
 
-function account(t: Tables, peran: "OWNER" | "PENGAJAR" | "SISWA" | "WALI", links: { jenis: "SISWA" | "WALI" | "PENGAJAR_KELAS"; siswa_id?: string; kelas_id?: string }[] = []): Actor {
+function account(t: Tables, peran: Role, links: { jenis: "SISWA" | "WALI" | "PENGAJAR_KELAS"; siswa_id?: string; kelas_id?: string }[] = []): Actor {
   const u = putUser(t, user(peran));
   return { user: u, links: links.map((l) => linkRow(t, u, l.jenis, l)) };
 }
@@ -112,6 +116,38 @@ const test_ = (siswa_id: string, extra: Partial<TestInput>): TestInput => ({
 const reports = (t: Tables) => t.Rapor!.map(toReport);
 
 describe("sesi dan presensi", () => {
+  test("bidang bawaan ditampilkan dan bisa disimpan tanpa penyiapan spreadsheet", async () => {
+    const { t, owner } = await fixture();
+    const options = sessionTypeOptions(t);
+    assert.deepEqual(options.map(({ label }) => label), ["Akademik", "SKD", "Psikotes", "Fisik", "KESWA (Kesehatan Jiwa)", "MI (Mental Ideologi)", "ADIRAGA"]);
+    for (const { value, label } of options) {
+      const input = sessionInput.parse({ nama: "Latihan", tanggal: DAY, jam_mulai: "07:00", jam_selesai: "09:00", jenis: value });
+      const { entityId } = saveSession(t, input, ctx(), owner);
+      assert.equal(sessionTypeLabel(session(t, entityId).jenis), label);
+    }
+  });
+
+  test("admin dapat menambah bidang unik yang dipakai dalam sesi dan pengajar tidak dapat mengubah daftar", async () => {
+    const { t, owner, teacher } = await fixture();
+    const admin = account(t, "ADMIN");
+    rejects(() => addSessionType(t, "Wawancara", ctx(), teacher), "FORBIDDEN");
+    rejects(() => addSessionType(t, " keswa ", ctx(), admin), /sudah ada/);
+    rejects(() => addSessionType(t, "MI  (Mental Ideologi)", ctx(), owner), /sudah ada/);
+    addSessionType(t, "  Wawancara   Akhir  ", ctx(), admin);
+    rejects(() => addSessionType(t, "wawancara akhir", ctx(), owner), /sudah ada/);
+
+    const input = sessionInput.parse({ nama: "Latihan", tanggal: DAY, jam_mulai: "07:00", jam_selesai: "09:00", jenis: "Wawancara Akhir" });
+    const { entityId } = saveSession(t, input, ctx(), owner);
+    assert.equal(sessionTypeLabel(session(t, entityId).jenis), "Wawancara Akhir");
+    rejects(() => saveSession(t, { ...input, sesi_id: entityId, jenis: "Belum terdaftar" }, ctx(), owner), /bidang yang tersedia/);
+
+    // Sesi yang sudah tersimpan tetap bisa dirapikan meski bidang lamanya tidak ada di daftar.
+    const setting = t.Pengaturan!.pop();
+    assert.equal(setting?.value, "Wawancara Akhir");
+    saveSession(t, { ...input, sesi_id: entityId, nama: "Jadwal wawancara" }, ctx(), owner);
+    assert.equal(session(t, entityId).jenis, "Wawancara Akhir");
+  });
+
   test("pengajuan menunggu sampai disahkan, unik per sesi/siswa, dan sesi tidak bisa ditutup selama ada yang menunggu", async () => {
     const f = await fixture();
     setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);
