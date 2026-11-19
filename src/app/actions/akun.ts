@@ -10,7 +10,7 @@ import { AppError } from "@/lib/data/types";
 import { resetPin } from "@/lib/core/pin";
 import { linkInput, userCreateInput, userUpdateInput } from "@/lib/core/validation";
 import { failure, formObject, mutate, parse, success } from "@/lib/server/mutate";
-import { endSession, requireActor } from "@/lib/server/session";
+import { endSession, endUjiSiswa, getUjiSiswa, requireActor } from "@/lib/server/session";
 
 export async function buatAkun(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();
@@ -118,6 +118,10 @@ export async function cabutSesi(_prev: ActionState, formData: FormData): Promise
     return failure(error);
   }
   // Mencabut sesi sendiri berarti perangkat ini juga keluar.
+  if ((await getUjiSiswa())?.status === "aktif") {
+    await endUjiSiswa();
+    redirect("/pengaturan/pratinjau");
+  }
   await endSession();
   redirect("/masuk");
 }

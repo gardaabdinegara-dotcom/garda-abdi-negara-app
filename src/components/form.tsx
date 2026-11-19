@@ -2,6 +2,8 @@
 
 import { createContext, startTransition, useActionState, useContext, useEffect, useId, useRef, useState } from "react";
 import { initialActionState, type ActionState } from "@/lib/action-state";
+import { UJI_SISWA_FIELD } from "@/lib/core/uji-siswa";
+import { useUjiSiswaId } from "./uji-siswa-context";
 
 type ServerAction = (prev: ActionState, formData: FormData) => Promise<ActionState>;
 
@@ -31,6 +33,7 @@ export function ActionForm({
   feedback?: boolean;
 }) {
   const [state, dispatch, pending] = useActionState(action, initialActionState);
+  const testId = useUjiSiswaId();
   const [opId, setOpId] = useState(operationId);
   const formRef = useRef<HTMLFormElement>(null);
   const handled = useRef<number | undefined>(undefined);
@@ -56,6 +59,7 @@ export function ActionForm({
     <FormContext value={{ errors: state.errors ?? {}, pending }}>
       <form ref={formRef} method="post" className={className} onSubmit={onSubmit} noValidate>
         {opId ? <input type="hidden" name="operation_id" value={opId} /> : null}
+        {testId ? <input type="hidden" name={UJI_SISWA_FIELD} value={testId} /> : null}
         {children}
         {feedback ? <Feedback state={state} /> : null}
       </form>

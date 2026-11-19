@@ -2928,3 +2928,13 @@ table.data th.num {
 /* Banda mode pratinjau (data contoh) */
 .mode-banner-preview { background: var(--warning-soft, #fdeedd); color: var(--warning, #8a4b0a); font-weight: 600; }
 .mode-banner-preview a { color: inherit; text-decoration: underline; margin-left: 6px; }
+.uji-siswa-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 16px;
+}
+.uji-siswa-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.uji-siswa-actions .btn { min-height: 32px; }
+.uji-siswa-actions a.btn { color: var(--ink); margin: 0; text-decoration: none; }

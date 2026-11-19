@@ -1,12 +1,15 @@
 import "server-only";
+import { signFor } from "../auth/session";
 import { ZodError, type ZodType } from "zod";
 import type { ActionState } from "../action-state";
 import type { Actor } from "../core/types";
 import { fieldErrors } from "../core/validation";
+import { UJI_SISWA_FIELD } from "../core/uji-siswa";
 import { runOperation, type OperationContext, type OperationOutcome } from "../data/coordinator";
 import type { SpreadsheetKey } from "../data/schema";
 import { AppError, type Tables } from "../data/types";
 import { dataDeps } from "./data";
+import { matchUjiSiswaForm } from "./session";
 
 export function operationIdFrom(formData: FormData): string {
   return String(formData.get("operation_id") ?? "");
@@ -16,7 +19,7 @@ export function operationIdFrom(formData: FormData): string {
 export function formObject(formData: FormData, booleans: string[] = []): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [key, value] of formData.entries()) {
-    if (key.startsWith("$ACTION") || key === "operation_id") continue;
+    if (key.startsWith("$ACTION") || key === "operation_id" || key === UJI_SISWA_FIELD) continue;
     out[key] = typeof value === "string" ? value : "";
   }
   for (const key of booleans) out[key] = formData.get(key) === "on" || formData.get(key) === "true";
@@ -39,13 +42,18 @@ export async function mutate<T>(
     apply: (tables: Tables, ctx: OperationContext) => OperationOutcome<T>;
   },
 ) {
-  return runOperation<T>(await dataDeps(), {
+  const test = await matchUjiSiswaForm(options.formData);
+  const operationId = operationIdFrom(options.formData);
+  let sequence = 0;
+  return runOperation<T>(test?.source ?? await dataDeps(), {
     sheet: options.sheet ?? "inti",
-    operationId: operationIdFrom(options.formData),
+    operationId,
     actorId: actor.user.user_id,
     action: options.action,
     fingerprint: options.fingerprint,
     tables: options.tables,
+    // Jika dua pengiriman ulang tiba bersamaan di server berbeda, keduanya memakai ID hasil yang sama.
+    newId: test ? (prefix) => `${prefix}_${signFor("uji-siswa-id", `${test.id}:${operationId}:${prefix}:${++sequence}`).slice(0, 24)}` : undefined,
     apply: options.apply,
   });
 }

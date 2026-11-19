@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 import { localClock } from "../core/akademik";
 import type { User } from "../core/types";
@@ -7,7 +8,7 @@ import { MemoryGate, MemoryLimiter } from "../data/gate";
 import { MemoryStore } from "../data/memory-store";
 import { deps, type Deps } from "../deps";
 import { buildDemoData } from "../demo/data-contoh";
-import { getActor } from "./session";
+import { getActor, getUjiSiswa } from "./session";
 
 /** Cookie penanda mode pratinjau (data contoh). Hanya berlaku untuk akun owner/admin. */
 export const PRATINJAU_COOKIE = "rg_pratinjau";
@@ -48,6 +49,9 @@ export function resetDemo(): void {
  * selain itu spreadsheet lembaga. Login dan akun selalu memakai spreadsheet asli.
  */
 export const dataDeps = cache(async (): Promise<Deps> => {
+  const test = await getUjiSiswa();
+  if (test?.status === "aktif") return test.source;
+  if (test?.status === "berakhir") redirect("/uji-siswa/berakhir");
   const actor = await getActor();
   if (!actor || !canPreview(actor.user)) return deps();
   const on = (await cookies()).get(PRATINJAU_COOKIE)?.value === "1";
@@ -55,4 +59,4 @@ export const dataDeps = cache(async (): Promise<Deps> => {
 });
 
 /** Apakah request ini sedang memakai data contoh. */
-export const isPreview = cache(async (): Promise<boolean> => (await dataDeps()) !== deps());
+export const isPreview = cache(async (): Promise<boolean> => !(await getUjiSiswa()) && (await dataDeps()) !== deps());

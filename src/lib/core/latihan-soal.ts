@@ -2,6 +2,7 @@
 // perpindahan kolom/interval menurut waktu, dan ringkasan yang dikirim ke server.
 // Murni (tanpa DOM dan tanpa jam): waktu dan sumber acak selalu diberikan dari luar, jadi semuanya bisa diuji.
 import { JENIS_INFO, PRESET, SIMBOL, isDurasi, isJenis, jawabanPenjumlahan, type Bagian, type DurasiLatihan, type JenisLatihan } from "./latihan";
+import { UJI_SISWA_FIELD } from "./uji-siswa";
 
 /** Sumber acak 0 ≤ x < 1 (Math.random di HP, PRNG berbenih di tes). */
 export type Acak = () => number;
@@ -284,6 +285,7 @@ export interface KirimanLatihan {
   pemilik: string;
   /** Waktu latihan selesai (ISO). */
   dibuat: string;
+  uji_siswa?: string;
 }
 
 export function buatKiriman(input: {
@@ -293,6 +295,7 @@ export function buatKiriman(input: {
   mulai: string;
   pemilik: string;
   dibuat: string;
+  ujiSiswa?: string;
   ringkas: { seri: Bagian[]; detik: number };
 }): KirimanLatihan {
   return {
@@ -304,12 +307,13 @@ export function buatKiriman(input: {
     seri: input.ringkas.seri.map((b) => [b.benar, b.jawab]),
     pemilik: input.pemilik,
     dibuat: input.dibuat,
+    ...(input.ujiSiswa ? { uji_siswa: input.ujiSiswa } : {}),
   };
 }
 
 /** Isian FormData untuk Server Action simpanLatihan. */
 export function isiForm(k: KirimanLatihan): [string, string][] {
-  return [
+  const fields: [string, string][] = [
     ["operation_id", k.operation_id],
     ["jenis", k.jenis],
     ["durasi", k.durasi],
@@ -317,6 +321,8 @@ export function isiForm(k: KirimanLatihan): [string, string][] {
     ["detik", String(k.detik)],
     ["seri", JSON.stringify(k.seri)],
   ];
+  if (k.uji_siswa) fields.push([UJI_SISWA_FIELD, k.uji_siswa]);
+  return fields;
 }
 
 export const seriDariKiriman = (k: Pick<KirimanLatihan, "seri">): Bagian[] => k.seri.map(([benar, jawab]) => ({ benar, jawab }));
@@ -336,6 +342,7 @@ function kirimanSah(x: unknown): x is KirimanLatihan {
     Number.isInteger(k.detik) &&
     typeof k.pemilik === "string" &&
     typeof k.dibuat === "string" &&
+    (k.uji_siswa === undefined || (typeof k.uji_siswa === "string" && /^[a-f0-9]{32}$/.test(k.uji_siswa))) &&
     Array.isArray(k.seri) &&
     k.seri.length >= 1 &&
     k.seri.every((p) => Array.isArray(p) && p.length === 2 && p.every((v) => Number.isInteger(v) && v >= 0))

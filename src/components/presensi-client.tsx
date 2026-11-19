@@ -10,8 +10,10 @@ import { createContext, useCallback, useContext, useEffect, useId, useMemo, useR
 import { ajukanPresensi, catatPresensi, hapusSesi, sahkanPresensi, simpanSesi, ubahStatusSesi } from "@/app/actions/akademik";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { isLate, type AttendanceStatus, type SessionStatus } from "@/lib/core/akademik";
+import { UJI_SISWA_FIELD } from "@/lib/core/uji-siswa";
 import { initials } from "@/lib/format";
 import { ActionForm, SubmitButton } from "./form";
+import { useUjiSiswaId } from "./uji-siswa-context";
 import { addMinutes, fmtTime, nowTime, shortName } from "./presensi-format";
 import { PrIcon } from "./presensi-icons";
 
@@ -1065,6 +1067,7 @@ type BarcodeDetectorCtor = new (options: { formats: string[] }) => BarcodeDetect
 /** Tombol presensi siswa untuk sesi yang sedang dibuka. */
 export function StudentActions({ sesiId }: { sesiId: string }) {
   const router = useRouter();
+  const testId = useUjiSiswaId();
   const [sheet, setSheet] = useState<"scan" | "izin" | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -1073,7 +1076,7 @@ export function StudentActions({ sesiId }: { sesiId: string }) {
   const submit = (status: "HADIR" | "IZIN" | "SAKIT", catatan = "") =>
     new Promise<ActionState>((resolve) =>
       start(async () => {
-        const result = await run(ajukanPresensi, { sesi_id: sesiId, status_diajukan: status, catatan });
+        const result = await run(ajukanPresensi, { sesi_id: sesiId, status_diajukan: status, catatan, [UJI_SISWA_FIELD]: testId ?? "" });
         setMessage({ ok: result.ok, text: result.message });
         resolve(result);
       }),

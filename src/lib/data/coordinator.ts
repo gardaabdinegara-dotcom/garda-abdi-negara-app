@@ -36,6 +36,7 @@ export interface RunOptions<T> {
   /** Isi permintaan untuk sidik jari operasi. Jangan masukkan password atau rahasia lain. */
   fingerprint: unknown;
   tables: readonly string[];
+  newId?(prefix: string): string;
   apply(tables: Tables, ctx: OperationContext): OperationOutcome<T>;
 }
 
@@ -96,7 +97,7 @@ export async function runOperation<T>(deps: { store: Store; gate: Gate }, option
       actorId: options.actorId,
       now,
       operationId: options.operationId,
-      newId: (prefix) => `${prefix}_${randomUUID().replace(/-/g, "")}`,
+      newId: options.newId ?? ((prefix) => `${prefix}_${randomUUID().replace(/-/g, "")}`),
     };
     const outcome = options.apply(after, ctx);
     const stored: StoredOutcome<T> = { entityType: outcome.entityType, entityId: outcome.entityId, message: outcome.message, data: outcome.data };

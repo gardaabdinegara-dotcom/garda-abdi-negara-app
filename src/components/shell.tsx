@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { keluar } from "@/app/actions/auth";
+import { kembaliDariUjiSiswa } from "@/app/actions/uji-siswa";
 import { dataMode } from "@/lib/config";
 import { canManageStudents, menuFor } from "@/lib/core/permissions";
 import { ROLE_LABEL, type Actor } from "@/lib/core/types";
@@ -8,6 +9,7 @@ import { AppInstallButton } from "./app-install";
 import { Icon } from "./icon";
 import { BottomNav, SideNav } from "./nav";
 import { ThemeToggle } from "./theme-toggle";
+import { UjiSiswaBanner } from "./uji-siswa-banner";
 
 export function Wordmark() {
   return (
@@ -27,13 +29,13 @@ export function Wordmark() {
  * Kerangka halaman setelah masuk.
  * Desktop: menu samping + bar atas berisi pencarian. Tablet: menu ikon. Ponsel: bar atas ringkas + menu bawah.
  */
-export function Shell({ actor, preview = false, children }: { actor: Actor; preview?: boolean; children: React.ReactNode }) {
+export function Shell({ actor, preview = false, testId, children }: { actor: Actor; preview?: boolean; testId?: string; children: React.ReactNode }) {
   const items = menuFor(actor);
   const name = actor.user.nama;
   const short = initials(name);
   return (
     <div className="app-shell">
-      {preview ? (
+      {testId ? <UjiSiswaBanner id={testId} /> : preview ? (
         <div className="mode-banner mode-banner-preview">
           Mode pratinjau: data contoh, perubahan tidak masuk ke spreadsheet. <Link href="/pengaturan/pratinjau">Kembali ke data asli</Link>
         </div>
@@ -58,7 +60,7 @@ export function Shell({ actor, preview = false, children }: { actor: Actor; prev
               <small>{ROLE_LABEL[actor.user.peran]}</small>
             </span>
           </Link>
-          <form action={keluar}>
+          <form action={testId ? kembaliDariUjiSiswa.bind(null, testId) : keluar}>
             <button type="submit" className="icon-button" aria-label="Keluar" title="Keluar">
               <Icon name="logout" />
             </button>

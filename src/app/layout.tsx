@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
-import { nonce } from "@/lib/server/session";
+import { UjiSiswaContextProvider } from "@/components/uji-siswa-context";
+import { getUjiSiswa, nonce } from "@/lib/server/session";
 import "./globals.css";
 
 // Plus Jakarta Sans: huruf buatan Indonesia, jelas di layar kecil. Diunduh saat build lalu disajikan dari server sendiri.
@@ -56,7 +57,8 @@ if ("serviceWorker" in navigator) {
 `;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const scriptNonce = await nonce();
+  const [scriptNonce, test] = await Promise.all([nonce(), getUjiSiswa()]);
+  const testId = test?.status === "aktif" ? test.id : undefined;
   return (
     <html lang="id" data-color-mode="light" className={jakarta.variable} suppressHydrationWarning>
       <body>
@@ -66,7 +68,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Script id="ruang-garda-pwa" strategy="beforeInteractive" nonce={scriptNonce}>
           {PWA_SCRIPT}
         </Script>
-        {children}
+        <UjiSiswaContextProvider key={testId ?? "akun-asli"} id={testId}>
+          {children}
+        </UjiSiswaContextProvider>
       </body>
     </html>
   );

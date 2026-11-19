@@ -7,11 +7,12 @@ import { AttendanceBadge } from "@/components/akademik";
 import { ActionForm, SubmitButton } from "@/components/form";
 import { Wordmark } from "@/components/shell";
 import { Notice } from "@/components/ui";
+import { UjiSiswaBanner } from "@/components/uji-siswa-banner";
 import { readQrToken } from "@/lib/auth/qr";
 import { sessionTypeLabel } from "@/lib/core/akademik";
 import { formatDate } from "@/lib/format";
 import { loadQrSession } from "@/lib/server/akademik";
-import { getActor } from "@/lib/server/session";
+import { getActor, getUjiSiswa } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Presensi QR" };
 
@@ -25,13 +26,16 @@ export default async function QrPage({ searchParams }: { searchParams: Search })
   if (!actor) redirect(`/masuk?lanjut=${encodeURIComponent(`/qr-presensi?t=${value}`)}`);
   if (actor.user.wajib_ganti_password) redirect("/ganti-password");
 
-  const sesiId = readQrToken(value);
+  const test = await getUjiSiswa();
+  const testId = test?.status === "aktif" ? test.id : undefined;
+  const sesiId = readQrToken(value, Date.now(), testId);
   const data = sesiId && actor.user.peran === "SISWA" ? await loadQrSession(actor, sesiId) : null;
   const record = data?.record && data.record.status !== "KOSONG" ? data.record : null;
 
   return (
     <div className="standalone">
       <Wordmark />
+      {testId ? <UjiSiswaBanner id={testId} /> : null}
       <section className="card">
         <div className="card-head">
           <div>

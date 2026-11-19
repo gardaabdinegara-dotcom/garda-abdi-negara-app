@@ -10,19 +10,25 @@ import { DURASI_LABEL, hitungHasil, JENIS_INFO } from "@/lib/core/latihan";
 import { bacaTertunda, hapusTertunda, isiForm, KUNCI_TERTUNDA, seriDariKiriman, tambahTertunda, type KirimanLatihan } from "@/lib/core/latihan-soal";
 import { Icon } from "./icon";
 import { waktuLatihan } from "./latihan-hasil";
+import { useUjiSiswaId } from "./uji-siswa-context";
 
-function baca(): KirimanLatihan[] {
+const KUNCI_UJI = `${KUNCI_TERTUNDA}.uji-siswa`;
+
+function baca(testId?: string): KirimanLatihan[] {
   try {
-    return bacaTertunda(window.localStorage.getItem(KUNCI_TERTUNDA));
+    const storage = testId ? window.sessionStorage : window.localStorage;
+    return bacaTertunda(storage.getItem(testId ? KUNCI_UJI : KUNCI_TERTUNDA)).filter((k) => k.uji_siswa === testId);
   } catch {
     return [];
   }
 }
 
-function tulis(list: KirimanLatihan[]): boolean {
+function tulis(list: KirimanLatihan[], testId?: string): boolean {
   try {
-    if (list.length) window.localStorage.setItem(KUNCI_TERTUNDA, JSON.stringify(list));
-    else window.localStorage.removeItem(KUNCI_TERTUNDA);
+    const storage = testId ? window.sessionStorage : window.localStorage;
+    const key = testId ? KUNCI_UJI : KUNCI_TERTUNDA;
+    if (list.length) storage.setItem(key, JSON.stringify(list));
+    else storage.removeItem(key);
     return true;
   } catch {
     return false;
@@ -30,9 +36,9 @@ function tulis(list: KirimanLatihan[]): boolean {
 }
 
 /** Menyimpan kiriman di HP. False bila penyimpanan HP tidak tersedia (mis. mode privat). */
-export const simpanTertunda = (k: KirimanLatihan) => tulis(tambahTertunda(baca(), k));
-export const buangTertunda = (operationId: string) => void tulis(hapusTertunda(baca(), operationId));
-export const daftarTertunda = (pemilik: string) => baca().filter((k) => k.pemilik === pemilik);
+export const simpanTertunda = (k: KirimanLatihan) => tulis(tambahTertunda(baca(k.uji_siswa), k), k.uji_siswa);
+const buangTertunda = (k: KirimanLatihan) => tulis(hapusTertunda(baca(k.uji_siswa), k.operation_id), k.uji_siswa);
+const daftarTertunda = (pemilik: string, testId?: string) => baca(testId).filter((k) => k.pemilik === pemilik);
 
 /** Pengalihan dari Server Action (redirect ke halaman hasil) berarti hasil sudah tersimpan. */
 function alamatPengalihan(error: unknown): string | null {
@@ -54,14 +60,14 @@ export async function kirimLatihan(k: KirimanLatihan): Promise<HasilKirim> {
   try {
     const result = await simpanLatihan(initialActionState, data);
     if (result.ok) {
-      buangTertunda(k.operation_id);
+      buangTertunda(k);
       return { ok: true, alamat: "/latihan" };
     }
     return { ok: false, message: result.message || "Hasil belum tersimpan. Coba lagi." };
   } catch (error) {
     const alamat = alamatPengalihan(error);
     if (alamat) {
-      buangTertunda(k.operation_id);
+      buangTertunda(k);
       return { ok: true, alamat };
     }
     return { ok: false, message: "Koneksi terputus. Periksa internet lalu coba lagi." };
@@ -70,13 +76,14 @@ export async function kirimLatihan(k: KirimanLatihan): Promise<HasilKirim> {
 
 /** Kartu di menu Latihan: hasil yang belum terkirim dari HP ini, dengan tombol kirim dan buang. */
 export function KirimTertunda({ pemilik }: { pemilik: string }) {
+  const testId = useUjiSiswaId();
   const [list, setList] = useState<KirimanLatihan[]>([]);
   const [kirim, setKirim] = useState<string | null>(null);
   const [pesan, setPesan] = useState<string>("");
 
   useEffect(() => {
-    setList(daftarTertunda(pemilik));
-  }, [pemilik]);
+    setList(daftarTertunda(pemilik, testId));
+  }, [pemilik, testId]);
 
   if (list.length === 0) return null;
 
@@ -94,8 +101,8 @@ export function KirimTertunda({ pemilik }: { pemilik: string }) {
 
   const buang = (k: KirimanLatihan) => {
     if (!window.confirm(`Buang hasil ${JENIS_INFO[k.jenis].nama} ini? Hasil yang dibuang tidak bisa dikirim lagi.`)) return;
-    buangTertunda(k.operation_id);
-    setList(daftarTertunda(pemilik));
+    buangTertunda(k);
+    setList(daftarTertunda(pemilik, testId));
   };
 
   return (
@@ -106,7 +113,7 @@ export function KirimTertunda({ pemilik }: { pemilik: string }) {
         </span>
         <div>
           <h2 id="lt-tunda-h">{list.length === 1 ? "1 hasil belum terkirim" : `${list.length} hasil belum terkirim`}</h2>
-          <p className="lt-sub">Tersimpan di HP ini. Kirim agar masuk ke progres dan terlihat pelatih.</p>
+          <p className="lt-sub">{testId ? "Tersimpan di tab ini. Kirim untuk menambahkan hasil ke progres uji." : "Tersimpan di HP ini. Kirim agar masuk ke progres dan terlihat pelatih."}</p>
         </div>
       </div>
       <ul className="lt-tunda-list">

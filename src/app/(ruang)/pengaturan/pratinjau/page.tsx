@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { aturUlangPratinjau, matikanPratinjau, nyalakanPratinjau } from "@/app/actions/pratinjau";
+import { mulaiUjiSiswa } from "@/app/actions/uji-siswa";
 import { Notice, PageHead } from "@/components/ui";
 import { isPreview } from "@/lib/server/data";
 import { requireActor } from "@/lib/server/session";
@@ -19,6 +20,18 @@ export default async function PreviewPage() {
         description="Lihat semua fitur berjalan dengan data contoh, tanpa menyentuh data asli di spreadsheet."
       />
       <SettingsTabs current="pratinjau" owner={actor.user.peran === "OWNER"} />
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <h2>Mode Uji Siswa</h2>
+            <p>Buka menu siswa dengan akun fiktif untuk mencoba presensi, latihan, hasil Samapta, dan ganti PIN.</p>
+          </div>
+        </div>
+        <p className="muted">Aktivitas uji tersimpan sementara di browser ini hingga 4 jam atau sampai Anda kembali ke akun staf.</p>
+        <form action={mulaiUjiSiswa}>
+          <button type="submit" className="btn">Coba sebagai siswa</button>
+        </form>
+      </section>
       {on ? <Notice tone="warning">Mode pratinjau sedang aktif. Semua yang tampil dan semua perubahan memakai data contoh.</Notice> : null}
       <div className="grid-main">
         <section className="card">

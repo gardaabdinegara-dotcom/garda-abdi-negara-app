@@ -28,6 +28,7 @@ import {
 import { Icon } from "./icon";
 import { IKON_LATIHAN, LatihanHasil, type DataHasil } from "./latihan-hasil";
 import { kirimLatihan, simpanTertunda } from "./latihan-tertunda";
+import { useUjiSiswaId } from "./uji-siswa-context";
 
 /** Simbol ditampilkan sebagai teks (bukan emoji berwarna) agar sama di semua HP. */
 const tampil = (x: string) => (/^[0-9]$/.test(x) ? x : `${x}︎`);
@@ -190,6 +191,7 @@ function Baris({ r }: { r: BarisDeret }) {
 function Mesin({ awal, coba, aba, onSelesai }: { awal: Mulai; coba: boolean; aba: React.RefObject<Aba>; onSelesai: (sesi: Sesi, lewatMs: number) => void }) {
   const jenis = awal.sesi.jenis;
   const info = JENIS_INFO[jenis];
+  const testId = useUjiSiswaId();
   const Satuan = info.bagian === "kolom" ? "Kolom" : "Interval";
   const [sesi, setSesi] = useState(awal.sesi);
   const ref = useRef(awal.sesi);
@@ -368,7 +370,7 @@ function Mesin({ awal, coba, aba, onSelesai }: { awal: Mulai; coba: boolean; aba
           <b>{info.nama}</b>
           <small className="n">Dijawab {sesi.dijawab} · jangan keluar dari layar</small>
         </div>
-        {coba ? <span className="badge badge-warning">Mode coba</span> : null}
+        {coba || testId ? <span className="badge badge-warning">{testId ? "Mode Uji Siswa" : "Mode coba"}</span> : null}
       </header>
       <div className="kj-hud">
         <div className="kj-time" role="timer" aria-live="off">
@@ -455,6 +457,7 @@ export function KerjakanLatihan({
   coba,
   pemilik,
   kembali,
+  modeBanner,
 }: {
   jenis: JenisLatihan;
   durasiAwal: DurasiLatihan;
@@ -463,8 +466,10 @@ export function KerjakanLatihan({
   /** siswa_id pemilik hasil (kosong di mode coba). */
   pemilik: string;
   kembali: string;
+  modeBanner?: React.ReactNode;
 }) {
   const info = JENIS_INFO[jenis];
+  const testId = useUjiSiswaId();
   const [fase, setFase] = useState<"siap" | "jalan" | "hasil">("siap");
   const [durasi, setDurasi] = useState(durasiAwal);
   const [suara, setSuara] = useState(true);
@@ -548,14 +553,14 @@ export function KerjakanLatihan({
         setFase("hasil");
         return;
       }
-      const kiriman = buatKiriman({ operationId: idOperasi(), jenis, durasi: sesi.durasi, mulai: awal.mulai, pemilik, dibuat: new Date().toISOString(), ringkas });
+      const kiriman = buatKiriman({ operationId: idOperasi(), jenis, durasi: sesi.durasi, mulai: awal.mulai, pemilik, dibuat: new Date().toISOString(), ujiSiswa: testId, ringkas });
       // Ditulis ke HP dulu: bila pengiriman terputus atau layar tertutup, hasil masih bisa dikirim dari menu.
       simpanTertunda(kiriman);
       setHasil({ data, kiriman });
       setFase("hasil");
       kirim(kiriman);
     },
-    [awal, coba, jenis, kirim, pemilik],
+    [awal, coba, jenis, kirim, pemilik, testId],
   );
 
   // Selama hasil sedang dikirim, tanya dulu sebelum halaman ditutup.
@@ -589,7 +594,7 @@ export function KerjakanLatihan({
           <p>
             <b>Hasil belum tersimpan.</b> {simpan.pesan}
           </p>
-          <p>Hasil ini disimpan sementara di HP ini dan bisa dikirim lagi nanti dari menu Latihan.</p>
+          <p>{testId ? "Kirim ulang dari tab ini selama sesi uji masih aktif." : "Hasil ini disimpan sementara di HP ini dan bisa dikirim lagi nanti dari menu Latihan."}</p>
           {k ? (
             <button type="button" className="btn btn-sm" onClick={() => kirim(k)}>
               Simpan ulang
@@ -622,6 +627,7 @@ export function KerjakanLatihan({
     );
     return (
       <div className="kj-layar">
+        {modeBanner}
         <header className="kj-top">
           <Link className="kj-back" href={kembali} aria-label="Kembali ke menu latihan">
             <Icon name="back" />
@@ -642,6 +648,7 @@ export function KerjakanLatihan({
 
   return (
     <div className="kj-layar">
+      {modeBanner}
       <header className="kj-top">
         <Link className="kj-back" href={kembali} aria-label="Kembali ke menu latihan">
           <Icon name="back" />

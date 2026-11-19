@@ -3,18 +3,20 @@ import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { cabutSesi } from "@/app/actions/akun";
 import { keluar } from "@/app/actions/auth";
+import { kembaliDariUjiSiswa } from "@/app/actions/uji-siswa";
 import { ActionForm, SubmitButton } from "@/components/form";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, Empty, PageHead, RoleBadge } from "@/components/ui";
 import { financeAccess } from "@/lib/core/permissions";
 import { FINANCE_ACCESS_LABEL } from "@/lib/core/types";
 import { loadOverview } from "@/lib/server/queries";
-import { requireActor } from "@/lib/server/session";
+import { getUjiSiswa, requireActor } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Akun saya" };
 
 export default async function MyAccountPage() {
   const actor = await requireActor();
+  const test = await getUjiSiswa();
   const overview = await loadOverview(actor);
   const { user } = actor;
   const role = user.peran;
@@ -124,7 +126,7 @@ export default async function MyAccountPage() {
               <ThemeToggle withLabel />
             </div>
           </section>
-          <form action={keluar}>
+          <form action={test?.status === "aktif" ? kembaliDariUjiSiswa.bind(null, test.id) : keluar}>
             <button type="submit" className="btn btn-secondary btn-block">
               Keluar
             </button>

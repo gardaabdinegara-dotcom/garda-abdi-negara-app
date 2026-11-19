@@ -3,10 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { KerjakanLatihan } from "@/components/latihan-kerja";
 import { Wordmark } from "@/components/shell";
+import { UjiSiswaBanner } from "@/components/uji-siswa-banner";
 import { isDurasi, isJenis, JENIS_INFO } from "@/lib/core/latihan";
 import { linkedStudentIds } from "@/lib/core/types";
 import { canSeeAllLatihan } from "@/lib/server/latihan";
-import { requireActor } from "@/lib/server/session";
+import { getUjiSiswa, requireActor } from "@/lib/server/session";
 
 type Params = Promise<{ jenis: string }>;
 type Search = Promise<Record<string, string | string[] | undefined>>;
@@ -52,5 +53,15 @@ export default async function KerjakanPage({ params, searchParams }: { params: P
     );
   }
 
-  return <KerjakanLatihan jenis={jenis} durasiAwal={durasi} coba={coba} pemilik={siswaId} kembali={coba ? "/latihan/coba" : "/latihan"} />;
+  const test = await getUjiSiswa();
+  return (
+    <KerjakanLatihan
+      jenis={jenis}
+      durasiAwal={durasi}
+      coba={coba}
+      pemilik={siswaId}
+      kembali={coba ? "/latihan/coba" : "/latihan"}
+      modeBanner={test?.status === "aktif" ? <UjiSiswaBanner id={test.id} /> : undefined}
+    />
+  );
 }

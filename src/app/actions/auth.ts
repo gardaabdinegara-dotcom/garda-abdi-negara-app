@@ -11,16 +11,24 @@ import { pinProblem, setFirstPin } from "@/lib/core/pin";
 import { pinSetupTarget } from "@/lib/server/pin";
 import { canViewFinance } from "@/lib/core/permissions";
 import { toUser } from "@/lib/core/types";
+import { UJI_SISWA_FIELD } from "@/lib/core/uji-siswa";
 import { passwordProblem } from "@/lib/core/validation";
 import { runOperation } from "@/lib/data/coordinator";
 import { AppError } from "@/lib/data/types";
 import { deps } from "@/lib/deps";
 import { failure } from "@/lib/server/mutate";
-import { clientIp, endSession, requireActor, safeNext, startSession } from "@/lib/server/session";
+import { clientIp, endSession, getLogin, getUjiSiswa, matchUjiSiswaForm, requireActor, safeNext, startSession } from "@/lib/server/session";
+
+async function requireLiveLoginForm(formData: FormData): Promise<void> {
+  if (formData.has(UJI_SISWA_FIELD) || ((await getUjiSiswa()) && (await getLogin()))) {
+    throw new AppError("Akhiri Mode Uji Siswa sebelum masuk atau membuat PIN akun asli.");
+  }
+}
 
 export async function masuk(_prev: ActionState, formData: FormData): Promise<ActionState> {
   let target = "/beranda";
   try {
+    await requireLiveLoginForm(formData);
     const username = String(formData.get("username") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     // Siswa yang belum punya PIN cukup mengisi username, lalu diarahkan membuat PIN.
@@ -43,6 +51,7 @@ export async function masuk(_prev: ActionState, formData: FormData): Promise<Act
 /** Masuk tanpa password, khusus uji coba lokal (lihat quickLoginAllowed). */
 export async function masukCepat(formData: FormData): Promise<void> {
   if (!quickLoginAllowed()) redirect("/masuk");
+  if ((await getUjiSiswa()) && (await getLogin())) redirect("/beranda");
   const userId = String(formData.get("user_id") ?? "");
   const tables = await deps().store.read("inti", ["Pengguna"]);
   const user = (tables.Pengguna ?? []).map(toUser).find((u) => u.user_id === userId && u.aktif);
@@ -55,6 +64,7 @@ export async function masukCepat(formData: FormData): Promise<void> {
 export async function buatPin(_prev: ActionState, formData: FormData): Promise<ActionState> {
   let target = "/beranda";
   try {
+    await requireLiveLoginForm(formData);
     const username = String(formData.get("username") ?? "").trim().toLowerCase();
     const pin = String(formData.get("pin") ?? "");
     const repeat = String(formData.get("pin_ulang") ?? "");
@@ -83,6 +93,7 @@ export async function buatPin(_prev: ActionState, formData: FormData): Promise<A
 }
 
 export async function keluar(): Promise<void> {
+  if ((await getUjiSiswa()) && (await getLogin())) redirect("/beranda");
   await endSession();
   redirect("/masuk");
 }
@@ -90,6 +101,7 @@ export async function keluar(): Promise<void> {
 export async function gantiPassword(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor({ allowPasswordChange: true });
   try {
+    const test = await matchUjiSiswaForm(formData);
     const current = String(formData.get("password_lama") ?? "");
     const next = String(formData.get("password_baru") ?? "");
     const repeat = String(formData.get("password_ulang") ?? "");
@@ -103,7 +115,7 @@ export async function gantiPassword(_prev: ActionState, formData: FormData): Pro
     if (next !== repeat) return { ok: false, message: `Ulangi ${word} tidak sama.`, errors: { password_ulang: `Tidak sama dengan ${word} baru.` }, at: Date.now() };
     if (next === current) return { ok: false, message: `${word} baru harus berbeda.`, errors: { password_baru: "Harus berbeda dari yang sekarang." }, at: Date.now() };
     const passwordHash = await hashPassword(next);
-    const result = await runOperation<{ versi: number }>(deps(), {
+    const result = await runOperation<{ versi: number }>(test?.source ?? deps(), {
       sheet: "inti",
       operationId: String(formData.get("operation_id") ?? randomUUID()),
       actorId: actor.user.user_id,
@@ -115,7 +127,7 @@ export async function gantiPassword(_prev: ActionState, formData: FormData): Pro
     const versi = result.outcome.data?.versi;
     if (typeof versi !== "number") throw new AppError("Password sudah diganti sebelumnya. Silakan masuk ulang.", "REPLAYED", 409);
     // Sesi lain ikut berakhir; sesi di perangkat ini diterbitkan ulang dengan versi baru.
-    await startSession({ user_id: actor.user.user_id, versi_otorisasi: versi });
+    if (!test) await startSession({ user_id: actor.user.user_id, versi_otorisasi: versi });
   } catch (error) {
     return failure(error);
   }

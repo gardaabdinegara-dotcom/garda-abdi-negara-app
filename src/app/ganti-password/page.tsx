@@ -4,14 +4,19 @@ import { randomUUID } from "node:crypto";
 import { gantiPassword, keluar } from "@/app/actions/auth";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Wordmark } from "@/components/shell";
+import { UjiSiswaBanner } from "@/components/uji-siswa-banner";
 import { PIN_LENGTH } from "@/lib/core/pin";
-import { requireActor } from "@/lib/server/session";
+import { PIN_SISWA_UJI } from "@/lib/demo/siswa-uji";
+import { getUjiSiswa, requireActor } from "@/lib/server/session";
 
 export const metadata: Metadata = { title: "Ganti password" };
 
 export default async function ChangePasswordPage() {
   const actor = await requireActor({ allowPasswordChange: true });
-  if (actor.user.peran === "SISWA") return <ChangePin />;
+  if (actor.user.peran === "SISWA") {
+    const test = await getUjiSiswa();
+    return <ChangePin testId={test?.status === "aktif" ? test.id : undefined} initial={actor.user.versi_otorisasi === 1} />;
+  }
   const forced = actor.user.wajib_ganti_password;
 
   return (
@@ -60,15 +65,17 @@ export default async function ChangePasswordPage() {
 }
 
 /** Siswa mengganti PIN 6 angka; memakai aksi yang sama (kolom password_* berisi PIN). */
-function ChangePin() {
+function ChangePin({ testId, initial }: { testId?: string; initial: boolean }) {
   return (
     <div className="standalone">
       <Wordmark />
+      {testId ? <UjiSiswaBanner id={testId} /> : null}
       <section className="card">
         <div className="card-head">
           <div>
             <h2>Ganti PIN</h2>
-            <p>Perangkat lain akan otomatis keluar setelah PIN diganti.</p>
+            <p>{testId ? "Perubahan PIN berlaku untuk Siswa Uji dalam sesi ini." : "Perangkat lain akan otomatis keluar setelah PIN diganti."}</p>
+            {testId && initial ? <p>PIN awal akun uji adalah <b>{PIN_SISWA_UJI}</b>.</p> : null}
           </div>
         </div>
         <ActionForm action={gantiPassword} operationId={randomUUID()} className="stack">

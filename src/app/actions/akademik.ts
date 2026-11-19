@@ -37,7 +37,7 @@ import {
 } from "@/lib/core/akademik-input";
 import { AppError } from "@/lib/data/types";
 import { failure, formObject, mutate, parse, success } from "@/lib/server/mutate";
-import { requireActor } from "@/lib/server/session";
+import { matchUjiSiswaForm, requireActor } from "@/lib/server/session";
 
 const SESSION_TABLES = ["Pengaturan", "Siswa", "Pendaftaran", "Sesi", "Presensi"] as const;
 const TASK_TABLES = ["Pengaturan", "Siswa", "Pendaftaran", "Tugas", "Pengumpulan"] as const;
@@ -142,7 +142,8 @@ export async function ajukanPresensi(_prev: ActionState, formData: FormData): Pr
 export async function ajukanPresensiQr(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();
   try {
-    const sesiId = readQrToken(String(formData.get("qr") ?? ""));
+    const test = await matchUjiSiswaForm(formData);
+    const sesiId = readQrToken(String(formData.get("qr") ?? ""), Date.now(), test?.id);
     if (!sesiId) throw new AppError("QR sudah kedaluwarsa atau tidak sah. Pindai ulang QR yang ditampilkan pengajar.");
     const input = { sesi_id: sesiId, status_diajukan: "HADIR" as const, catatan: "" };
     const result = await mutate(actor, {
