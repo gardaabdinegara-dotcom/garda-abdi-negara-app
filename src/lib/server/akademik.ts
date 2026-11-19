@@ -42,6 +42,7 @@ import {
   type Submission,
   type TestResult,
 } from "../core/akademik";
+import { filterPresensi, susunDashboardPresensi, type RekapPresensiSiswa } from "../core/presensi-ringkasan";
 import { linkedStudentIds, taughtClassIds, toClass, toEnrollment, toLink, toStudent, toUser, type Actor, type ClassGroup, type Enrollment, type Student } from "../core/types";
 import { str } from "../data/rows";
 import type { Tables } from "../data/types";
@@ -154,15 +155,10 @@ export interface SessionWorkspace {
   roster: RosterRow[];
 }
 
-export interface RecapRow {
-  student: Student;
-  summary: AttendanceSummary;
-}
-
 export interface MonthlyRecap {
   periode: string;
   /** Urut dari persentase terendah; siswa tanpa sesi selesai di akhir. */
-  rows: RecapRow[];
+  rows: RekapPresensiSiswa[];
   /** Rata-rata tertimbang (total hadir / total sesi peserta). */
   average: number | null;
   /** Jumlah siswa di bawah batas cukup (75%). */
@@ -225,10 +221,10 @@ function monthlyRecap(
 
 /**
  * Data layar Presensi.
- * Staf: sesi hari ini (strip), sesi terpilih beserta daftar hadir, jadwal per tanggal, dan rekap bulanan.
+ * Staf: layar operasional presensi atau ringkasan kehadiran per rentang tanggal.
  * Siswa/wali: sesi hari ini, rekap bulan ini, dan riwayat.
  */
-export async function loadPresensi(actor: Actor, params: { sesi?: unknown; tanggal?: unknown; bulan?: unknown }) {
+export async function loadPresensi(actor: Actor, params: Record<string, string | string[] | undefined>) {
   const t = await read(SCHEDULE_TABLES);
   const clock = clockOf(t);
   const { students, enrollments, classes, className } = base(t);
@@ -238,6 +234,22 @@ export async function loadPresensi(actor: Actor, params: { sesi?: unknown; tangg
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
 
   if (isAcademicStaff(actor)) {
+    const options = {
+      sessionTypes: sessionTypeOptions(t),
+      classes: creatableClasses(actor, classes),
+      teachers: actor.user.peran === "PENGAJAR" ? [] : teacherOptions(t),
+    };
+    if (params.tab === "ringkasan") {
+      const filter = filterPresensi(clock.today, { periode: params.periode, dari: params.dari, sampai: params.sampai });
+      return {
+        kind: "overview" as const,
+        clock,
+        ...options,
+        filter,
+        ringkasan: susunDashboardPresensi(filter, visible, records, students),
+      };
+    }
+
     const cards = (list: Session[]) => sessionCards(actor, t, list, attendance);
     const today = visible.filter((s) => s.tanggal === clock.today).sort(byTime);
     const future = visible.filter((s) => s.tanggal > clock.today && s.status !== "DIBATALKAN").sort(byTime);
@@ -267,9 +279,7 @@ export async function loadPresensi(actor: Actor, params: { sesi?: unknown; tangg
         previous: cards(visible.filter((s) => s.tanggal < date).sort((a, b) => byTime(b, a)).slice(0, 6)),
       },
       recap: monthlyRecap(actor, students, enrollments, sessions, records, periode, visible),
-      sessionTypes: sessionTypeOptions(t),
-      classes: creatableClasses(actor, classes),
-      teachers: actor.user.peran === "PENGAJAR" ? [] : teacherOptions(t),
+      ...options,
     };
   }
 

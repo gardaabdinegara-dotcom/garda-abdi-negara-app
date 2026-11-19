@@ -2,6 +2,7 @@
 // server membaca tab Latihan_Psikotes lalu memanggil fungsi di sini.
 import { JENIS_LATIHAN, type DurasiLatihan, type JenisLatihan } from "./latihan";
 import type { Latihan } from "./latihan-simpan";
+import { median, ringkasPerubahanSiswa, type PerbandinganSiswa } from "./perubahan-siswa";
 import type { Student } from "./types";
 
 const HARI_MS = 86_400_000;
@@ -130,6 +131,7 @@ export interface RekapLatihan {
   mulaiPeriode: string;
   hariIni: string;
   interval: IntervalRekap[];
+  perbandingan: PerbandinganSiswa | null;
   contohSkor: Pick<Latihan, "jenis" | "durasi"> | null;
   fokus: FokusRekap | null;
 }
@@ -159,12 +161,6 @@ function latihanSebelumnya(riwayat: readonly Latihan[], terakhir: Latihan): Lati
   return riwayat.find((l, i) => i > pos && l.jenis === terakhir.jenis && l.durasi === terakhir.durasi) ?? null;
 }
 
-function median(values: Iterable<number>): number | null {
-  const urut = [...values].sort((a, b) => a - b);
-  if (!urut.length) return null;
-  return (urut[Math.floor((urut.length - 1) / 2)]! + urut[Math.floor(urut.length / 2)]!) / 2;
-}
-
 const URUT_TANDA = { turun: 0, lama: 1, belum: 2, "": 3 };
 const LEBAR_INTERVAL: Record<PeriodeRekap, number> = { 7: 1, 30: 5, 90: 10 };
 
@@ -177,6 +173,10 @@ export function rekapDari(
   siswaId?: string,
 ): RekapLatihan {
   const mulaiPeriode = geserHari(hariIni, 1 - filter.periode);
+  const pembanding = filter.jenis && filter.durasi
+    ? { dari: geserHari(mulaiPeriode, -filter.periode), sampai: geserHari(mulaiPeriode, -1) }
+    : null;
+  const selisihSkor: number[] = [];
   const lebar = LEBAR_INTERVAL[filter.periode];
   const kelompok = Array.from({ length: filter.periode / lebar }, (_, i) => ({
     dari: geserHari(mulaiPeriode, i * lebar),
@@ -208,6 +208,10 @@ export function rekapDari(
     if (terakhir) {
       siswaBerlatih++;
       if (!contohSkor || urutTerbaru(terakhir, contohSkor) < 0) contohSkor = terakhir;
+      if (pembanding) {
+        const skorSebelumnya = riwayat.find((l) => l.tanggal >= pembanding.dari && l.tanggal <= pembanding.sampai && cocok(l));
+        if (skorSebelumnya) selisihSkor.push(terakhir.skor - skorSebelumnya.skor);
+      }
     }
     sesiSelesai += sesi.length;
     baris.push({ student, sesi: sesi.length, terakhir, tren, hariSejak, tanda });
@@ -238,8 +242,9 @@ export function rekapDari(
     interval: kelompok.map(({ dari, sampai, sesi, skorTerbaru }) => ({
       dari, sampai, sesi,
       siswa: skorTerbaru.size,
-      medianSkor: filter.jenis && filter.durasi ? median(skorTerbaru.values()) : null,
+      medianSkor: pembanding ? median(skorTerbaru.values()) : null,
     })),
+    perbandingan: pembanding ? ringkasPerubahanSiswa(pembanding, selisihSkor) : null,
     contohSkor: contohSkor ? { jenis: contohSkor.jenis, durasi: contohSkor.durasi } : null,
     fokus,
   };

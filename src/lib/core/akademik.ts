@@ -700,6 +700,27 @@ export interface AttendanceSummary {
   persen: number | null;
 }
 
+export type AttendanceCounts = Omit<AttendanceSummary, "persen">;
+
+export function emptyAttendanceCounts(): AttendanceCounts {
+  return { total: 0, hadir: 0, terlambat: 0, izin: 0, sakit: 0, alfa: 0 };
+}
+
+/** Satu peserta pada sesi selesai. Catatan kosong dihitung alfa. */
+export function countCompletedAttendance(counts: AttendanceCounts, record: Attendance | undefined) {
+  counts.total += 1;
+  if (record?.status === "HADIR") {
+    counts.hadir += 1;
+    if (record.terlambat) counts.terlambat += 1;
+  } else if (record?.status === "IZIN") counts.izin += 1;
+  else if (record?.status === "SAKIT") counts.sakit += 1;
+  else counts.alfa += 1;
+}
+
+export function summarizeAttendance(counts: AttendanceCounts): AttendanceSummary {
+  return { ...counts, persen: counts.total ? (counts.hadir / counts.total) * 100 : null };
+}
+
 export interface TrendPoint {
   tanggal: string;
   hadir: number;
@@ -732,20 +753,12 @@ export function attendanceTrend(sessions: readonly Session[], attendance: Readon
 
 /** Rekap kehadiran satu siswa dari sesi yang sudah selesai pada periode (YYYY-MM). Tanpa catatan = alfa. */
 export function attendanceSummary(siswaId: string, sessions: readonly Session[], attendance: ReadonlyMap<string, Attendance>, periode: string): AttendanceSummary {
-  const out: AttendanceSummary = { total: 0, hadir: 0, terlambat: 0, izin: 0, sakit: 0, alfa: 0, persen: null };
+  const counts = emptyAttendanceCounts();
   for (const session of sessions) {
     if (session.status !== "SELESAI" || !session.tanggal.startsWith(periode) || !session.peserta_ids.includes(siswaId)) continue;
-    out.total += 1;
-    const record = attendance.get(`${session.sesi_id}:${siswaId}`);
-    if (record?.status === "HADIR") {
-      out.hadir += 1;
-      if (record.terlambat) out.terlambat += 1;
-    } else if (record?.status === "IZIN") out.izin += 1;
-    else if (record?.status === "SAKIT") out.sakit += 1;
-    else out.alfa += 1;
+    countCompletedAttendance(counts, attendance.get(`${session.sesi_id}:${siswaId}`));
   }
-  out.persen = out.total ? (out.hadir / out.total) * 100 : null;
-  return out;
+  return summarizeAttendance(counts);
 }
 
 export function disciplineLabel(persen: number | null): string {

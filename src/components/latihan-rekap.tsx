@@ -14,7 +14,8 @@ import { rekapHref, type PilihanRekap } from "@/lib/latihan-rekap-route";
 import { Icon } from "./icon";
 import { ASPEK, HariSejak, TandaBadge, TrenPill, tanggalPendek } from "./latihan-progres";
 import { RekapFilter } from "./latihan-progres-filter";
-import { GrafikRekap, type TitikRekap } from "./latihan-rekap-chart";
+import { GrafikRekap, type TitikRekap } from "./grafik-rekap";
+import { PerubahanSiswaCard } from "./perubahan-siswa";
 import { Empty, PageHead } from "./ui";
 
 const angka = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
@@ -71,7 +72,7 @@ function GrafikKelompok({ rekap, pilihan }: RekapProps) {
           Gunakan filter di atas untuk melihat tren skor yang sebanding.
         </Empty>
       ) : rekap.sesiSelesai > 0 ? (
-        <GrafikRekap key={`${pilihan.grafik}-${pilihan.periode}-${pilihan.jenis}-${pilihan.durasi}`} mode={pilihan.grafik} titik={titik} label={grafikJudul} />
+        <GrafikRekap key={`${pilihan.grafik}-${pilihan.periode}-${pilihan.jenis}-${pilihan.durasi}`} mode={skor ? "garis" : "batang"} titik={titik} label={grafikJudul} />
       ) : (
         <Empty title={skor ? "Belum ada skor pada periode ini" : "Belum ada sesi pada periode ini"}>
           Ubah periode, jenis latihan, atau durasi.
@@ -135,7 +136,7 @@ function DetailSiswa({ fokus, pilihan, rekap }: RekapProps & { fokus: FokusRekap
           </Link>
         </div>
         {titik.length ? (
-          <GrafikRekap key={`${student.siswa_id}-${jenis}-${durasi}-${pilihan.periode}`} mode="skor" titik={titik} label={`Tren skor ${student.nama}`} />
+          <GrafikRekap key={`${student.siswa_id}-${jenis}-${durasi}-${pilihan.periode}`} mode="garis" titik={titik} label={`Tren skor ${student.nama}`} />
         ) : (
           <Empty title="Belum ada sesi pada periode ini">Ubah filter untuk melihat latihan siswa ini.</Empty>
         )}
@@ -262,7 +263,7 @@ export function RekapLatihanView({ rekap, pilihan }: RekapProps) {
         </section>
       ) : (
         <>
-          <div className="lp-monitor-filters">
+          <div className="lp-monitor-filters" id="filter-latihan">
             <div className="lp-monitor-period">
               <span>Periode</span>
               <nav className="lp-monitor-tabs" aria-label="Periode latihan">
@@ -299,6 +300,15 @@ export function RekapLatihanView({ rekap, pilihan }: RekapProps) {
               </>
             )}
           </div>
+          {!rekap.fokus ? (
+            <PerubahanSiswaCard
+              periode={{ dari: rekap.mulaiPeriode, sampai: rekap.hariIni }}
+              perbandingan={rekap.perbandingan}
+              satuan="poin"
+              keterangan="Selisih skor terbaru per siswa pada jenis dan durasi yang dipilih."
+              petunjuk={<><a href="#filter-latihan">Pilih jenis dan durasi</a> untuk membandingkan skor.</>}
+            />
+          ) : null}
           <DaftarSiswa rekap={rekap} pilihan={aktif} />
         </>
       )}

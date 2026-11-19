@@ -15,6 +15,7 @@ import {
   type PresensiTab,
 } from "@/components/presensi";
 import { LiveRefresh } from "@/components/presensi-client";
+import { PresensiOverview } from "@/components/presensi-ringkasan";
 import { Empty } from "@/components/ui";
 import { loadPresensi } from "@/lib/server/akademik";
 import { presensiQr } from "@/lib/server/qr-presensi";
@@ -24,18 +25,16 @@ export const metadata: Metadata = { title: "Presensi" };
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
-const one = (value: string | string[] | undefined) => (typeof value === "string" ? value : undefined);
-
 /**
  * Presensi, opsi A "Layar hari ini".
- * Staf: tab Hari ini (sesi berjalan, QR, pengajuan, kartu siswa), Jadwal (per tanggal), dan Rekap (bulanan).
+ * Staf: tab Hari ini, Jadwal, Rekap bulanan, dan Ringkasan kehadiran.
  * Siswa/wali: sesi yang sedang dibuka, status, rekap bulan ini, dan riwayat.
  */
 export default async function PresensiPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor();
   requirePart(actor, "presensi");
   const params = await searchParams;
-  const data = await loadPresensi(actor, { sesi: one(params.sesi), tanggal: one(params.tanggal), bulan: one(params.bulan) });
+  const data = await loadPresensi(actor, params);
 
   if (data.kind === "family") {
     const wali = actor.user.peran === "WALI";
@@ -51,14 +50,15 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
     );
   }
 
-  const tab: PresensiTab = params.tab === "jadwal" ? "jadwal" : params.tab === "rekap" ? "rekap" : "hari";
-  const { clock, selected, classes, teachers, sessionTypes } = data;
+  const tab: PresensiTab = data.kind === "overview" ? "ringkasan" : params.tab === "jadwal" ? "jadwal" : params.tab === "rekap" ? "rekap" : "hari";
+  const { clock, classes, teachers, sessionTypes } = data;
+  const selected = data.kind === "staff" ? data.selected : null;
   const sessionOptions = { classes, teachers, sessionTypes };
   const isAdmin = actor.user.peran === "OWNER" || actor.user.peran === "ADMIN";
   const canCreate = !(actor.user.peran === "PENGAJAR" && data.classes.length === 0);
   const live = selected && selected.session.status === "AKTIF" && selected.session.canManage && selected.session.tanggal === clock.today;
   const qr = tab === "hari" && live ? await presensiQr(selected.session.sesi_id) : null;
-  const createDate = tab === "jadwal" && data.schedule.date >= clock.today ? data.schedule.date : clock.today;
+  const createDate = data.kind === "staff" && tab === "jadwal" && data.schedule.date >= clock.today ? data.schedule.date : clock.today;
 
   return (
     <div className="page pr">
@@ -71,7 +71,9 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
         }
       />
       <AcademicTabs actor={actor} current="presensi" />
-      {tab === "hari" ? (
+      {data.kind === "overview" ? (
+        <PresensiOverview filter={data.filter} ringkasan={data.ringkasan} />
+      ) : tab === "hari" ? (
         <>
           <SessionStrip items={data.strip} selectedId={selected?.session.sesi_id ?? null} today={clock.today} />
           {selected ? (

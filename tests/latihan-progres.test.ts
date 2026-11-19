@@ -206,6 +206,42 @@ describe("rekap latihan owner", () => {
     assert.equal(panjang.interval.at(-1)?.sampai, HARI_INI);
   });
 
+  it("perubahan siswa yang sama membandingkan skor terbaru tiap periode pada jenis dan durasi yang sama", () => {
+    const students = [siswa("1", "ARIF"), siswa("2", "BAGUS"), siswa("3", "CITRA"), siswa("4", "DANI"), siswa("5", "ELSA"), siswa("6", "FAJAR", false)];
+    const rows = kelompokkanPerSiswa([
+      latihan("1", "pauli", "2026-11-04", 80),
+      latihan("1", "pauli", "2026-11-10", 0),
+      latihan("1", "pauli", "2026-11-10", 98, "standar", "09:00"),
+      latihan("1", "pauli", "2026-11-11", 32),
+      latihan("1", "pauli", "2026-11-16", 40),
+      latihan("2", "pauli", "2026-11-09", 80),
+      latihan("2", "pauli", HARI_INI, 60),
+      latihan("3", "pauli", "2026-11-10", 100),
+      latihan("3", "pauli", HARI_INI, 95),
+      latihan("4", "pauli", "2026-11-03", 10),
+      latihan("4", "kraepelin", "2026-11-10", 20),
+      latihan("4", "pauli", HARI_INI, 90),
+      latihan("5", "pauli", "2026-11-10", 50),
+      latihan("5", "pauli", HARI_INI, 70, "standar"),
+      latihan("6", "pauli", "2026-11-10", 20),
+      latihan("6", "pauli", HARI_INI, 100),
+    ]);
+    const filter = { periode: 7, jenis: "pauli", durasi: "singkat" } as const;
+    const paired = rekapDari(students, rows, HARI_INI, filter).perbandingan;
+    assert.deepEqual(paired, {
+      sebelumnya: { dari: "2026-11-04", sampai: "2026-11-10" },
+      median: -5,
+      siswa: 3,
+      naik: 1,
+      tetap: 0,
+      turun: 2,
+    });
+    const berbedaDurasi = rekapDari(students, rows, HARI_INI, { ...filter, durasi: "standar" }).perbandingan;
+    assert.equal(berbedaDurasi?.siswa, 0);
+    assert.equal(berbedaDurasi?.median, null);
+    assert.equal(rekapDari(students, rows, HARI_INI, { ...filter, durasi: null }).perbandingan, null);
+  });
+
   it("parameter URL hanya memakai pilihan yang valid dan mempertahankan filter saat membuka siswa", () => {
     const awal = bacaPilihanRekap({ periode: "14", jenis: ["pauli"], durasi: "salah", grafik: "x", tanda: "x", siswa: ["S1"] });
     assert.deepEqual(awal, { periode: 30, jenis: null, durasi: null, grafik: "aktivitas", tanda: null, siswa: null });

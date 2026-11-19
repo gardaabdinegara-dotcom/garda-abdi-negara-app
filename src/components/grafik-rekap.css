@@ -1,0 +1,91 @@
+/* Gaya grafik interaktif untuk Ringkasan Presensi dan Latihan siswa. */
+
+.rekap-chart-figure {
+  margin: 0;
+}
+
+.rekap-chart-svg {
+  display: block;
+  width: 100%;
+}
+
+.rekap-chart-axis {
+  fill: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rekap-chart-gridline {
+  stroke: var(--line);
+}
+
+.rekap-chart-band {
+  fill: var(--primary-soft);
+  opacity: 0.65;
+}
+
+.rekap-chart-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rekap-chart-point {
+  cursor: pointer;
+}
+
+.rekap-chart-hit {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.rekap-chart-point:focus-visible {
+  outline: none;
+}
+
+.rekap-chart-point:focus-visible .rekap-chart-hit {
+  stroke: var(--primary);
+  stroke-dasharray: 3 3;
+}
+
+.rekap-chart-bar,
+.rekap-chart-dot {
+  fill: var(--primary);
+}
+
+.rekap-chart-bar {
+  opacity: 0.77;
+}
+
+.rekap-chart-bar.is-zero {
+  opacity: 0.33;
+}
+
+.rekap-chart-point[data-highlighted="true"] .rekap-chart-bar:not(.is-zero) {
+  opacity: 1;
+}
+
+.rekap-chart-dot {
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.rekap-chart-reading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 8px;
+  min-height: 38px;
+  margin-top: 2px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rekap-chart-reading b {
+  color: var(--ink);
+}

@@ -149,6 +149,7 @@
 }
 
 #daftar-latihan,
+#filter-latihan,
 #grafik-latihan {
   scroll-margin-top: 80px;
 }
@@ -301,96 +302,6 @@
   display: grid;
   align-content: center;
   min-height: 248px;
-}
-
-.lp-monitor-figure {
-  margin: 0;
-}
-
-.lp-monitor-svg {
-  display: block;
-  width: 100%;
-}
-
-.lp-monitor-axis {
-  fill: var(--muted);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
-.lp-monitor-gridline {
-  stroke: var(--line);
-}
-
-.lp-monitor-band {
-  fill: var(--primary-soft);
-  opacity: 0.65;
-}
-
-.lp-monitor-line {
-  fill: none;
-  stroke: var(--primary);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.lp-monitor-point {
-  cursor: pointer;
-}
-
-.lp-monitor-hit {
-  fill: transparent;
-  stroke: transparent;
-}
-
-.lp-monitor-point:focus-visible {
-  outline: none;
-}
-
-.lp-monitor-point:focus-visible .lp-monitor-hit {
-  stroke: var(--primary);
-  stroke-dasharray: 3 3;
-}
-
-.lp-monitor-bar,
-.lp-monitor-dot {
-  fill: var(--primary);
-}
-
-.lp-monitor-bar {
-  opacity: 0.77;
-}
-
-.lp-monitor-bar.is-zero {
-  opacity: 0.33;
-}
-
-.lp-monitor-point[data-highlighted="true"] .lp-monitor-bar:not(.is-zero) {
-  opacity: 1;
-}
-
-.lp-monitor-dot {
-  stroke: var(--surface);
-  stroke-width: 1.5;
-}
-
-.lp-monitor-reading {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2px 8px;
-  min-height: 38px;
-  margin-top: 2px;
-  padding: 9px 11px;
-  border-radius: 9px;
-  background: var(--surface-soft);
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.lp-monitor-reading b {
-  color: var(--ink);
 }
 
 .lp-monitor-reasons,

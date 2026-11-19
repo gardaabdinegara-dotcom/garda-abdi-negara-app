@@ -1,0 +1,114 @@
+.card.perubahan-siswa {
+  container-type: inline-size;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 18px;
+}
+
+.perubahan-siswa h2 {
+  font: 800 16px/1.25 var(--heading);
+}
+
+.perubahan-siswa header p,
+.perubahan-siswa-kosong,
+.perubahan-siswa dt,
+.perubahan-siswa-median > span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.perubahan-siswa header p {
+  margin-top: 3px;
+}
+
+.perubahan-siswa header a {
+  color: var(--primary);
+  font-weight: 750;
+}
+
+.perubahan-siswa-isi,
+.perubahan-siswa-ringkas {
+  display: grid;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.perubahan-siswa-periode,
+.perubahan-siswa-arah {
+  display: grid;
+  margin: 0;
+  gap: 8px;
+}
+
+.perubahan-siswa-periode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.perubahan-siswa-periode > div {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.perubahan-siswa dd {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.perubahan-siswa-median {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.perubahan-siswa-median[data-arah="naik"] {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.perubahan-siswa-median[data-arah="turun"] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.perubahan-siswa-median b {
+  font: 800 23px/1.15 var(--heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.perubahan-siswa-median small {
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.perubahan-siswa-arah {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: center;
+}
+
+.perubahan-siswa-arah dd {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.perubahan-siswa-arah > div + div {
+  border-inline-start: 1px solid var(--line);
+}
+
+@container (min-width: 350px) {
+  .perubahan-siswa-ringkas {
+    grid-template-columns: minmax(170px, 1fr) minmax(124px, 1fr);
+  }
+}
+
+@container (min-width: 770px) {
+  .perubahan-siswa-isi {
+    grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.05fr);
+  }
+}

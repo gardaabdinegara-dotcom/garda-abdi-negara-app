@@ -3,6 +3,7 @@ import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { Fragment } from "react";
 import { DISCIPLINE, sessionTypeLabel, type AttendanceStatus, type SessionStatus, type SessionTypeOption } from "@/lib/core/akademik";
+import type { RekapPresensiSiswa } from "@/lib/core/presensi-ringkasan";
 import type { ClassGroup } from "@/lib/core/types";
 import { initials } from "@/lib/format";
 import type { Clock, FamilyAttendance, MonthlyRecap, MySession, SessionCard, SessionWorkspace } from "@/lib/server/akademik";
@@ -12,20 +13,26 @@ import { CreateSession, HeroActions, LiveCounters, PendingCard, PresensiLive, Ro
 import { addMinutes, dayBadge, fmtTime, longDay, monthName, nowTime, pct, relativeDay, shiftDay, shiftMonth, shortDate, shortName, timeRange, toMinutesSafe } from "./presensi-format";
 import { PrIcon } from "./presensi-icons";
 
-export type PresensiTab = "hari" | "jadwal" | "rekap";
+export type PresensiTab = "hari" | "jadwal" | "rekap" | "ringkasan";
 
-const TAB_HREF: Record<PresensiTab, string> = { hari: "/akademik", jadwal: "/akademik?tab=jadwal", rekap: "/akademik?tab=rekap" };
+const TAB_HREF: Record<PresensiTab, string> = {
+  hari: "/akademik",
+  jadwal: "/akademik?tab=jadwal",
+  rekap: "/akademik?tab=rekap",
+  ringkasan: "/akademik?tab=ringkasan",
+};
+const TAB_LABEL: Record<PresensiTab, string> = { hari: "Hari ini", jadwal: "Jadwal", ringkasan: "Ringkasan", rekap: "Rekap" };
 
-/** Judul satu baris, tab Hari ini · Jadwal · Rekap, dan tombol Buat sesi. */
+/** Judul, tab Presensi, dan tombol Buat sesi. */
 export function PresensiHead({ tab, create }: { tab?: PresensiTab; create?: React.ReactNode }) {
   return (
     <header className={`pr-top${tab ? "" : " pr-top-solo"}`}>
       <h1>Presensi</h1>
       {tab ? (
         <nav className="pr-seg pr-tabs" aria-label="Bagian presensi">
-          {(["hari", "jadwal", "rekap"] as const).map((key) => (
-            <Link key={key} href={TAB_HREF[key]} aria-current={tab === key ? "page" : undefined} scroll={false}>
-              {key === "hari" ? "Hari ini" : key === "jadwal" ? "Jadwal" : "Rekap"}
+          {(["hari", "jadwal", "ringkasan", "rekap"] as const).map((key) => (
+            <Link key={key} href={TAB_HREF[key]} aria-current={tab === key ? "page" : undefined} scroll={false} prefetch={key === "ringkasan" ? false : undefined}>
+              {TAB_LABEL[key]}
             </Link>
           ))}
         </nav>
@@ -504,6 +511,33 @@ function breakdown(s: { hadir: number; izin: number; sakit: number; alfa: number
   return `${s.hadir} hadir · ${s.izin} izin · ${s.sakit} sakit · ${s.alfa} alfa dari ${s.total} sesi`;
 }
 
+export function AttendanceRecapRows({ rows, emptyText }: { rows: RekapPresensiSiswa[]; emptyText: string }) {
+  if (rows.length === 0) return <p className="pr-muted pr-xs">{emptyText}</p>;
+  return (
+    <div className="pr-list pr-rlist">
+      {rows.map(({ student, summary }) => {
+        const isLow = summary.persen !== null && summary.persen < DISCIPLINE.cukup;
+        return (
+          <div className={`pr-item pr-rrow${isLow ? " low" : ""}`} key={student.siswa_id}>
+            <span className={`pr-av${isLow ? " r" : ""}`} aria-hidden="true">{initials(student.nama)}</span>
+            <div className="pr-main">
+              <b>{student.nama}</b>
+              <span className="n">{summary.total ? breakdown(summary) : "Belum ada sesi selesai"}</span>
+              {summary.total ? (
+                <svg className="pr-sbar" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true">
+                  <rect className="trk" width="100" height="6" />
+                  <rect className={isLow ? "a" : "h"} width={summary.persen ?? 0} height="6" />
+                </svg>
+              ) : null}
+            </div>
+            <b className={`pr-pctv n${isLow ? " pr-red" : ""}`}>{pct(summary.persen)}</b>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function RecapTab({ recap, today }: { recap: MonthlyRecap; today: string }) {
   const { periode } = recap;
   const current = today.slice(0, 7);
@@ -552,31 +586,7 @@ export function RecapTab({ recap, today }: { recap: MonthlyRecap; today: string 
           </div>
           <p className="pr-xs pr-muted">Terendah di atas. Siswa tanpa catatan pada sesi selesai dihitung alfa.</p>
         </div>
-        {recap.rows.length === 0 ? (
-          <p className="pr-muted pr-xs">Belum ada siswa aktif.</p>
-        ) : (
-          <div className="pr-list pr-rlist">
-            {recap.rows.map(({ student, summary }) => {
-              const isLow = summary.persen !== null && summary.persen < DISCIPLINE.cukup;
-              return (
-                <div className={`pr-item pr-rrow${isLow ? " low" : ""}`} key={student.siswa_id}>
-                  <span className={`pr-av${isLow ? " r" : ""}`}>{initials(student.nama)}</span>
-                  <div className="pr-main">
-                    <b>{student.nama}</b>
-                    <span className="n">{summary.total ? breakdown(summary) : "Belum ada sesi selesai"}</span>
-                    {summary.total ? (
-                      <svg className="pr-sbar" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true">
-                        <rect className="trk" x="0" y="0" width="100" height="6" />
-                        <rect className={isLow ? "a" : "h"} x="0" y="0" width={summary.persen ?? 0} height="6" />
-                      </svg>
-                    ) : null}
-                  </div>
-                  <b className={`pr-pctv n${isLow ? " pr-red" : ""}`}>{pct(summary.persen)}</b>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <AttendanceRecapRows rows={recap.rows} emptyText="Belum ada siswa aktif." />
       </section>
     </div>
   );
