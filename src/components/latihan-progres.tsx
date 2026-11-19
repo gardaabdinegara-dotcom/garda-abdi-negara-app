@@ -46,19 +46,20 @@ export function TandaBadge({ baris }: { baris: Pick<RekapBaris, "tanda" | "tren"
 }
 
 /** Naik/turun skor dibanding latihan sebelumnya pada jenis yang sama. Null = latihan pertama jenis itu. */
-export function TrenPill({ tren }: { tren: number | null }) {
+export function TrenPill({ tren, judulBaru = "Latihan pertama untuk jenis ini" }: { tren: number | null; judulBaru?: string }) {
   if (tren === null) {
     return (
-      <span className="lp-tren is-new" title="Latihan pertama untuk jenis ini">
+      <span className="lp-tren is-new" title={judulBaru}>
         baru
       </span>
     );
   }
   const arah = tren > 0 ? "up" : tren < 0 ? "down" : "flat";
-  const label = tren > 0 ? `naik ${tren} poin` : tren < 0 ? `turun ${Math.abs(tren)} poin` : "sama dengan latihan sebelumnya";
+  const nilai = angka(Math.abs(tren));
+  const label = tren > 0 ? `naik ${nilai} poin` : tren < 0 ? `turun ${nilai} poin` : "sama dengan latihan sebelumnya";
   return (
     <span className={`lp-tren is-${arah}`} aria-label={label} title={label}>
-      {tren > 0 ? "▲" : tren < 0 ? "▼" : "="} {Math.abs(tren)}
+      {tren > 0 ? "▲" : tren < 0 ? "▼" : "="} {nilai}
     </span>
   );
 }
@@ -142,7 +143,7 @@ function Garis({ data, w, h, semuaLabel, className, label }: { data: readonly La
 
 // ---------------------------------------------------------------- Halaman progres
 
-const ASPEK = [
+export const ASPEK = [
   { key: "ketelitian", nama: "Ketelitian" },
   { key: "kecepatan", nama: "Kecepatan" },
   { key: "stabilitas", nama: "Stabilitas" },

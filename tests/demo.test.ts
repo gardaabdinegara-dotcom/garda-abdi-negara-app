@@ -52,9 +52,9 @@ describe("data contoh mode pratinjau", () => {
     const rekap = rekapDari(d.inti.Siswa!.map(toStudent), kelompokkanPerSiswa(latihan), "2026-11-17");
     const tanda = new Set(rekap.baris.map((b) => b.tanda));
     for (const t of ["belum", "lama", "turun", null]) assert.ok(tanda.has(t as never), `tanda ${t} ada`);
-    assert.ok(rekap.aktifMingguIni >= 15, `siswa aktif minggu ini ${rekap.aktifMingguIni}`);
+    assert.ok(rekap.siswaBerlatih >= 15, `siswa berlatih dalam periode ${rekap.siswaBerlatih}`);
     // Siswa yang rutin latihan menunjukkan kemajuan: skor terakhir jenis favoritnya di atas skor pertama.
-    const naik = rekap.baris.filter((b) => b.total >= 7 && b.tanda === null);
+    const naik = rekap.baris.filter((b) => b.sesi >= 7 && b.tanda === null);
     assert.ok(naik.length >= 8);
     for (const b of naik) {
       const sama = latihan.filter((l) => l.siswa_id === b.student.siswa_id && l.jenis === b.terakhir!.jenis).sort((x, y) => x.mulai.localeCompare(y.mulai));

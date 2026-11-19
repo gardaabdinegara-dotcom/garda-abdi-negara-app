@@ -1,27 +1,41 @@
 "use client";
-// Saringan "Semua / Perlu perhatian" di rekap latihan owner. Daftar siswa tetap dirender server;
-// komponen ini hanya mengganti atribut data-tampil, dan CSS menyembunyikan baris yang tidak bertanda.
-import { useState } from "react";
 
-export function RekapFilter({ total, perlu, children }: { total: number; perlu: number; children: React.ReactNode }) {
-  const [tampil, setTampil] = useState<"semua" | "perlu">("semua");
+import Form from "next/form";
+import { useEffect, useRef } from "react";
+import { DURASI_LABEL, DURASI_LATIHAN, JENIS_INFO, JENIS_LATIHAN } from "@/lib/core/latihan";
+import type { PilihanRekap } from "@/lib/latihan-rekap-route";
+
+export function RekapFilter({ pilihan }: { pilihan: PilihanRekap }) {
+  const jenis = useRef<HTMLSelectElement>(null);
+  const durasi = useRef<HTMLSelectElement>(null);
+
+  // Ikuti navigasi URL (misalnya tombol kembali) tanpa mengganti elemen yang sedang difokuskan.
+  useEffect(() => {
+    if (jenis.current) jenis.current.value = pilihan.jenis ?? "";
+    if (durasi.current) durasi.current.value = pilihan.durasi ?? "";
+  }, [pilihan]);
+
   return (
-    <section className="card lp-card lp-rekap" data-tampil={tampil} aria-labelledby="lp-rekap-judul">
-      <div className="lp-card-head">
-        <div>
-          <h2 id="lp-rekap-judul">{tampil === "perlu" ? "Perlu perhatian" : "Semua siswa"}</h2>
-          <p>Ketuk nama untuk melihat progres siswa.</p>
-        </div>
-        <div className="lp-seg" role="group" aria-label="Tampilkan siswa">
-          <button type="button" aria-pressed={tampil === "semua"} onClick={() => setTampil("semua")}>
-            Semua <span>{total}</span>
-          </button>
-          <button type="button" aria-pressed={tampil === "perlu"} onClick={() => setTampil("perlu")}>
-            Perlu perhatian <span>{perlu}</span>
-          </button>
-        </div>
+    <Form action="/latihan" className="lp-monitor-selects" scroll={false} prefetch={false} onChange={(event) => event.currentTarget.requestSubmit()}>
+      <input type="hidden" name="periode" value={pilihan.periode} />
+      {pilihan.grafik === "skor" ? <input type="hidden" name="grafik" value="skor" /> : null}
+      {pilihan.tanda ? <input type="hidden" name="tanda" value={pilihan.tanda} /> : null}
+      {pilihan.siswa ? <input type="hidden" name="siswa" value={pilihan.siswa} /> : null}
+      <div className="lp-monitor-field">
+        <label htmlFor="latihan-rekap-jenis">Jenis latihan</label>
+        <select id="latihan-rekap-jenis" name="jenis" ref={jenis} defaultValue={pilihan.jenis ?? ""}>
+          <option value="">Semua jenis</option>
+          {JENIS_LATIHAN.map((value) => <option key={value} value={value}>{JENIS_INFO[value].nama}</option>)}
+        </select>
       </div>
-      {children}
-    </section>
+      <div className="lp-monitor-field">
+        <label htmlFor="latihan-rekap-durasi">Durasi</label>
+        <select id="latihan-rekap-durasi" name="durasi" ref={durasi} defaultValue={pilihan.durasi ?? ""}>
+          <option value="">Semua durasi</option>
+          {DURASI_LATIHAN.map((value) => <option key={value} value={value}>{DURASI_LABEL[value]}</option>)}
+        </select>
+      </div>
+      <noscript><button type="submit" className="btn btn-secondary">Terapkan</button></noscript>
+    </Form>
   );
 }

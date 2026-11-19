@@ -1,7 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { academicSettings, localClock } from "../core/akademik";
-import { kelompokkanPerSiswa, progresOf, rekapDari, dalamMingguIni, type ProgresLatihan, type RekapLatihan } from "../core/latihan-rekap";
+import { kelompokkanPerSiswa, progresOf, rekapDari, dalamMingguIni, type FilterRekapLatihan, type ProgresLatihan, type RekapLatihan } from "../core/latihan-rekap";
 import { toLatihan, type Latihan } from "../core/latihan-simpan";
 import { linkedStudentIds, toStudent, type Actor, type Student } from "../core/types";
 import { AppError, type Tables } from "../data/types";
@@ -108,8 +108,8 @@ export async function loadHasilLatihan(actor: Actor, latihanId: string): Promise
 }
 
 /** Rekap semua siswa aktif untuk owner/admin. Siswa yang perlu didorong ditaruh paling atas. */
-export async function loadRekapLatihan(actor: Actor): Promise<RekapLatihan> {
+export async function loadRekapLatihan(actor: Actor, filter: FilterRekapLatihan, siswaId?: string): Promise<RekapLatihan> {
   if (!canSeeAllLatihan(actor)) notFound();
   const m = model(await read());
-  return rekapDari(m.students, m.bySiswa, m.hariIni);
+  return rekapDari(m.students, m.bySiswa, m.hariIni, filter, siswaId);
 }
