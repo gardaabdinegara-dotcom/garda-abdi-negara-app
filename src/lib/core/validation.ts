@@ -54,7 +54,7 @@ export const settingsInput = z
     samapta_tempat: trimmed(2, 80, "Tempat tes").default("Lap. Syekh Yusuf"),
     samapta_kota: trimmed(2, 40, "Kota penandatanganan").default("Gowa"),
     samapta_ttd_jabatan: trimmed(2, 60, "Jabatan penanda tangan").default("Koordinator Materi"),
-    samapta_ttd_nama: trimmed(2, 80, "Nama penanda tangan").default("PELTU. ADAM HIDI"),
+    samapta_ttd_nama: trimmed(2, 80, "Nama penanda tangan").default("ADAM HIDI"),
     samapta_baik_sekali: int("Batas Baik Sekali", 1, 100).default(81),
     samapta_baik: int("Batas Baik", 1, 100).default(61),
     samapta_cukup: int("Batas Cukup", 1, 100).default(41),

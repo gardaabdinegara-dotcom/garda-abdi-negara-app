@@ -151,7 +151,7 @@ describe("perhitungan samapta", () => {
     const s = samaptaSettings(await emptyTables());
     assert.equal(s.kop, "BIMBEL GARDA ABDI NEGARA");
     assert.equal(s.tempat, "Lap. Syekh Yusuf");
-    assert.equal(s.ttd_nama, "PELTU. ADAM HIDI");
+    assert.equal(s.ttd_nama, "ADAM HIDI");
     assert.equal(s.ttd_jabatan, "Koordinator Materi");
     assert.deepEqual([s.baik_sekali, s.baik, s.cukup], [81, 61, 41]);
   });

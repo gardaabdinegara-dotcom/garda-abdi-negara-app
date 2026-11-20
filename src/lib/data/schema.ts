@@ -348,7 +348,7 @@ export const DEFAULT_SETTINGS: Record<string, string | number> = {
   samapta_tempat: "Lap. Syekh Yusuf",
   samapta_kota: "Gowa",
   samapta_ttd_jabatan: "Koordinator Materi",
-  samapta_ttd_nama: "PELTU. ADAM HIDI",
+  samapta_ttd_nama: "ADAM HIDI",
   samapta_baik_sekali: 81,
   samapta_baik: 61,
   samapta_cukup: 41,

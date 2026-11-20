@@ -182,6 +182,22 @@ html[data-color-mode="dark"] .cetak {
   color: #000;
 }
 
+/* Kop: logo (15 mm) dengan nama lembaga di sampingnya. Judul yang di tengah boleh naik sejajar bagian bawah logo
+   (tidak bertabrakan karena logo dan nama ada di kiri), jadi lembar tetap muat satu halaman. */
+.blangko-kepala {
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  height: calc(57 * var(--u));
+}
+
+.blangko-logo {
+  flex: none;
+  width: calc(57 * var(--u));
+  height: calc(57 * var(--u));
+  object-fit: contain;
+}
+
 .blangko-kop {
   font-weight: 700;
   font-size: calc(13 * var(--u));
@@ -190,7 +206,7 @@ html[data-color-mode="dark"] .cetak {
 }
 
 .blangko-judul {
-  margin: calc(16 * var(--u)) 0 calc(12 * var(--u));
+  margin: calc(-16 * var(--u)) 0 calc(12 * var(--u));
   text-align: center;
   font-weight: 700;
   font-size: calc(14 * var(--u));

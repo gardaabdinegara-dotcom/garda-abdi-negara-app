@@ -122,7 +122,10 @@ export function BlangkoSheet({ settings, isi = null }: { settings: SamaptaSettin
 
   return (
     <article className="blangko">
-      <div className="blangko-kop">{settings.kop}</div>
+      <div className="blangko-kepala">
+        <img className="blangko-logo" src="/brand/garda-logo-192-v1.webp" alt="" width={192} height={192} />
+        <div className="blangko-kop">{settings.kop}</div>
+      </div>
       <div className="blangko-judul">BLANGKO TES KESAMAPTAAN JASMANI</div>
 
       <div className="blangko-sek">
