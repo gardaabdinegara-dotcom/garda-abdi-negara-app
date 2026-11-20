@@ -5,6 +5,7 @@
 import { useEffect, useId, useRef } from "react";
 import { Icon } from "./icon";
 import "./lembar.css";
+import { bukaDialog } from "@/lib/dialog";
 
 export function Lembar({
   open,
@@ -25,7 +26,7 @@ export function Lembar({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) bukaDialog(dialog);
     else if (!open && dialog.open) dialog.close();
   }, [open]);
   return (

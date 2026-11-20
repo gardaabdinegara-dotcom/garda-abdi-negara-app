@@ -356,17 +356,22 @@ a.kg-mon-btn:hover {
 
 .kg-acts {
   display: grid;
-  grid-template-columns: 1fr 1fr 56px;
+  /* minmax(0, 1fr): kolom boleh menyempit di HP kecil (320 px) tanpa mendorong tombol Pindah keluar layar. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px;
   gap: 8px;
 }
 
 .kg-acts.two {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .kg-acts .btn {
+  min-width: 0;
   min-height: 56px;
   padding: 0 8px;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.15;
   border-radius: 16px;
   font-size: 14px;
   font-weight: 800;

@@ -18,6 +18,7 @@ import { ActionForm, Field, SubmitButton } from "./form";
 import { Icon } from "./icon";
 import { SamIcon } from "./samapta-icon";
 import { WaKabari } from "./wa";
+import { bukaDialog } from "@/lib/dialog";
 
 // ================================================================ Mode lapangan
 
@@ -478,7 +479,7 @@ function FieldModeInner(props: FieldModeProps) {
   }
 
   function openList() {
-    listRef.current?.showModal();
+    bukaDialog(listRef.current);
   }
 
   function pickFromList(i: number) {
@@ -904,11 +905,11 @@ export function CreateTestSheet({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   useEffect(() => {
-    if (startOpen && !ref.current?.open) ref.current?.showModal();
+    if (startOpen && !ref.current?.open) bukaDialog(ref.current);
   }, [startOpen]);
   return (
     <>
-      <button type="button" className={className} onClick={() => ref.current?.showModal()} aria-haspopup="dialog">
+      <button type="button" className={className} onClick={() => bukaDialog(ref.current)} aria-haspopup="dialog">
         <Icon name="plus" />
         {label}
       </button>

@@ -6,6 +6,7 @@ import { useId, useRef, useState } from "react";
 import { tautanWa } from "@/lib/core/wa";
 import { Icon } from "./icon";
 import "./wa.css";
+import { bukaDialog } from "@/lib/dialog";
 
 type Ukuran = "sm" | "md";
 
@@ -67,7 +68,7 @@ export function WaKabari({
 
   return (
     <>
-      <button type="button" className={`wa-btn wa-${ukuran}`} onClick={() => dialog.current?.showModal()} aria-haspopup="dialog">
+      <button type="button" className={`wa-btn wa-${ukuran}`} onClick={() => bukaDialog(dialog.current)} aria-haspopup="dialog">
         <Icon name="wa" />
         <span>{label}</span>
       </button>

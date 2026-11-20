@@ -122,6 +122,12 @@ p {
   margin: 0;
 }
 
+/* Dialog menerima fokus awal saat dibuka (lib/dialog.ts); dialognya sendiri tidak perlu cincin fokus. */
+dialog:focus,
+dialog:focus-visible {
+  outline: none;
+}
+
 :focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
@@ -1129,6 +1135,65 @@ textarea {
   background: var(--surface);
   color: var(--ink);
   font: 400 16px/1.4 var(--body);
+}
+
+/*
+ * Isian tanggal/jam/bulan: di Safari iPhone lebarnya mengikuti isi (bawaan sistem) dan mengabaikan width: 100%,
+ * sehingga keluar dari kolom atau kartu. min-width: 0 + max-width: 100% membuatnya tunduk pada lebar wadah;
+ * di iOS tampilan bawaannya dimatikan dan teksnya rata kiri seperti isian lain.
+ */
+input[type="date"],
+input[type="time"],
+input[type="month"],
+input[type="week"],
+input[type="datetime-local"] {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input[type="date"],
+  input[type="time"],
+  input[type="month"],
+  input[type="week"],
+  input[type="datetime-local"] {
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    text-align: left;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value,
+  input[type="month"]::-webkit-date-and-time-value,
+  input[type="week"]::-webkit-date-and-time-value,
+  input[type="datetime-local"]::-webkit-date-and-time-value {
+    margin: 0;
+    text-align: left;
+  }
+}
+
+input::-webkit-calendar-picker-indicator {
+  margin-inline-start: 4px;
+}
+
+/* HP kecil: kolom dua sejajar menyempit; kurangi jarak dalam agar tanggal (dd/mm/yyyy) tidak terpotong.
+   Ukuran huruf tetap 16 px supaya iPhone tidak memperbesar layar saat isian diketuk. */
+@media (max-width: 380px) {
+  input:not([type="checkbox"]):not([type="radio"])[type="date"],
+  input:not([type="checkbox"]):not([type="radio"])[type="time"],
+  input:not([type="checkbox"]):not([type="radio"])[type="month"],
+  input:not([type="checkbox"]):not([type="radio"])[type="datetime-local"] {
+    padding-inline: 9px;
+  }
+}
+
+/* Safari iPhone juga memberi select dan isian lain lebar minimum dari isinya; jaga agar tetap di dalam kolom. */
+select,
+input:not([type="checkbox"]):not([type="radio"]) {
+  min-width: 0;
+  max-width: 100%;
 }
 
 textarea {

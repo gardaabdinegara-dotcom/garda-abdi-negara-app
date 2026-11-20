@@ -8,6 +8,7 @@ import { DURASI_LATIHAN, JENIS_INFO, JENIS_LATIHAN, type DurasiLatihan, type Jen
 import { menitTarget, TARGET_KALI_MAX, TARGET_KALI_MIN, type TargetLatihan } from "@/lib/core/latihan-target";
 import { ActionForm, SubmitButton } from "./form";
 import { Icon } from "./icon";
+import { bukaDialog } from "@/lib/dialog";
 
 const DURASI_PILIHAN: Record<DurasiLatihan | "semua", string> = { semua: "Apa saja", singkat: "Singkat", standar: "Standar", asli: "Seperti tes asli" };
 
@@ -27,7 +28,7 @@ export function TargetSheet({ target, siswaAktif, operationId, label }: { target
 
   return (
     <>
-      <button type="button" className="btn btn-secondary btn-sm lp-tgt-edit" onClick={() => ref.current?.showModal()} aria-haspopup="dialog">
+      <button type="button" className="btn btn-secondary btn-sm lp-tgt-edit" onClick={() => bukaDialog(ref.current)} aria-haspopup="dialog">
         <Icon name="target" />
         {label}
       </button>

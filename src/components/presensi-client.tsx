@@ -31,6 +31,7 @@ import { useUjiSiswaId } from "./uji-siswa-context";
 import { addMinutes, fmtTime, nowTime, shortName } from "./presensi-format";
 import { PrIcon } from "./presensi-icons";
 import { dayMonth } from "./presensi-tanggal";
+import { bukaDialog } from "@/lib/dialog";
 
 type Action = (prev: ActionState, formData: FormData) => Promise<ActionState>;
 type Mark = "HADIR" | "IZIN" | "SAKIT" | "ALFA" | "KOSONG";
@@ -79,7 +80,7 @@ export function Sheet({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) bukaDialog(dialog);
     else if (!open && dialog.open) dialog.close();
   }, [open]);
   return (

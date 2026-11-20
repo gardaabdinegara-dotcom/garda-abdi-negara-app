@@ -9,6 +9,7 @@ import { Icon } from "@/components/icon";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { PRESENSI_TYPE_NAME_MAX } from "@/lib/core/akademik";
 import "./bidang.css";
+import { bukaDialog } from "@/lib/dialog";
 
 export interface BidangRow {
   value: string;
@@ -70,7 +71,7 @@ function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) bukaDialog(dialog);
     else if (!open && dialog.open) dialog.close();
   }, [open]);
   return (

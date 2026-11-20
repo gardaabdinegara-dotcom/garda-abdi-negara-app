@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon, type IconName } from "./icon";
+import { bukaDialog } from "@/lib/dialog";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -91,7 +92,7 @@ export function AppInstallButton() {
       }
     }
     setSteps(installInstructions());
-    dialog.current?.showModal();
+    bukaDialog(dialog.current);
   }
 
   if (installed) return null;
