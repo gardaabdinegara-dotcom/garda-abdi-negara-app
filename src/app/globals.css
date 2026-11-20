@@ -1,7 +1,12 @@
 /* Ruang Garda — gaya "Profesional modern", palet hijau army dan oranye (terang/gelap/cetak). */
 
+/*
+ * "only light": aplikasi punya tema gelapnya sendiri (tombol bulan/matahari). Kata "only" mencegah browser HP
+ * (Samsung Internet, Chrome "tema gelap untuk situs") menggelapkan paksa tampilan terang, sehingga pilihan
+ * terang/gelap di aplikasi benar-benar berlaku walau HP sedang mode gelap.
+ */
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   --bg: #f4f3ee;
   --surface: #ffffff;
   --surface-soft: #efede4;
