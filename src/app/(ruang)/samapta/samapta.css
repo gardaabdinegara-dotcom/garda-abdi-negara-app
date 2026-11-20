@@ -2808,7 +2808,8 @@ input.sam-fm-txt:not([type="checkbox"]) {
 .sam-chart {
   display: block;
   width: 100%;
-  max-width: 560px;
+  /* Teks di dalam SVG ikut membesar bersama lebarnya; dibatasi agar angka tetap seukuran teks halaman di desktop. */
+  max-width: 420px;
   height: auto;
   margin: 0 auto;
   overflow: visible;
