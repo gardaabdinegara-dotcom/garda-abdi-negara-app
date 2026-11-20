@@ -345,7 +345,8 @@ export const DEFAULT_SETTINGS: Record<string, string | number> = {
   /** 1 = pengajuan hadir lewat QR langsung sah tanpa menunggu pengesahan pelatih. */
   presensi_qr_langsung_sah: 0,
   samapta_kop: "BIMBEL GARDA ABDI NEGARA",
-  samapta_tempat: "Lap. Syekh Yusuf",
+  /** Kosong = blangko kosong dan sesi tes baru tanpa tempat (diisi per sesi). */
+  samapta_tempat: "",
   samapta_kota: "Gowa",
   samapta_ttd_jabatan: "Koordinator Materi",
   samapta_ttd_nama: "ADAM HIDI",

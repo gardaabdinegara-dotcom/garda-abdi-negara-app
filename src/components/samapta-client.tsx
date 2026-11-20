@@ -937,7 +937,7 @@ export function CreateTestSheet({
               <Field label="Tanggal" name="tanggal" type="date" defaultValue={today} required />
               <Field label="Jam mulai" name="jam_mulai" type="time" defaultValue="07:00" required />
             </div>
-            <Field label="Tempat" name="tempat" defaultValue={tempat} maxLength={80} hint="Bawaan dari Pengaturan, bisa diubah." />
+            <Field label="Tempat" name="tempat" defaultValue={tempat} maxLength={80} hint="Boleh kosong, bisa diisi nanti." />
             <Field label="Catatan" name="catatan" type="textarea" placeholder="Opsional" />
             <SubmitButton block pendingLabel="Membuat…">
               <Icon name="plus" />

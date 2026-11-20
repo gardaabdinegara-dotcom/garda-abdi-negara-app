@@ -150,7 +150,7 @@ describe("perhitungan samapta", () => {
   it("pengaturan bawaan blangko", async () => {
     const s = samaptaSettings(await emptyTables());
     assert.equal(s.kop, "BIMBEL GARDA ABDI NEGARA");
-    assert.equal(s.tempat, "Lap. Syekh Yusuf");
+    assert.equal(s.tempat, "");
     assert.equal(s.ttd_nama, "ADAM HIDI");
     assert.equal(s.ttd_jabatan, "Koordinator Materi");
     assert.deepEqual([s.baik_sekali, s.baik, s.cukup], [81, 61, 41]);
@@ -158,12 +158,23 @@ describe("perhitungan samapta", () => {
 });
 
 describe("perintah samapta", () => {
-  it("tes baru berisi semua siswa aktif, tempat bawaan dari pengaturan", async () => {
+  it("tes baru berisi semua siswa aktif, tempat kosong bila pengaturan belum diisi", async () => {
     const { t, tesId } = await setup();
     const test = toSamaptaTest(t.Tes_Samapta!.find((r) => r.tes_id === tesId)!);
     assert.deepEqual(test.peserta_ids, ["S1", "S2"]);
-    assert.equal(test.tempat, "Lap. Syekh Yusuf");
+    assert.equal(test.tempat, "");
     assert.equal(test.status, "BERJALAN");
+  });
+
+  it("tempat tes baru memakai tempat bawaan bila diisi di pengaturan", async () => {
+    const t = await emptyTables();
+    addStudent(t, "S1", "GAN-0001");
+    const row = t.Pengaturan!.find((r) => r.key === "samapta_tempat");
+    if (row) row.value = "Lapangan Contoh";
+    else t.Pengaturan!.push({ key: "samapta_tempat", value: "Lapangan Contoh" });
+    assert.equal(samaptaSettings(t).tempat, "Lapangan Contoh");
+    const out = saveSamaptaTest(t, { tes_id: "", nama: "", tanggal: "2026-11-15", jam_mulai: "07:00", tempat: "", catatan: "" }, ctx(), owner);
+    assert.equal(toSamaptaTest(t.Tes_Samapta!.find((r) => r.tes_id === out.entityId)!).tempat, "Lapangan Contoh");
   });
 
   it("server menghitung nilai dari hasil ukur dan menyimpan satu pos tanpa menyentuh pos lain", async () => {

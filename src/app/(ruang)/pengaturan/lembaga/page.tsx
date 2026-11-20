@@ -67,7 +67,7 @@ export default async function InstitutionPage() {
             <p className="muted">Dipakai di blangko A4 dan klasifikasi hasil akhir.</p>
             <div className="form-grid two">
               <Field label="Kop blangko" name="samapta_kop" defaultValue={settings.samapta_kop} required />
-              <Field label="Tempat tes bawaan" name="samapta_tempat" defaultValue={settings.samapta_tempat} required hint="Bisa diubah per sesi tes." />
+              <Field label="Tempat tes bawaan" name="samapta_tempat" defaultValue={settings.samapta_tempat} hint="Boleh kosong. Bila diisi, dipakai di sesi tes baru dan blangko kosong." />
               <Field label="Kota penandatanganan" name="samapta_kota" defaultValue={settings.samapta_kota} required />
               <Field label="Jabatan penanda tangan" name="samapta_ttd_jabatan" defaultValue={settings.samapta_ttd_jabatan} required />
               <Field label="Nama penanda tangan" name="samapta_ttd_nama" defaultValue={settings.samapta_ttd_nama} required className="span-all" />

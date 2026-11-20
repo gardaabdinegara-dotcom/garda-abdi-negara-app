@@ -51,7 +51,7 @@ export const settingsInput = z
     acuan_tkp: int("Acuan TKP", 0, 225),
     presensi_qr_langsung_sah: z.boolean().default(false),
     samapta_kop: trimmed(2, 80, "Kop blangko").default("BIMBEL GARDA ABDI NEGARA"),
-    samapta_tempat: trimmed(2, 80, "Tempat tes").default("Lap. Syekh Yusuf"),
+    samapta_tempat: optionalText(80, "Tempat tes"),
     samapta_kota: trimmed(2, 40, "Kota penandatanganan").default("Gowa"),
     samapta_ttd_jabatan: trimmed(2, 60, "Jabatan penanda tangan").default("Koordinator Materi"),
     samapta_ttd_nama: trimmed(2, 80, "Nama penanda tangan").default("ADAM HIDI"),
