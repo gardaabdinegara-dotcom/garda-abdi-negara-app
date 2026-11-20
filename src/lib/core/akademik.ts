@@ -145,6 +145,17 @@ export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
 /** Sesi yang dihapus disembunyikan dari semua daftar dan rekap (barisnya tetap di spreadsheet). */
 export const liveSession = (s: { status: string }) => s.status !== "DIHAPUS";
 
+/**
+ * Sesi yang sudah dibuka (Berlangsung) tetapi lupa ditutup dianggap selesai begitu hari kegiatannya lewat
+ * (lewat tengah malam, waktu lembaga). Jadwal, rekap, dan beranda memakai status efektif ini, jadi siswa tanpa catatan
+ * dihitung alfa seperti sesi yang ditutup biasa. Pengajuan yang masih menunggu tetap bisa disahkan owner/admin.
+ */
+export const lupaDitutup = (s: { status: string; tanggal: string }, today: string) => s.status === "AKTIF" && s.tanggal < today;
+
+export function statusEfektif<T extends Session>(s: T, today: string): T {
+  return lupaDitutup(s, today) ? { ...s, status: "SELESAI", tutup_otomatis: true } : s;
+}
+
 export const ATTENDANCE_STATUS = ["MENUNGGU", "HADIR", "IZIN", "SAKIT", "ALFA", "KOSONG"] as const;
 export type AttendanceStatus = (typeof ATTENDANCE_STATUS)[number];
 export const ATTENDANCE_LABEL: Record<AttendanceStatus, string> = {
@@ -254,6 +265,8 @@ export interface Session {
   peserta_ids: string[];
   /** Sesi yang dibuat sekaligus lewat "Ulangi" berbagi seri_id; kosong = sesi tunggal. */
   seri_id: string;
+  /** true bila sesi lupa ditutup dan dianggap selesai karena hari kegiatannya sudah lewat (lihat statusEfektif). */
+  tutup_otomatis?: boolean;
 }
 
 export interface Attendance {
@@ -602,6 +615,22 @@ function clock(t: Tables, ctx: OperationContext) {
   return { settings, ...localClock(settings.zona_waktu, ctx.now) };
 }
 
+/**
+ * Menyimpan penutupan otomatis ke spreadsheet: sesi Berlangsung yang tanggalnya sudah lewat menjadi Selesai.
+ * Dipanggil di awal perintah yang menulis sesi atau presensi, jadi tidak ada penulisan saat halaman hanya dibuka.
+ */
+export function tutupSesiLupa(t: Tables, ctx: OperationContext): number {
+  if (!t.Sesi) return 0;
+  const { date } = clock(t, ctx);
+  let n = 0;
+  rows(t, "Sesi").forEach((row, index) => {
+    if (!lupaDitutup({ status: str(row.status), tanggal: str(row.tanggal) }, date)) return;
+    replace(t, "Sesi", index, { ...row, status: "SELESAI", ...updated(ctx) });
+    n += 1;
+  });
+  return n;
+}
+
 // ---------------------------------------------------------------- Sesi
 
 export function addSessionType(t: Tables, name: string, ctx: OperationContext, actor: Actor): OperationOutcome {
@@ -703,6 +732,7 @@ export interface SessionInput {
 /** Menambah sesi baru atau mengubah satu sesi. `seriId` hanya dipakai saat menambah (lihat saveSessionSeries). */
 export function saveSession(t: Tables, input: SessionInput, ctx: OperationContext, actor: Actor, seriId = ""): OperationOutcome {
   if (!isAcademicStaff(actor)) throw forbidden();
+  tutupSesiLupa(t, ctx);
   if (!TIME.test(input.jam_mulai) || !TIME.test(input.jam_selesai) || input.jam_mulai >= input.jam_selesai) {
     throw new AppError("Jam mulai harus lebih awal dari jam selesai.");
   }
@@ -893,6 +923,7 @@ export function deleteSession(t: Tables, input: { sesi_id: string; lingkup: Sess
 }
 
 export function setSessionStatus(t: Tables, input: { sesi_id: string; status: SessionStatus }, ctx: OperationContext, actor: Actor): OperationOutcome {
+  tutupSesiLupa(t, ctx);
   const { row, index, session } = sessionById(t, input.sesi_id);
   if (!canManageSession(actor, session)) throw forbidden("Sesi ini bukan penugasan Anda.");
   const { date } = clock(t, ctx);
@@ -951,6 +982,7 @@ export interface TeacherMarkInput {
 
 /** Pengajar mencatat atau mengoreksi presensi seorang siswa. */
 export function recordAttendance(t: Tables, input: TeacherMarkInput, ctx: OperationContext, actor: Actor): OperationOutcome {
+  tutupSesiLupa(t, ctx);
   const { session } = sessionById(t, input.sesi_id);
   if (!canManageSession(actor, session)) throw forbidden("Sesi ini bukan penugasan Anda.");
   if (session.status === "DIBATALKAN") throw new AppError("Sesi dibatalkan dan tidak menerima catatan presensi.", "CONFLICT", 409);
@@ -1018,9 +1050,11 @@ export function submitAttendance(t: Tables, input: SelfMarkInput, ctx: Operation
 
 /** Mengesahkan satu pengajuan (siswa_id diisi) atau semua pengajuan yang menunggu di sesi itu. */
 export function approveAttendance(t: Tables, input: { sesi_id: string; siswa_id: string }, ctx: OperationContext, actor: Actor): OperationOutcome {
+  tutupSesiLupa(t, ctx);
   const { session } = sessionById(t, input.sesi_id);
   if (!canManageSession(actor, session)) throw forbidden("Sesi ini bukan penugasan Anda.");
-  if (session.status !== "AKTIF") throw new AppError("Buka sesi terlebih dahulu.", "CONFLICT", 409);
+  // Owner/admin tetap bisa mengesahkan pengajuan yang tertinggal di sesi yang sudah selesai (termasuk yang ditutup otomatis).
+  if (session.status !== "AKTIF" && !(session.status === "SELESAI" && isAdmin(actor))) throw new AppError("Buka sesi terlebih dahulu.", "CONFLICT", 409);
   const list = rows(t, "Presensi");
   let count = 0;
   list.forEach((row, index) => {

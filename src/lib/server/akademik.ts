@@ -48,6 +48,7 @@ import {
   type Session,
   type Submission,
   type TestResult,
+  statusEfektif,
 } from "../core/akademik";
 import { filterPresensi, susunDashboardPresensi, type RekapPresensiSiswa } from "../core/presensi-ringkasan";
 import { linkedStudentIds, taughtClassIds, toClass, toEnrollment, toLink, toStudent, toUser, type Actor, type ClassGroup, type Enrollment, type Student } from "../core/types";
@@ -246,10 +247,11 @@ function workspaceOf(actor: Actor, t: Tables, session: Session, attendance: Atte
 
 function seriesInfo(t: Tables, session: Session, attendance: Attendance[]): SeriesInfo | null {
   if (!session.seri_id) return null;
-  const all = (t.Sesi ?? []).map(toSession);
+  const today = clockOf(t).today;
+  const all = (t.Sesi ?? []).map(toSession).map((s) => statusEfektif(s, today));
   const members = all.filter((s) => s.seri_id === session.seri_id && liveSession(s)).sort(byTime);
   if (members.length === 0) return null;
-  const followers = seriesFollowers(session, all, recordedSessionIds(attendance), clockOf(t).today);
+  const followers = seriesFollowers(session, all, recordedSessionIds(attendance), today);
   return {
     total: members.length,
     dari: members[0]!.tanggal,
@@ -291,7 +293,7 @@ export async function loadPresensi(actor: Actor, params: Record<string, string |
   const t = await read(SCHEDULE_TABLES);
   const clock = clockOf(t);
   const { students, enrollments, classes, className } = base(t);
-  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession).map((s) => statusEfektif(s, clock.today));
   const attendance = (t.Presensi ?? []).map(toAttendance);
   const records = new Map(attendance.map((a) => [a.presensi_id, a]));
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
@@ -374,7 +376,7 @@ export async function loadQrScreen(actor: Actor, sesiId: string) {
   const { students, enrollments } = base(t);
   const row = (t.Sesi ?? []).find((r) => r.sesi_id === sesiId);
   if (!row || row.status === "DIHAPUS") notFound();
-  const session = toSession(row);
+  const session = statusEfektif(toSession(row), clock.today);
   if (!visibleSession(actor, session, students, enrollments)) notFound();
   return { clock, ...workspaceOf(actor, t, session, (t.Presensi ?? []).map(toAttendance)) };
 }
@@ -386,7 +388,7 @@ export async function loadQrSession(actor: Actor, sesiId: string) {
   const { students, enrollments, className } = base(t);
   const row = (t.Sesi ?? []).find((r) => r.sesi_id === sesiId);
   if (!row) return null;
-  const session = toSession(row);
+  const session = statusEfektif(toSession(row), clock.today);
   const siswaId = linkedStudentIds(actor, "SISWA")[0] ?? "";
   const record = (t.Presensi ?? []).map(toAttendance).find((a) => a.presensi_id === `${sesiId}:${siswaId}`) ?? null;
   return {
@@ -680,7 +682,7 @@ export async function loadAcademicHome(actor: Actor) {
   const t = await read(["Pengaturan", "Pengguna", "Tautan_Akun", "Siswa", "Pendaftaran", "Kelas", "Sesi", "Presensi", "Hasil_Tes", "Tugas", "Pengumpulan", "Rapor"]);
   const clock = clockOf(t);
   const { students, enrollments, className } = base(t);
-  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession).map((s) => statusEfektif(s, clock.today));
   const attendance = (t.Presensi ?? []).map(toAttendance);
   const records = new Map(attendance.map((a) => [a.presensi_id, a]));
   const visible = sessions.filter((s) => visibleSession(actor, s, students, enrollments));
@@ -748,7 +750,7 @@ export async function loadAcademicHome(actor: Actor) {
 export async function loadStudentAcademic(actor: Actor, siswaId: string) {
   const t = await read(["Pengaturan", "Sesi", "Presensi", "Hasil_Tes", "Rapor"]);
   const clock = clockOf(t);
-  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession);
+  const sessions = (t.Sesi ?? []).map(toSession).filter(liveSession).map((s) => statusEfektif(s, clock.today));
   const records = new Map((t.Presensi ?? []).map((r) => [str(r.presensi_id), toAttendance(r)]));
   const skd = (t.Hasil_Tes ?? [])
     .map(toTest)

@@ -165,7 +165,7 @@ export function metaOf(ws: SessionWorkspace, clock: Clock): SessionMeta {
     jamMulai: s.jam_mulai,
     jamSelesai: s.jam_selesai,
     editable: s.canManage && s.status !== "DIBATALKAN" && s.tanggal <= clock.today,
-    canApprove: s.canManage && s.status === "AKTIF",
+    canApprove: s.canManage && (s.status === "AKTIF" || (s.status === "SELESAI" && s.menunggu > 0)),
     frozen: s.peserta_ids.length > 0,
     toleransi: clock.settings.toleransi,
     zona: clock.settings.zona_waktu,
@@ -233,6 +233,12 @@ export function SessionHero({
           {s.seri_id ? " · Berulang" : ""}
         </p>
       </div>
+      {s.tutup_otomatis ? (
+        <p className="pr-hnote">
+          Sesi ini lupa ditutup, jadi ditutup otomatis setelah hari kegiatannya lewat. Siswa tanpa catatan dihitung alfa.
+          {s.menunggu ? ` ${s.menunggu} pengajuan masih menunggu dan tetap bisa disahkan.` : ""}
+        </p>
+      ) : null}
       {s.status === "AKTIF" || s.status === "SELESAI" ? (
         <LiveCounters />
       ) : s.status === "AKAN_DATANG" ? (
@@ -368,7 +374,7 @@ function QrMini({ sesiId, qr, clock, isOwner }: { sesiId: string; qr: PresensiQr
 
 function statusPill(s: SessionCard, today: string): { label: string; cls: string } {
   if (s.status === "AKTIF") return { label: "Berlangsung", cls: "o" };
-  if (s.status === "SELESAI") return { label: "Selesai", cls: "m" };
+  if (s.status === "SELESAI") return { label: s.tutup_otomatis ? "Tutup otomatis" : "Selesai", cls: "m" };
   if (s.status === "DIBATALKAN") return { label: "Batal", cls: "r" };
   const badge = dayBadge(s.tanggal, today);
   return { label: badge, cls: s.tanggal === today || badge === "Besok" ? "b" : "m" };

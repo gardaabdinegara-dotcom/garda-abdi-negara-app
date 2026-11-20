@@ -37,6 +37,7 @@ import {
   sessionTypeOptions,
   setSessionStatus,
   skdPasses,
+  statusEfektif,
   submitAssignment,
   submitAttendance,
   toAttendance,
@@ -766,5 +767,52 @@ describe("bidang presensi bisa dikelola", () => {
     assert.equal(sessionTypeChangeInput.safeParse({ value: "MI", aksi: "ubah", nama: " " }).success, false);
     assert.equal(sessionTypeChangeInput.safeParse({ value: "MI", aksi: "hapus" }).success, false);
     assert.deepEqual(sessionTypeChangeInput.parse({ value: "FISIK", aksi: "naik", nama: "abaikan" }), { value: "FISIK", aksi: "naik" });
+  });
+});
+
+describe("sesi yang lupa ditutup", () => {
+  /** Konteks pada hari berikutnya (14 Nov) jam lokal tertentu. */
+  const besok = (time: string): OperationContext => {
+    const [h, m] = time.split(":").map(Number);
+    return { ...ctx(), now: new Date(Date.UTC(2026, 10, 14, h! - 7, m!)).toISOString() };
+  };
+
+  test("masih berlangsung di harinya, dianggap selesai setelah harinya lewat", async () => {
+    const f = await fixture();
+    setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);
+    assert.equal(statusEfektif(session(f.t, f.sesi), DAY).status, "AKTIF");
+    const lewat = statusEfektif(session(f.t, f.sesi), "2026-11-14");
+    assert.equal(lewat.status, "SELESAI");
+    assert.equal(lewat.tutup_otomatis, true);
+    // Rekap memakai status efektif: sesi ikut dihitung (siswa tanpa catatan = alfa).
+    const efektif = f.t.Sesi!.map(toSession).map((s) => statusEfektif(s, "2026-11-14"));
+    const rekap = attendanceSummary(f.a, efektif, attendanceMap(f.t), PERIOD);
+    assert.equal(rekap.total, 1);
+    assert.equal(rekap.alfa, 1);
+    // Spreadsheet belum diubah hanya karena dibaca.
+    assert.equal(session(f.t, f.sesi).status, "AKTIF");
+  });
+
+  test("perubahan sesi berikutnya menyimpan penutupan otomatis", async () => {
+    const f = await fixture();
+    setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);
+    const baru = saveSession(
+      f.t,
+      { sesi_id: "", nama: "Sesi besok", tanggal: "2026-11-14", jam_mulai: "07:00", jam_selesai: "09:00", jenis: "FISIK", kelas_id: "", pengajar_id: "" },
+      besok("06:00"),
+      f.owner,
+    ).entityId;
+    assert.equal(session(f.t, f.sesi).status, "SELESAI");
+    assert.equal(session(f.t, baru).status, "AKAN_DATANG");
+  });
+
+  test("owner tetap bisa mengesahkan pengajuan yang tertinggal, pengajar tidak", async () => {
+    const f = await fixture();
+    setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);
+    submitAttendance(f.t, { sesi_id: f.sesi, status_diajukan: "HADIR", catatan: "" }, at("07:05"), f.siswa);
+    rejects(() => approveAttendance(f.t, { sesi_id: f.sesi, siswa_id: f.a }, besok("08:00"), f.teacher), /Buka sesi/);
+    approveAttendance(f.t, { sesi_id: f.sesi, siswa_id: f.a }, besok("08:00"), f.owner);
+    assert.equal(session(f.t, f.sesi).status, "SELESAI");
+    assert.equal(attendanceMap(f.t).get(`${f.sesi}:${f.a}`)?.status, "HADIR");
   });
 });
