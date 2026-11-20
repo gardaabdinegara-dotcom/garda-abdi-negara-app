@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Icon } from "./icon";
+import { Icon, type IconName } from "./icon";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -14,28 +14,36 @@ declare global {
   }
 }
 
-function installInstructions(): string[] {
+interface Step {
+  icon: IconName;
+  text: string;
+}
+
+function installInstructions(): Step[] {
   const { userAgent, maxTouchPoints } = navigator;
   const appleMobile = /iPhone|iPad|iPod/i.test(userAgent) || (/Macintosh/i.test(userAgent) && maxTouchPoints > 1);
   if (appleMobile) {
     return [
-      "Buka Ruang Garda di Safari, lalu ketuk Bagikan di bar Safari atau di menu halaman.",
-      "Pilih Tambah ke Layar Utama.",
-      "Aktifkan Buka sebagai App Web jika tersedia, lalu ketuk Tambah.",
+      { icon: "share", text: "Buka Ruang Garda di Safari, lalu ketuk Bagikan (kotak dengan panah ke atas) di bar Safari." },
+      { icon: "plus", text: "Gulir lalu pilih Tambah ke Layar Utama." },
+      { icon: "phone", text: "Ketuk Tambah. Ikon Ruang Garda muncul di layar utama dan terbuka seperti aplikasi." },
     ];
   }
   if (/Android/i.test(userAgent)) {
     return [
-      "Buka Ruang Garda di Chrome dan ketuk menu ⋮.",
-      "Pilih Instal dan buat pintasan atau Tambahkan ke layar utama, lalu ketuk Instal.",
+      { icon: "more", text: "Buka Ruang Garda di Chrome dan ketuk menu ⋮ di kanan atas." },
+      { icon: "download", text: "Pilih Instal aplikasi atau Tambahkan ke layar utama, lalu ketuk Instal." },
     ];
   }
   if (/Macintosh/i.test(userAgent) && /Version\/.*Safari/i.test(userAgent)) {
-    return ["Di Safari, klik Bagikan, lalu pilih Tambahkan ke Dock.", "Klik Tambah."];
+    return [
+      { icon: "share", text: "Di Safari, klik Bagikan, lalu pilih Tambahkan ke Dock." },
+      { icon: "plus", text: "Klik Tambah." },
+    ];
   }
   return [
-    "Buka Ruang Garda di Chrome atau Edge.",
-    "Klik ikon pasang di bilah alamat, atau buka menu browser dan pilih opsi untuk memasang situs sebagai aplikasi.",
+    { icon: "download", text: "Buka Ruang Garda di Chrome atau Edge, lalu klik ikon pasang di ujung kanan bilah alamat." },
+    { icon: "more", text: "Bila ikonnya tidak ada: buka menu browser, pilih Simpan dan bagikan atau Aplikasi, lalu Pasang." },
   ];
 }
 
@@ -44,7 +52,7 @@ export function AppInstallButton() {
   const dialog = useRef<HTMLDialogElement>(null);
   const promptPending = useRef(false);
   const [installed, setInstalled] = useState(false);
-  const [steps, setSteps] = useState<string[]>([]);
+  const [steps, setSteps] = useState<Step[]>([]);
 
   useEffect(() => {
     const standalone = window.matchMedia("(display-mode: standalone)");
@@ -90,14 +98,24 @@ export function AppInstallButton() {
   return (
     <>
       <button type="button" className="icon-button app-install-button" onClick={install} aria-label="Pasang Aplikasi" title="Pasang Aplikasi">
-        <Icon name="download" />
+        <Icon name="phone" />
         <span className="app-install-label">Pasang Aplikasi</span>
+        <span className="app-install-short">Pasang</span>
       </button>
       <dialog ref={dialog} className="app-install-dialog" aria-labelledby={titleId}>
         <div className="stack">
           <h2 id={titleId} className="app-install-title">Pasang Ruang Garda</h2>
-          <ol>
-            {steps.map((step) => <li key={step}>{step}</li>)}
+          <p className="muted">Setelah dipasang, Ruang Garda terbuka dari layar utama seperti aplikasi, tanpa mengetik alamat.</p>
+          <ol className="app-install-steps">
+            {steps.map((step, i) => (
+              <li key={step.text}>
+                <span className="app-install-num">{i + 1}</span>
+                <span className="app-install-ico">
+                  <Icon name={step.icon} />
+                </span>
+                <span>{step.text}</span>
+              </li>
+            ))}
           </ol>
           <form method="dialog" className="form-actions">
             <button className="btn" type="submit">Tutup</button>

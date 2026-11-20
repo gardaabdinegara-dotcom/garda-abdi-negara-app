@@ -5,6 +5,7 @@ import { localClock } from "../core/akademik";
 import { createStudent } from "../core/domain";
 import { hitungHasil, JENIS_LATIHAN, PRESET, type Bagian, type DurasiLatihan, type JenisLatihan } from "../core/latihan";
 import { saveLatihan } from "../core/latihan-simpan";
+import { pengumumanInput, simpanPengumuman } from "../core/pengumuman";
 import { createStudentAccount } from "../core/pin";
 import { saveSamaptaPos, saveSamaptaTest, setSamaptaStatus } from "../core/samapta";
 import { samaptaPosInput } from "../core/samapta-input";
@@ -24,6 +25,11 @@ const NAMA: [string, "L" | "P"][] = [
 ];
 const KOTA = ["Gowa", "Makassar", "Maros", "Takalar", "Sungguminasa"];
 const SEKOLAH = ["SMAN 1 Gowa", "SMKN 2 Makassar", "MAN 1 Maros", "SMAN 3 Takalar", "SMAN 11 Makassar"];
+/** Wali fiktif. Dua siswa sengaja tanpa nomor wali agar tombol "Isi nomor wali" ikut terlihat. */
+const WALI = ["Ibu Rahmawati", "Bapak Syamsul", "Ibu Nurhayati", "Bapak Ridwan", "Ibu Hasnah", "Bapak Abdul Rahman", "Ibu Marlina", "Bapak Junaedi"];
+const TANPA_WALI = new Set([5, 17]);
+/** Jalur contoh: sebagian besar TNI, beberapa Polri dan satu Kedinasan (untuk chip saring di daftar siswa). */
+const jalurContoh = (i: number) => (i === 13 ? "Kedinasan" : i % 5 === 1 ? "Polri" : "TNI");
 
 /** Pembangkit acak yang selalu sama untuk benih yang sama, agar data contoh identik di setiap server. */
 function mulberry32(seed: number) {
@@ -195,11 +201,13 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     const input = studentInput.parse({
       nama,
       jenis_kelamin: jk,
-      jalur_target: "TNI",
+      jalur_target: jalurContoh(i),
       tanggal_lahir: `${2006 + (i % 3)}-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 27) + 1).padStart(2, "0")}`,
       tempat_lahir: KOTA[i % KOTA.length],
       asal_sekolah: SEKOLAH[i % SEKOLAH.length],
       no_wa: `0812000${String(1000 + i)}`,
+      nama_wali: TANPA_WALI.has(i) ? "" : WALI[i % WALI.length],
+      no_wa_wali: TANPA_WALI.has(i) ? "" : `08134455${String(2100 + i * 7)}`,
       tanggal_daftar: daftar,
     });
     const siswaId = createStudent(inti, input, ctxAt(daftar), actor).entityId;
@@ -274,6 +282,26 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     if (n === 0) setSamaptaStatus(inti, { tes_id: tesId, status: "SELESAI" }, ctx, actor);
   });
 
+  // ---------------------------------------------------------------- Pengumuman (3 tampil, 1 sudah lewat)
+  const hariTanggal = (date: string) =>
+    new Intl.DateTimeFormat("id-ID", { timeZone: "UTC", weekday: "long", day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00Z`));
+  let minggu = addDays(today, 4);
+  while (weekday(minggu) !== 0) minggu = addDays(minggu, 1);
+  let senin = addDays(today, 1);
+  while (weekday(senin) !== 1) senin = addDays(senin, 1);
+  const cicilan = addDays(today, 15);
+  const umumkan = (dibuat: string, jam: string, isi: { judul: string; isi: string; tampil_sampai: string; disematkan?: boolean }) =>
+    simpanPengumuman(inti, pengumumanInput.parse({ disematkan: false, ...isi }), dibuat, ctxAt(dibuat, jam), actor);
+  umumkan(addDays(today, -12), "19:00", { judul: "Pakaian latihan baru", isi: "Mulai pekan ini latihan pagi memakai kaus hijau Garda dan celana training hitam.", tampil_sampai: addDays(today, -5) });
+  umumkan(addDays(today, -4), "20:15", { judul: `Cicilan 3 paling lambat ${hariTanggal(cicilan)}`, isi: "Bayar di kas atau transfer ke rekening BRI lembaga. Simpan bukti transfer dan tunjukkan ke admin.", tampil_sampai: cicilan });
+  umumkan(addDays(today, -2), "18:30", { judul: `Libur sesi ${hariTanggal(senin)}`, isi: "Sesi hari itu dipindah ke hari berikutnya, jam dan tempat sama.", tampil_sampai: senin });
+  umumkan(addDays(today, -1), "19:45", {
+    judul: "Tes Samapta III",
+    isi: `${hariTanggal(minggu)} 06.00 di Lap. Syekh Yusuf. Bawa sepatu lari dan air minum.`,
+    tampil_sampai: minggu,
+    disematkan: true,
+  });
+
   // ---------------------------------------------------------------- Latihan psikotes
   isiContohLatihan(
     inti,
@@ -282,6 +310,9 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     Number(today.replace(/-/g, "")) + 7,
     (prefix) => `${prefix}_DEMO${String(++seq).padStart(5, "0")}`,
   );
+
+  // ---------------------------------------------------------------- Target latihan mingguan (contoh)
+  inti.Pengaturan!.push({ key: "latihan_target", value: JSON.stringify({ jenis: "kraepelin", durasi: "standar", kali: 3 }), updated_at: wib(today, "07:00"), updated_by: actor.user.user_id });
 
   // ---------------------------------------------------------------- Keuangan (catat manual)
   const start = `${addDays(`${today.slice(0, 7)}-01`, -1).slice(0, 7)}-01`;
@@ -295,8 +326,8 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
     return date > today ? null : date;
   };
   const prev = start.slice(0, 7), cur = today.slice(0, 7);
-  const masuk = (tanggal: string | null, kategori: string, nominal: number, deskripsi: string, akun: string) => {
-    if (tanggal) fin("transaction.create", { jenis: "PENERIMAAN_LAIN", akun_id: akun, kategori_id: kategori, nominal, tanggal_transaksi: tanggal, deskripsi });
+  const masuk = (tanggal: string | null, kategori: string, nominal: number, deskripsi: string, akun: string, siswaId = "") => {
+    if (tanggal) fin("transaction.create", { jenis: "PENERIMAAN_LAIN", akun_id: akun, kategori_id: kategori, nominal, tanggal_transaksi: tanggal, deskripsi, ...(siswaId ? { siswa_id: siswaId } : {}) });
   };
   const keluar = (tanggal: string | null, kategori: string, nominal: number, deskripsi: string, akun = "AKN_bank") => {
     if (tanggal) fin("transaction.create", { jenis: "BIAYA", akun_id: akun, kategori_id: kategori, nominal, tanggal_transaksi: tanggal, deskripsi });
@@ -304,9 +335,11 @@ export function buildDemoData(viewer: User, nowIso = new Date().toISOString()): 
   NAMA.forEach(([nama], i) => {
     const kode = `GAN-${String(i + 1).padStart(4, "0")}`;
     const akun = i % 2 ? "AKN_bank" : "AKN_cash";
-    masuk(day(prev, 3 + (i % 8)), "KTG_pendaftaran", 250000, `Formulir pendaftaran - ${kode} ${nama}`, akun);
-    masuk(day(prev, 5 + (i % 8)), "KTG_bimbel", 1500000, `Cicilan 1 - ${kode} ${nama}`, akun);
-    if (i % 4 !== 3) masuk(day(cur, 5 + (i % 9)), "KTG_bimbel", 1500000, `Cicilan 2 - ${kode} ${nama}`, akun);
+    // Uang masuk dari siswa ditautkan ke siswanya agar profil siswa menampilkan riwayat bayar (bukan tagihan).
+    const siswaId = ids[i] ?? "";
+    masuk(day(prev, 3 + (i % 8)), "KTG_pendaftaran", 250000, `Formulir pendaftaran - ${kode} ${nama}`, akun, siswaId);
+    masuk(day(prev, 5 + (i % 8)), "KTG_bimbel", 1500000, `Cicilan 1 - ${kode} ${nama}`, akun, siswaId);
+    if (i % 4 !== 3) masuk(day(cur, 5 + (i % 9)), "KTG_bimbel", 1500000, `Cicilan 2 - ${kode} ${nama}`, akun, siswaId);
   });
   for (const month of [prev, cur]) {
     keluar(day(month, 2), "KTG_sewa", 1200000, "Sewa lapangan latihan");

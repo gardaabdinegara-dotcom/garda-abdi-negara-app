@@ -1,0 +1,403 @@
+/* Daftar ringkas satu baris per orang: daftar siswa dan daftar akun (siswa-daftar.tsx, akun-daftar.tsx). */
+
+.dr-card {
+  gap: 12px;
+}
+
+.dr-cari {
+  position: relative;
+  display: block;
+}
+
+.dr-cari .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.dr-cari input[type="search"] {
+  width: 100%;
+  padding-left: 42px;
+}
+
+.dr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--secondary);
+  font: 600 13px/1.2 var(--body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dr-chip em {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--secondary);
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-chip:hover {
+  border-color: var(--primary);
+}
+
+.dr-chip.is-on {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.dr-chip.is-on em {
+  background: #ffffff2e;
+  color: inherit;
+}
+
+.dr-chip.is-oranye:not(.is-on) em {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.dr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dr-legend > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dr-legend .dr-dot + .dr-dot,
+.dr-legend span + .dr-dot {
+  margin-left: 6px;
+}
+
+.dr-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dr-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 10px;
+  min-height: 58px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dr-row:last-child {
+  border-bottom: 0;
+}
+
+.dr-main {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dr-main:hover .dr-nama {
+  color: var(--primary);
+}
+
+.dr-av {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font: 800 13px/1 var(--heading);
+}
+
+.dr-av.is-owner {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.dr-nm {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dr-nm b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.dr-nama {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dr-nm small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dr-nm code {
+  font: 600 11.5px/1.3 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color: var(--secondary);
+}
+
+.dr-dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.dr-dot.is-off {
+  background: var(--border);
+}
+
+.dr-row.is-mati .dr-nama,
+.dr-row.is-mati .dr-av {
+  opacity: 0.6;
+}
+
+/* Kolom tambahan di layar lebar: nomor WA dan jalur, agar daftar tetap satu baris. */
+.dr-extra {
+  display: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dr-side {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.dr-empty {
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.dr-empty b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-family: var(--heading);
+  font-size: 15px;
+}
+
+/* Baris akun yang dibuka: tombol Reset PIN dan tautan tanpa pindah halaman. */
+.dr-row.is-buka {
+  border-bottom-color: transparent;
+}
+
+.dr-buka {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.dr-buka-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dr-buka-aksi form {
+  display: contents;
+}
+
+.dr-buka > p:not(.notice) {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.dr-chev {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--muted);
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+.dr-row.is-buka .dr-chev {
+  transform: rotate(90deg);
+}
+
+@media (min-width: 760px) {
+  .dr-extra {
+    display: block;
+  }
+
+  .dr-extra.dr-jalur {
+    width: 92px;
+  }
+
+  .dr-extra.dr-telp {
+    width: 130px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dr-chev {
+    transition: none;
+  }
+}
+
+/* Lembar "Cetak kartu login": pilihan siapa yang dicetak. */
+.kl-pilih {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kl-pilih legend {
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.kl-opsi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.kl-opsi:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.kl-opsi:has(input:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.kl-opsi input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--primary);
+}
+
+.kl-opsi span {
+  display: flex;
+  flex-direction: column;
+}
+
+.kl-opsi b {
+  font-size: 14px;
+}
+
+.kl-opsi small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.kl-info {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--info-soft);
+  color: var(--info);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.kl-info .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+}
+
+.kl-catatan {
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* Pil status di baris dibuat ringkas agar nama tidak cepat terpotong di ponsel. */
+.dr-row .dr-main .badge {
+  flex: none;
+  padding: 2px 8px;
+  font-size: 11px;
+}

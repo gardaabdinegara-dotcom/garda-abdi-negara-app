@@ -21,6 +21,7 @@ export function RekapFilter({ pilihan }: { pilihan: PilihanRekap }) {
       {pilihan.grafik === "skor" ? <input type="hidden" name="grafik" value="skor" /> : null}
       {pilihan.tanda ? <input type="hidden" name="tanda" value={pilihan.tanda} /> : null}
       {pilihan.siswa ? <input type="hidden" name="siswa" value={pilihan.siswa} /> : null}
+      {pilihan.target ? <input type="hidden" name="target" value={pilihan.target} /> : null}
       <div className="lp-monitor-field">
         <label htmlFor="latihan-rekap-jenis">Jenis latihan</label>
         <select id="latihan-rekap-jenis" name="jenis" ref={jenis} defaultValue={pilihan.jenis ?? ""}>

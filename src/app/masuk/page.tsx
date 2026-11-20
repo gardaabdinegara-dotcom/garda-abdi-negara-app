@@ -46,7 +46,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
         <div className="stack">
           <span className="eyebrow">Ruang kerja bimbel</span>
           <h1>
-            Belajar, presensi, dan keuangan dalam <em>satu ruang</em>.
+            Presensi, Tes Samapta, dan latihan psikotes dalam <em>satu ruang</em>.
           </h1>
           <p>Untuk owner, admin, pengajar, siswa, dan wali Garda Abdi Negara. Setiap akun hanya melihat bagian yang menjadi haknya.</p>
           <div className="welcome-tags">

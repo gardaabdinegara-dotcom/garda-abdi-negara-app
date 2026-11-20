@@ -20,6 +20,8 @@ const PRESENSI_TYPE_LABEL: Record<string, string> = {
   ADIRAGA: "ADIRAGA",
 };
 const PRESENSI_TYPE_PREFIX = "presensi_bidang:";
+/** Satu baris Pengaturan berisi JSON susunan bidang: urutan, yang disembunyikan, dan nama tampilan. */
+export const PRESENSI_TYPE_ARRANGEMENT_KEY = "presensi_bidang_atur";
 export const PRESENSI_TYPE_NAME_MAX = 60;
 
 export interface SessionTypeOption {
@@ -27,26 +29,108 @@ export interface SessionTypeOption {
   label: string;
 }
 
-export function sessionTypeLabel(value: string): string {
+/** Bidang presensi lengkap dengan susunannya. `value` disimpan di sesi dan tidak pernah berubah. */
+export interface SessionTypeEntry extends SessionTypeOption {
+  hidden: boolean;
+  builtIn: boolean;
+}
+
+export interface SessionTypeArrangement {
+  urutan: string[];
+  sembunyi: string[];
+  nama: Record<string, string>;
+}
+
+/** Label bidang. Kirim `labels` (dari sessionTypeLabels) agar nama yang diubah owner ikut tampil. */
+export function sessionTypeLabel(value: string, labels?: Readonly<Record<string, string>>): string {
+  if (labels && Object.hasOwn(labels, value)) return labels[value]!;
   return Object.hasOwn(PRESENSI_TYPE_LABEL, value) ? PRESENSI_TYPE_LABEL[value]! : value;
 }
 
 export const normalizeSessionTypeName = (name: string) => name.normalize("NFC").trim().replace(/\s+/g, " ");
 const sessionTypeNameKey = (name: string) => normalizeSessionTypeName(name).toLowerCase();
 
-export function sessionTypeOptions(t: Tables): SessionTypeOption[] {
-  const options = Object.entries(PRESENSI_TYPE_LABEL).map(([value, label]) => ({ value, label }));
-  const seen = new Set(options.flatMap(({ value, label }) => [sessionTypeNameKey(value), sessionTypeNameKey(label)]));
+const validTypeName = (name: string) => Boolean(name) && name.length <= PRESENSI_TYPE_NAME_MAX;
+
+/** Susunan bidang dari Pengaturan. Isian rusak diabaikan sehingga daftar bawaan tetap tampil. */
+export function sessionTypeArrangement(t: Tables): SessionTypeArrangement {
+  const raw = str((t.Pengaturan ?? []).find((row) => row.key === PRESENSI_TYPE_ARRANGEMENT_KEY)?.value ?? "");
+  const out: SessionTypeArrangement = { urutan: [], sembunyi: [], nama: {} };
+  if (!raw.trim()) return out;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return out;
+  }
+  if (!parsed || typeof parsed !== "object") return out;
+  const value = parsed as Record<string, unknown>;
+  const texts = (list: unknown) => (Array.isArray(list) ? [...new Set(list.filter((x): x is string => typeof x === "string"))] : []);
+  out.urutan = texts(value.urutan);
+  out.sembunyi = texts(value.sembunyi);
+  if (value.nama && typeof value.nama === "object" && !Array.isArray(value.nama)) {
+    for (const [key, label] of Object.entries(value.nama as Record<string, unknown>)) {
+      if (typeof label !== "string") continue;
+      const name = normalizeSessionTypeName(label);
+      if (validTypeName(name)) out.nama[key] = name;
+    }
+  }
+  return out;
+}
+
+/** Bidang bawaan dan tambahan dengan nama asli, sebelum disusun. */
+function baseSessionTypes(t: Tables): SessionTypeEntry[] {
+  const entries: SessionTypeEntry[] = Object.entries(PRESENSI_TYPE_LABEL).map(([value, label]) => ({ value, label, hidden: false, builtIn: true }));
+  const seen = new Set(entries.flatMap(({ value, label }) => [sessionTypeNameKey(value), sessionTypeNameKey(label)]));
   for (const row of t.Pengaturan ?? []) {
     if (!str(row.key).startsWith(PRESENSI_TYPE_PREFIX)) continue;
     const name = normalizeSessionTypeName(str(row.value));
     const key = sessionTypeNameKey(name);
-    if (!name || name.length > PRESENSI_TYPE_NAME_MAX || seen.has(key)) continue;
+    if (!validTypeName(name) || seen.has(key)) continue;
     seen.add(key);
     // Nama bidang tambahan disimpan di sesi agar riwayat tetap bisa menampilkannya.
-    options.push({ value: name, label: name });
+    entries.push({ value: name, label: name, hidden: false, builtIn: false });
   }
-  return options;
+  return entries;
+}
+
+/** Semua bidang (termasuk yang disembunyikan) sesuai urutan, nama tampilan, dan status tampil dari owner. */
+export function sessionTypeCatalog(t: Tables): SessionTypeEntry[] {
+  const base = baseSessionTypes(t);
+  const arrangement = sessionTypeArrangement(t);
+  const hidden = new Set(arrangement.sembunyi);
+  const rank = new Map(arrangement.urutan.map((value, index) => [value, index]));
+  return base
+    .map((entry, index) => ({
+      ...entry,
+      label: Object.hasOwn(arrangement.nama, entry.value) ? arrangement.nama[entry.value]! : entry.label,
+      hidden: hidden.has(entry.value),
+      index,
+    }))
+    .sort((a, b) => (rank.get(a.value) ?? rank.size + a.index) - (rank.get(b.value) ?? rank.size + b.index))
+    .map(({ index: _index, ...entry }) => entry);
+}
+
+/** Pilihan bidang saat membuat atau mengubah sesi: hanya yang tampil, sesuai urutan owner. */
+export function sessionTypeOptions(t: Tables): SessionTypeOption[] {
+  return sessionTypeCatalog(t)
+    .filter((entry) => !entry.hidden)
+    .map(({ value, label }) => ({ value, label }));
+}
+
+/** Nama tampilan semua bidang, termasuk yang disembunyikan, untuk melabeli sesi lama. */
+export function sessionTypeLabels(t: Tables): Record<string, string> {
+  return Object.fromEntries(sessionTypeCatalog(t).map(({ value, label }) => [value, label]));
+}
+
+/** Nama yang sudah dipakai bidang lain (kode, nama tampilan, dan nama bawaan). */
+function takenTypeNames(catalog: readonly SessionTypeEntry[], except = ""): Set<string> {
+  return new Set(
+    catalog
+      .filter((entry) => entry.value !== except)
+      .flatMap((entry) => [entry.value, entry.label, sessionTypeLabel(entry.value)])
+      .map(sessionTypeNameKey),
+  );
 }
 
 export const SESSION_STATUS = ["AKAN_DATANG", "AKTIF", "SELESAI", "DIBATALKAN", "DIHAPUS"] as const;
@@ -89,7 +173,7 @@ export type ComponentCategory = keyof typeof COMPONENTS;
 export const FITNESS_UNIT: Record<string, string> = { lari: "m", pullup: "kali", situp: "kali", pushup: "kali", shuttle: "detik", chinning: "kali" };
 const FITNESS_RAW: Record<string, [number, number]> = { lari: [0, 10000], shuttle: [0.1, 300] };
 
-/** Nilai maksimal SKD (Permenpan) — acuan kelulusan latihan diatur di Pengaturan. */
+/** Nilai maksimal SKD (Permenpan); acuan kelulusan latihan diatur di Pengaturan. */
 export const SKD_MAX = { twk: 150, tiu: 175, tkp: 225 } as const;
 export const SKD_KEYS = ["twk", "tiu", "tkp"] as const;
 
@@ -102,6 +186,57 @@ export const DISCIPLINE = { sangat: 95, baik: 85, cukup: 75 } as const;
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const PERIOD = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+// ---------------------------------------------------------------- Sesi berulang (tanggal)
+
+/** Batas satu seri: paling banyak 62 sesi dan rentang sekitar tiga bulan. */
+export const SERIES_MAX_SESSIONS = 62;
+export const SERIES_MAX_DAYS = 92;
+/** Hari dalam seminggu, 1 = Senin sampai 7 = Minggu (urutan ISO). */
+export const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
+export const WEEKDAY_SHORT: Record<number, string> = { 1: "Sen", 2: "Sel", 3: "Rab", 4: "Kam", 5: "Jum", 6: "Sab", 7: "Min" };
+export const WEEKDAY_LONG: Record<number, string> = { 1: "Senin", 2: "Selasa", 3: "Rabu", 4: "Kamis", 5: "Jumat", 6: "Sabtu", 7: "Minggu" };
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const utcDate = (date: string) => new Date(`${date}T00:00:00Z`);
+const validDate = (date: string) => ISO_DATE.test(date) && !Number.isNaN(utcDate(date).getTime()) && utcDate(date).toISOString().slice(0, 10) === date;
+
+/** Hari ISO (1 = Senin, 7 = Minggu) untuk tanggal YYYY-MM-DD. */
+export function isoWeekday(date: string): number {
+  const day = utcDate(date).getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+export function addDays(date: string, days: number): string {
+  const d = utcDate(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+export const daysBetween = (from: string, to: string) => Math.round((utcDate(to).getTime() - utcDate(from).getTime()) / 86_400_000);
+
+/** Tanggal dari awal sampai akhir (keduanya ikut) yang jatuh pada hari terpilih. Rentang tidak sah = kosong. */
+export function seriesDates(start: string, end: string, days: readonly number[]): string[] {
+  if (!validDate(start) || !validDate(end) || end < start || daysBetween(start, end) > SERIES_MAX_DAYS) return [];
+  const chosen = new Set(days);
+  const out: string[] = [];
+  for (let date = start; date <= end; date = addDays(date, 1)) {
+    if (chosen.has(isoWeekday(date))) out.push(date);
+  }
+  return out;
+}
+
+/** "Senin sampai Sabtu", "Selasa dan Kamis", "Sen, Rab, Jum", atau "Setiap hari". */
+export function describeWeekdays(days: readonly number[]): string {
+  const list = [...new Set(days)].filter((d) => d >= 1 && d <= 7).sort((a, b) => a - b);
+  if (list.length === 0) return "-";
+  if (list.length === 7) return "Setiap hari";
+  if (list.length === 1) return `Setiap ${WEEKDAY_LONG[list[0]!]}`;
+  if (list.length === 2) return `${WEEKDAY_LONG[list[0]!]} dan ${WEEKDAY_LONG[list[1]!]}`;
+  const contiguous = list.every((d, i) => i === 0 || d === list[i - 1]! + 1);
+  if (contiguous) return `${WEEKDAY_LONG[list[0]!]} sampai ${WEEKDAY_LONG[list[list.length - 1]!]}`;
+  return list.map((d) => WEEKDAY_SHORT[d]).join(", ");
+}
 
 // ---------------------------------------------------------------- Bentuk data
 
@@ -117,6 +252,8 @@ export interface Session {
   status: SessionStatus;
   /** Daftar peserta yang dibekukan saat sesi dibuka; kosong berarti belum dibekukan. */
   peserta_ids: string[];
+  /** Sesi yang dibuat sekaligus lewat "Ulangi" berbagi seri_id; kosong = sesi tunggal. */
+  seri_id: string;
 }
 
 export interface Attendance {
@@ -225,6 +362,7 @@ export const toSession = (row: Row): Session => ({
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean),
+  seri_id: str(row.seri_id).trim(),
 });
 
 export const toAttendance = (row: Row): Attendance => ({
@@ -469,14 +607,86 @@ function clock(t: Tables, ctx: OperationContext) {
 export function addSessionType(t: Tables, name: string, ctx: OperationContext, actor: Actor): OperationOutcome {
   if (!isAdmin(actor)) throw forbidden();
   const label = normalizeSessionTypeName(name);
-  if (!label || label.length > PRESENSI_TYPE_NAME_MAX) throw new AppError("Nama bidang tidak valid.");
-  const key = sessionTypeNameKey(label);
-  if (sessionTypeOptions(t).some((option) => [option.value, option.label].some((text) => sessionTypeNameKey(text) === key))) {
+  if (!validTypeName(label)) throw new AppError("Nama bidang tidak valid.");
+  if (takenTypeNames(sessionTypeCatalog(t)).has(sessionTypeNameKey(label))) {
     throw new AppError("Nama bidang ini sudah ada.");
   }
   const row = { key: `${PRESENSI_TYPE_PREFIX}${ctx.newId("BDG")}`, value: label, ...updated(ctx) };
   rows(t, "Pengaturan").push(row);
   return { entityType: "Pengaturan", entityId: row.key, message: "Bidang presensi ditambahkan.", after: row };
+}
+
+export type SessionTypeChange =
+  | { value: string; aksi: "ubah"; nama: string; tampil: boolean }
+  | { value: string; aksi: "naik" | "turun" | "tampil" | "sembunyi" };
+
+/**
+ * Mengubah nama tampilan, urutan, atau status tampil satu bidang.
+ * Sesi tetap menyimpan kode bidangnya, jadi riwayat utuh dan ikut tampil dengan nama baru.
+ */
+export function changeSessionType(t: Tables, input: SessionTypeChange, ctx: OperationContext, actor: Actor): OperationOutcome {
+  if (!isAdmin(actor)) throw forbidden();
+  const catalog = sessionTypeCatalog(t);
+  const entry = catalog.find((e) => e.value === input.value);
+  if (!entry) throw notFound("Bidang");
+  const before = sessionTypeArrangement(t);
+  const order = catalog.map((e) => e.value);
+  const hidden = new Set(catalog.filter((e) => e.hidden).map((e) => e.value));
+  const names = new Map(catalog.filter((e) => e.label !== sessionTypeLabel(e.value)).map((e) => [e.value, e.label]));
+  // Nama asli bidang tambahan = kodenya; bidang bawaan memakai label bawaan.
+  const original = sessionTypeLabel(entry.value);
+  let message: string;
+
+  if (input.aksi === "naik" || input.aksi === "turun") {
+    // Bergeser di antara bidang dengan status tampil yang sama (daftar tampil atau daftar tersembunyi).
+    const group = order.filter((value) => hidden.has(value) === entry.hidden);
+    const at = group.indexOf(entry.value);
+    const target = group[input.aksi === "naik" ? at - 1 : at + 1];
+    if (!target) return { entityType: "Pengaturan", entityId: PRESENSI_TYPE_ARRANGEMENT_KEY, message: "Urutan bidang tidak berubah." };
+    const a = order.indexOf(entry.value);
+    const b = order.indexOf(target);
+    [order[a], order[b]] = [order[b]!, order[a]!];
+    message = "Urutan bidang diperbarui.";
+  } else {
+    const show = input.aksi === "ubah" ? input.tampil : input.aksi === "tampil";
+    if (input.aksi === "ubah") {
+      const label = normalizeSessionTypeName(input.nama);
+      if (!validTypeName(label)) throw new AppError("Nama bidang wajib diisi, maksimal 60 karakter.");
+      if (takenTypeNames(catalog, entry.value).has(sessionTypeNameKey(label))) throw new AppError("Nama bidang ini sudah dipakai bidang lain.");
+      if (label === original) names.delete(entry.value);
+      else names.set(entry.value, label);
+    }
+    if (show) hidden.delete(entry.value);
+    else hidden.add(entry.value);
+    if (order.every((value) => hidden.has(value))) throw new AppError("Sisakan minimal satu bidang yang tampil saat membuat sesi.");
+    message =
+      input.aksi === "ubah"
+        ? "Perubahan bidang disimpan."
+        : show
+          ? "Bidang ditampilkan lagi di pilihan sesi."
+          : "Bidang disembunyikan dari pilihan sesi. Riwayat sesinya tetap aman.";
+  }
+
+  const after: SessionTypeArrangement = {
+    urutan: order,
+    sembunyi: order.filter((value) => hidden.has(value)),
+    nama: Object.fromEntries(order.filter((value) => names.has(value)).map((value) => [value, names.get(value)!])),
+  };
+  putSetting(t, PRESENSI_TYPE_ARRANGEMENT_KEY, JSON.stringify(after), ctx);
+  return {
+    entityType: "Pengaturan",
+    entityId: PRESENSI_TYPE_ARRANGEMENT_KEY,
+    message,
+    before: { key: PRESENSI_TYPE_ARRANGEMENT_KEY, value: JSON.stringify(before) },
+    after: { key: PRESENSI_TYPE_ARRANGEMENT_KEY, value: JSON.stringify(after) },
+  };
+}
+
+function putSetting(t: Tables, key: string, value: string, ctx: OperationContext) {
+  const found = find(t, "Pengaturan", "key", key);
+  const row = { key, value, ...updated(ctx) };
+  if (found) replace(t, "Pengaturan", found.index, { ...found.row, ...row });
+  else rows(t, "Pengaturan").push(row);
 }
 
 export interface SessionInput {
@@ -490,7 +700,8 @@ export interface SessionInput {
   pengajar_id: string;
 }
 
-export function saveSession(t: Tables, input: SessionInput, ctx: OperationContext, actor: Actor): OperationOutcome {
+/** Menambah sesi baru atau mengubah satu sesi. `seriId` hanya dipakai saat menambah (lihat saveSessionSeries). */
+export function saveSession(t: Tables, input: SessionInput, ctx: OperationContext, actor: Actor, seriId = ""): OperationOutcome {
   if (!isAcademicStaff(actor)) throw forbidden();
   if (!TIME.test(input.jam_mulai) || !TIME.test(input.jam_selesai) || input.jam_mulai >= input.jam_selesai) {
     throw new AppError("Jam mulai harus lebih awal dari jam selesai.");
@@ -543,9 +754,142 @@ export function saveSession(t: Tables, input: SessionInput, ctx: OperationContex
     status: "AKAN_DATANG",
     peserta_ids: "",
     ...created(ctx),
+    seri_id: seriId,
   };
   rows(t, "Sesi").push(after);
   return { entityType: "Sesi", entityId: after.sesi_id, message: "Sesi ditambahkan.", after };
+}
+
+// ---------------------------------------------------------------- Sesi berulang
+
+export interface SessionSeriesInput extends SessionInput {
+  /** Tanggal terakhir seri (ikut dibuat bila harinya terpilih). */
+  sampai: string;
+  /** Hari ISO terpilih, 1 = Senin sampai 7 = Minggu. */
+  hari: number[];
+}
+
+/** Kunci "sesi yang sama": tanggal, jam mulai, dan nama (tanpa beda huruf besar/spasi). */
+const slotKey = (tanggal: string, jamMulai: string, nama: string) => `${tanggal}|${jamMulai}|${normalizeSessionTypeName(nama).toLowerCase()}`;
+
+/**
+ * Membuat satu seri sesi sekaligus: satu sesi per tanggal yang harinya terpilih, semuanya berbagi seri_id baru.
+ * Dijalankan dalam satu operasi, jadi bila satu sesi gagal, tidak ada yang tersimpan.
+ * Tanggal yang sudah lewat dan tanggal yang sudah punya sesi dengan nama dan jam mulai sama dilewati.
+ */
+export function saveSessionSeries(t: Tables, input: SessionSeriesInput, ctx: OperationContext, actor: Actor): OperationOutcome<{ jumlah: number; seri_id: string; tanggal: string }> {
+  if (!isAcademicStaff(actor)) throw forbidden();
+  if (input.sesi_id) throw new AppError("Ulangi hanya bisa dipakai saat membuat sesi baru.");
+  if (!validDate(input.tanggal) || !validDate(input.sampai)) throw new AppError("Tanggal seri tidak valid.");
+  if (input.sampai < input.tanggal) throw new AppError("Sampai tanggal harus sama dengan atau sesudah tanggal mulai.");
+  if (daysBetween(input.tanggal, input.sampai) > SERIES_MAX_DAYS) throw new AppError(`Rentang seri paling panjang ${SERIES_MAX_DAYS} hari (sekitar 3 bulan).`);
+  const hari = [...new Set(input.hari)].filter((d) => d >= 1 && d <= 7);
+  if (hari.length === 0) throw new AppError("Pilih minimal satu hari.");
+
+  const { date: today } = clock(t, ctx);
+  const all = seriesDates(input.tanggal, input.sampai, hari);
+  if (all.length === 0) throw new AppError("Tidak ada tanggal yang jatuh pada hari terpilih dalam rentang itu.");
+  const upcoming = all.filter((date) => date >= today);
+  if (upcoming.length === 0) throw new AppError("Semua tanggal itu sudah lewat. Mulai dari hari ini atau sesudahnya.");
+  const taken = new Set(rows(t, "Sesi").map(toSession).filter(liveSession).map((s) => slotKey(s.tanggal, s.jam_mulai, s.nama)));
+  const dates = upcoming.filter((date) => !taken.has(slotKey(date, input.jam_mulai, input.nama)));
+  if (dates.length === 0) throw new AppError("Semua tanggal itu sudah punya sesi dengan nama dan jam mulai yang sama.", "DUPLICATE", 409);
+  if (dates.length > SERIES_MAX_SESSIONS) {
+    throw new AppError(`Satu seri paling banyak ${SERIES_MAX_SESSIONS} sesi (terpilih ${dates.length}). Perpendek rentang atau kurangi hari.`);
+  }
+
+  const seriId = ctx.newId("SERI");
+  let first = "";
+  for (const tanggal of dates) {
+    const { entityId } = saveSession(t, { ...input, sesi_id: "", tanggal }, ctx, actor, seriId);
+    first ||= entityId;
+  }
+  const notes = [
+    all.length - upcoming.length ? `${all.length - upcoming.length} tanggal yang sudah lewat tidak dibuat.` : "",
+    upcoming.length - dates.length ? `${upcoming.length - dates.length} tanggal dilewati karena sudah ada sesi yang sama.` : "",
+  ].filter(Boolean);
+  return {
+    entityType: "Sesi",
+    entityId: first,
+    message: [`${dates.length} sesi berulang ditambahkan.`, ...notes].join(" "),
+    data: { jumlah: dates.length, seri_id: seriId, tanggal: dates[0]! },
+    after: { seri_id: seriId, jumlah: dates.length, dari: dates[0]!, sampai: dates[dates.length - 1]!, hari: hari.join(","), nama: input.nama },
+  };
+}
+
+/** Sesi dalam seri yang sudah berjalan atau sudah ada catatan presensinya tidak ikut diubah/dihapus bersama. */
+export interface SeriesFollowers {
+  /** Sesi sesudahnya dalam seri yang masih boleh diubah atau dihapus bersama (belum berjalan, tanpa presensi). */
+  eligible: Session[];
+  /** Sesi sesudahnya dalam seri yang dibiarkan (sudah dibuka, selesai, dibatalkan, lewat, atau ada presensi). */
+  skipped: Session[];
+}
+
+/** Sesi sesudah `session` dalam seri yang sama. `recorded` = ID sesi yang punya catatan presensi. */
+export function seriesFollowers(session: Session, sessions: readonly Session[], recorded: ReadonlySet<string>, today: string): SeriesFollowers {
+  const out: SeriesFollowers = { eligible: [], skipped: [] };
+  if (!session.seri_id) return out;
+  const later = sessions
+    .filter((s) => s.seri_id === session.seri_id && s.sesi_id !== session.sesi_id && liveSession(s) && `${s.tanggal} ${s.jam_mulai}` > `${session.tanggal} ${session.jam_mulai}`)
+    .sort((a, b) => `${a.tanggal} ${a.jam_mulai}`.localeCompare(`${b.tanggal} ${b.jam_mulai}`));
+  for (const s of later) {
+    const free = s.status === "AKAN_DATANG" && s.tanggal >= today && !recorded.has(s.sesi_id);
+    (free ? out.eligible : out.skipped).push(s);
+  }
+  return out;
+}
+
+/** ID sesi yang sudah punya catatan presensi (selain yang dikosongkan). */
+export function recordedSessionIds(attendance: readonly Pick<Attendance, "sesi_id" | "status">[]): Set<string> {
+  return new Set(attendance.filter((a) => a.status !== "KOSONG").map((a) => a.sesi_id));
+}
+
+function followersIn(t: Tables, session: Session, ctx: OperationContext): SeriesFollowers {
+  const { date } = clock(t, ctx);
+  return seriesFollowers(session, rows(t, "Sesi").map(toSession), recordedSessionIds(rows(t, "Presensi").map(toAttendance)), date);
+}
+
+const skippedNote = (count: number) => (count ? ` ${count} sesi yang sudah berjalan atau sudah ada presensinya tidak diubah.` : "");
+
+export type SessionScope = "satu" | "seri";
+
+/**
+ * Mengubah sesi. Lingkup "seri": sesi ini (aturan biasa) ditambah sesi sesudahnya dalam seri yang belum berjalan
+ * dan belum ada presensinya. Nama, jam, bidang, peserta, dan pengajar ikut; tanggal hanya untuk sesi ini.
+ */
+export function saveSessionScoped(t: Tables, input: SessionInput & { lingkup: SessionScope }, ctx: OperationContext, actor: Actor): OperationOutcome {
+  const { lingkup, ...fields } = input;
+  if (lingkup !== "seri" || !fields.sesi_id) return saveSession(t, fields, ctx, actor);
+  const { session } = sessionById(t, fields.sesi_id);
+  if (!session.seri_id) return saveSession(t, fields, ctx, actor);
+  const followers = followersIn(t, session, ctx);
+  const outcome = saveSession(t, fields, ctx, actor);
+  for (const s of followers.eligible) {
+    saveSession(t, { ...fields, sesi_id: s.sesi_id, tanggal: s.tanggal }, ctx, actor);
+  }
+  const n = followers.eligible.length;
+  return {
+    ...outcome,
+    message: (n ? `Sesi ini dan ${n} sesi berikutnya di seri ini diperbarui.` : "Sesi diperbarui. Tidak ada sesi berikutnya di seri ini yang bisa ikut diubah.") + skippedNote(followers.skipped.length),
+    after: { ...outcome.after, ikut_diubah: followers.eligible.map((s) => s.sesi_id).join(",") },
+  };
+}
+
+/** Menghapus sesi (owner/admin). Lingkup "seri" ikut menghapus sesi sesudahnya yang belum berjalan dan tanpa presensi. */
+export function deleteSession(t: Tables, input: { sesi_id: string; lingkup: SessionScope }, ctx: OperationContext, actor: Actor): OperationOutcome {
+  const { session } = sessionById(t, input.sesi_id);
+  const followers = input.lingkup === "seri" && session.seri_id ? followersIn(t, session, ctx) : null;
+  const outcome = setSessionStatus(t, { sesi_id: input.sesi_id, status: "DIHAPUS" }, ctx, actor);
+  if (!followers) return outcome;
+  for (const s of followers.eligible) setSessionStatus(t, { sesi_id: s.sesi_id, status: "DIHAPUS" }, ctx, actor);
+  const n = followers.eligible.length + 1;
+  return {
+    ...outcome,
+    message:
+      `${n} sesi dihapus.` +
+      (followers.skipped.length ? ` ${followers.skipped.length} sesi yang sudah berjalan atau sudah ada presensinya tetap tersimpan.` : ""),
+    after: { ...outcome.after, ikut_dihapus: followers.eligible.map((s) => s.sesi_id).join(",") },
+  };
 }
 
 export function setSessionStatus(t: Tables, input: { sesi_id: string; status: SessionStatus }, ctx: OperationContext, actor: Actor): OperationOutcome {
@@ -1190,7 +1534,7 @@ export function currentReport(reports: readonly ReportRow[], siswaId: string, pe
   return reports.find((r) => r.rapor_id === reportId(siswaId, periode)) ?? null;
 }
 
-/** Versi terbit terakhir untuk siswa/wali — tetap tampil walau staf sedang menyiapkan revisi. */
+/** Versi terbit terakhir untuk siswa/wali: tetap tampil walau staf sedang menyiapkan revisi. */
 export function latestPublished(reports: readonly ReportRow[], siswaId: string, periode: string): ReportRow | null {
   return (
     reports

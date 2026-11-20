@@ -6,6 +6,7 @@ import { startTransition, useActionState, useEffect, useId, useRef, useState } f
 import { jalankanKeuangan } from "@/app/actions/keuangan";
 import { initialActionState } from "@/lib/action-state";
 import type { BarisDompet, HariDompet } from "@/lib/keuangan/dompet";
+import { Icon } from "./icon";
 import { accountIcon, KgIcon } from "./keuangan-ikon";
 
 type Kind = "in" | "out" | "move";
@@ -24,6 +25,17 @@ export interface DompetKategori {
 }
 type Option = { value: string; label: string };
 
+/** Siswa aktif untuk pilihan "Dari siswa" (uang masuk yang ditautkan ke satu siswa). */
+export interface DompetSiswa {
+  id: string;
+  kode: string;
+  nama: string;
+  /** Kelas atau jalur, mis. "TNI A". */
+  info: string;
+  /** Tanggal uang masuk terakhir dari siswa ini (YYYY-MM-DD), kosong bila belum ada. */
+  terakhir: string;
+}
+
 export interface DompetProps {
   hero: React.ReactNode;
   side: React.ReactNode;
@@ -33,7 +45,7 @@ export interface DompetProps {
   emptyText: string;
   accounts: DompetAkun[];
   categories: DompetKategori[];
-  students: { kode: string; nama: string }[];
+  students: DompetSiswa[];
   programs: Option[];
   kinds: { in: Option[]; out: Option[] };
   today: string;
@@ -274,8 +286,103 @@ function Seg<T extends string>({ name, value, options, onChange, label }: { name
 
 const TITLE: Record<Kind, string> = { in: "Catat uang masuk", out: "Catat uang keluar", move: "Pindah saldo" };
 const SAVE: Record<Kind, string> = { in: "Simpan uang masuk", out: "Simpan uang keluar", move: "Simpan pindah saldo" };
-const PLACEHOLDER: Record<Kind, string> = { in: "Cicilan 2 - GAN-0005 Arif Pratama", out: "mis. Sewa lapangan latihan", move: "Setor tunai ke bank" };
-const STUDENT_TAIL = /\s*-\s*[A-Za-z]{2,6}-\d{2,}.*$/;
+const PLACEHOLDER: Record<Kind, string> = { in: "mis. Cicilan 2 bimbel", out: "mis. Sewa lapangan latihan", move: "Setor tunai ke bank" };
+/** Keterangan otomatis saat memilih siswa (bila keterangan masih kosong). */
+const ketOtomatis = (nama: string) => `Pembayaran bimbel · ${nama}`;
+const TGL_SINGKAT = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" });
+const singkatTanggal = (d: string) => (d ? TGL_SINGKAT.format(new Date(`${d}T00:00:00Z`)).replace(".", "") : "");
+const inisial = (nama: string) =>
+  nama
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("")
+    .toUpperCase() || "?";
+const subSiswa = (s: DompetSiswa, terakhir = false) => [s.kode, s.info, terakhir && s.terakhir ? `terakhir bayar ${singkatTanggal(s.terakhir)}` : ""].filter(Boolean).join(" · ");
+const normal = (v: string) => v.toLowerCase().replace(/[\s-]+/g, "");
+
+/** Nama dengan bagian yang cocok dengan kata kunci ditandai. */
+function Sorot({ text, q }: { text: string; q: string }) {
+  const i = q ? text.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  if (i < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark>{text.slice(i, i + q.length)}</mark>
+      {text.slice(i + q.length)}
+    </>
+  );
+}
+
+/** Lembar kecil "Dari siswa": cari nama atau kode, pilih satu siswa, atau Tanpa siswa. */
+function PilihSiswa({ students, current, onPick, onClose }: { students: DompetSiswa[]; current: string; onPick: (id: string) => void; onClose: () => void }) {
+  const [q, setQ] = useState("");
+  const [pilih, setPilih] = useState(current);
+  const titleId = useId();
+  const kunci = q.trim();
+  const cocok = kunci ? students.filter((s) => s.nama.toLowerCase().includes(kunci.toLowerCase()) || normal(s.kode).includes(normal(kunci))) : students;
+  const terpilih = students.find((s) => s.id === pilih);
+  return (
+    <div
+      className="kg-pick-sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
+    >
+      <div className="kg-shtop">
+        <h3 id={titleId} className="kg-ptitle show">
+          Dari siswa
+        </h3>
+        <button type="button" className="kg-x" onClick={onClose} aria-label="Tutup pilihan siswa">
+          <KgIcon name="x" />
+        </button>
+      </div>
+      <label className="kg-pick-search">
+        <span className="sr-only">Cari nama atau kode siswa</span>
+        <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari nama atau kode GAN" autoComplete="off" autoFocus />
+      </label>
+      <p className="kg-pick-hint" aria-live="polite">
+        {kunci ? `${cocok.length} siswa cocok.` : `${students.length} siswa aktif.`}
+      </p>
+      <ul className="kg-pick-list">
+        {cocok.map((s) => (
+          <li key={s.id}>
+            <button type="button" className={pilih === s.id ? "on" : undefined} aria-pressed={pilih === s.id} onClick={() => setPilih(s.id)} onDoubleClick={() => onPick(s.id)}>
+              <span className="kg-av">{inisial(s.nama)}</span>
+              <span className="kg-pick-main">
+                <b>
+                  <Sorot text={s.nama} q={kunci} />
+                </b>
+                <span>{subSiswa(s, true)}</span>
+              </span>
+              {pilih === s.id ? <KgIcon name="ok" size="s" /> : null}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button type="button" className={pilih === "" ? "on" : undefined} aria-pressed={pilih === ""} onClick={() => setPilih("")}>
+            <span className="kg-av is-none">-</span>
+            <span className="kg-pick-main">
+              <b>Tanpa siswa</b>
+              <span>Pemasukan umum, tidak ditautkan</span>
+            </span>
+            {pilih === "" ? <KgIcon name="ok" size="s" /> : null}
+          </button>
+        </li>
+      </ul>
+      <button type="button" className="btn btn-block kg-pick-ok" onClick={() => onPick(pilih)}>
+        {terpilih ? `Pilih ${terpilih.nama}` : "Tanpa siswa"}
+      </button>
+    </div>
+  );
+}
 
 function Lembar({
   panel,
@@ -314,6 +421,8 @@ function Lembar({
   const [ke, setKe] = useState(accounts[1]?.id ?? "");
   const [tanggal, setTanggal] = useState(edit?.tanggal ?? today);
   const [ket, setKet] = useState(edit?.deskripsi ?? "");
+  const [siswa, setSiswa] = useState(edit?.siswa_id ?? "");
+  const [cariSiswa, setCariSiswa] = useState(false);
   const [alasan, setAlasan] = useState("");
   const [detail, setDetail] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -360,6 +469,8 @@ function Lembar({
   const accountName = (id: string) => accounts.find((a) => a.id === id)?.name ?? "";
   const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name.replace(/^rekening\s+/i, ""), icon: <KgIcon name={accountIcon(a.jenis)} size="s" /> }));
   const error = localError || (!state.ok && state.message ? state.message : "");
+  const bisaSiswa = kind === "in" && jenis === "PENERIMAAN_LAIN" && view !== "hapus" && (ctx.students.length > 0 || Boolean(siswa));
+  const siswaTerpilih = ctx.students.find((s) => s.id === siswa) ?? null;
 
   function press(key: string) {
     setLocalError("");
@@ -376,11 +487,14 @@ function Lembar({
     setDigits(raw.replace(/\D/g, "").replace(/^0+/, "").slice(0, 12));
   }
 
-  function pickStudent(kode: string) {
-    const student = ctx.students.find((s) => s.kode === kode);
-    if (!student) return;
-    const base = ket.replace(STUDENT_TAIL, "").trim() || (/pendaftaran|formulir/i.test(categoryName) ? "Formulir pendaftaran" : /bimbel/i.test(categoryName) ? "Cicilan" : "Pembayaran");
-    setKet(`${base} - ${student.kode} ${student.nama}`);
+  // "Dari siswa": keterangan diisi otomatis bila masih kosong (atau masih isian otomatis siswa sebelumnya).
+  function pickStudent(id: string) {
+    const before = ctx.students.find((s) => s.id === siswa);
+    const next = ctx.students.find((s) => s.id === id);
+    const masihOtomatis = !ket.trim() || (before && ket === ketOtomatis(before.nama));
+    setSiswa(next ? next.id : "");
+    if (masihOtomatis) setKet(next ? ketOtomatis(next.nama) : "");
+    setCariSiswa(false);
   }
 
   function onDari(id: string) {
@@ -539,24 +653,41 @@ function Lembar({
                   </>
                 )}
 
+                {bisaSiswa ? (
+                  <>
+                    <input type="hidden" name="siswa_id" value={siswa} />
+                    <div className="kg-lbl">
+                      Dari siswa <em>opsional</em>
+                    </div>
+                    {siswa ? (
+                      <div className="kg-pick">
+                        <span className="kg-av">{inisial(siswaTerpilih?.nama ?? "?")}</span>
+                        <span className="kg-pick-main">
+                          <b>{siswaTerpilih?.nama ?? "Siswa tertaut"}</b>
+                          <span>{siswaTerpilih ? subSiswa(siswaTerpilih) : "Tidak ada di daftar siswa aktif"}</span>
+                        </span>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setCariSiswa(true)} aria-haspopup="dialog">
+                          Ganti
+                        </button>
+                        <button type="button" className="kg-pick-x" onClick={() => pickStudent("")} aria-label="Lepas siswa">
+                          <KgIcon name="x" size="s" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button type="button" className="kg-pick-btn" onClick={() => setCariSiswa(true)} aria-haspopup="dialog">
+                        <Icon name="user" />
+                        Pilih siswa
+                        <span>agar masuk riwayat bayar siswa</span>
+                      </button>
+                    )}
+                  </>
+                ) : null}
                 <div className="kg-ket">
                   <label htmlFor={`${uid}-ket`} className="sr-only">
                     Keterangan
                   </label>
                   <input id={`${uid}-ket`} name="deskripsi" value={ket} onChange={(e) => setKet(e.target.value)} placeholder={PLACEHOLDER[kind]} autoComplete="off" maxLength={500} />
-                  {kind === "in" && ctx.students.length ? (
-                    <label className="kg-pill">
-                      {STUDENT_TAIL.test(ket) ? "Ganti siswa" : "Pilih siswa"}
-                      <select value="" onChange={(e) => pickStudent(e.target.value)} aria-label="Pilih siswa untuk keterangan">
-                        <option value="">Pilih siswa</option>
-                        {ctx.students.map((s) => (
-                          <option key={s.kode} value={s.kode}>
-                            {s.kode} {s.nama}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  ) : null}
+                  {bisaSiswa && siswaTerpilih && ket === ketOtomatis(siswaTerpilih.nama) ? <span className="kg-auto">otomatis</span> : null}
                 </div>
 
                 <div className="kg-row2">
@@ -694,6 +825,7 @@ function Lembar({
             )}
           </div>
         </form>
+        {cariSiswa && bisaSiswa ? <PilihSiswa students={ctx.students} current={siswa} onPick={pickStudent} onClose={() => setCariSiswa(false)} /> : null}
       </div>
     </>
   );

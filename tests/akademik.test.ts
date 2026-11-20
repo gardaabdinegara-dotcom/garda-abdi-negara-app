@@ -3,8 +3,19 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { describe, test } from "node:test";
 import {
+  addDays,
   addSessionType,
   approveAttendance,
+  changeSessionType,
+  deleteSession,
+  describeWeekdays,
+  isoWeekday,
+  PRESENSI_TYPE_ARRANGEMENT_KEY,
+  saveSessionScoped,
+  saveSessionSeries,
+  seriesDates,
+  sessionTypeCatalog,
+  sessionTypeLabels,
   archiveTest,
   attendanceSummary,
   buildReport,
@@ -36,7 +47,7 @@ import {
   visibleSession,
   type TestInput,
 } from "../src/lib/core/akademik";
-import { sessionInput } from "../src/lib/core/akademik-input";
+import { sessionDeleteInput, sessionInput, sessionSeriesInput, sessionTypeChangeInput } from "../src/lib/core/akademik-input";
 import { createQrToken, readQrToken, rotatingQrToken } from "../src/lib/auth/qr";
 import { createEnrollment, createStudent, saveClass, saveProgram, setStudentActive, updateEnrollmentStatus } from "../src/lib/core/domain";
 import { toEnrollment, toStudent, type Actor, type Role, type User } from "../src/lib/core/types";
@@ -499,5 +510,261 @@ describe("sesi untuk semua siswa dan QR langsung sah (arah 17 Nov 2026)", () => 
     setSessionStatus(f.t, { sesi_id: sesi, status: "AKTIF" }, at("07:00"), f.owner);
     submitAttendance(f.t, { sesi_id: sesi, status_diajukan: "HADIR", catatan: "" }, at("07:04"), f.siswa, "QR");
     assert.equal(attendanceMap(f.t).get(`${sesi}:${f.a}`)?.status, "MENUNGGU");
+  });
+});
+
+describe("sesi berulang (Ulangi)", () => {
+  // Hari uji (DAY) = Jumat 13 November 2026, pukul 10.00 WIB.
+  const base = { sesi_id: "", nama: "Latihan jasmani pagi", jam_mulai: "06:00", jam_selesai: "08:00", jenis: "FISIK", kelas_id: "", pengajar_id: "" };
+  const seriesOf = (t: Tables, seriId: string) =>
+    t.Sesi!.map(toSession)
+      .filter((s) => s.seri_id === seriId)
+      .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+  test("tanggal seri mengikuti hari terpilih dan ringkasannya mudah dibaca", () => {
+    assert.equal(isoWeekday("2026-11-23"), 1);
+    assert.equal(isoWeekday("2026-11-29"), 7);
+    const dates = seriesDates("2026-11-23", "2026-12-20", [1, 2, 3, 4, 5, 6]);
+    assert.equal(dates.length, 24);
+    assert.equal(dates[0], "2026-11-23");
+    assert.equal(dates.at(-1), "2026-12-19");
+    assert.ok(!dates.includes("2026-11-29"), "Minggu tidak dipilih");
+    assert.deepEqual(seriesDates("2026-11-30", "2026-11-23", [1]), [], "rentang terbalik");
+    assert.deepEqual(seriesDates("2026-11-01", addDays("2026-11-01", 93), [1]), [], "lebih dari tiga bulan");
+    assert.equal(describeWeekdays([1, 2, 3, 4, 5, 6]), "Senin sampai Sabtu");
+    assert.equal(describeWeekdays([4, 2]), "Selasa dan Kamis");
+    assert.equal(describeWeekdays([1, 3, 5]), "Sen, Rab, Jum");
+    assert.equal(describeWeekdays([7]), "Setiap Minggu");
+    assert.equal(describeWeekdays([1, 2, 3, 4, 5, 6, 7]), "Setiap hari");
+  });
+
+  test("isian Ulangi: hari wajib, unik, dan sampai tanggal tidak boleh sebelum tanggal mulai", () => {
+    const ok = sessionSeriesInput.parse({ nama: "Latihan", tanggal: "2026-11-23", jam_mulai: "06:00", jam_selesai: "08:00", jenis: "FISIK", sampai: "2026-12-20", hari: ["3", "1", "3"] });
+    assert.deepEqual(ok.hari, [1, 3]);
+    const noDay = sessionSeriesInput.safeParse({ nama: "Latihan", tanggal: "2026-11-23", jam_mulai: "06:00", jam_selesai: "08:00", jenis: "FISIK", sampai: "2026-12-20", hari: [] });
+    assert.equal(noDay.success, false);
+    assert.equal(noDay.error?.issues[0]?.path[0], "hari");
+    const backwards = sessionSeriesInput.safeParse({ nama: "Latihan", tanggal: "2026-11-23", jam_mulai: "06:00", jam_selesai: "08:00", jenis: "FISIK", sampai: "2026-11-20", hari: ["1"] });
+    assert.equal(backwards.success, false);
+    assert.equal(backwards.error?.issues[0]?.path[0], "sampai");
+    assert.equal(sessionSeriesInput.safeParse({ ...ok, sesi_id: "SES_1", hari: ["1"] }).success, false, "Ulangi hanya untuk sesi baru");
+    assert.deepEqual(sessionDeleteInput.parse({ sesi_id: "SES_1", lingkup: "aneh" }), { sesi_id: "SES_1", lingkup: "satu" });
+  });
+
+  test("satu seri berbagi seri_id; tanggal lewat dan sesi kembar dilewati", async () => {
+    const f = await fixture();
+    // Sesi kembar (nama sama tanpa beda huruf besar, jam mulai sama) pada Senin 16 Nov.
+    saveSession(f.t, { ...base, nama: "latihan  jasmani PAGI", tanggal: "2026-11-16" }, ctx(), f.owner);
+    // Jam mulai berbeda pada Rabu 18 Nov tidak dianggap kembar.
+    saveSession(f.t, { ...base, tanggal: "2026-11-18", jam_mulai: "15:30", jam_selesai: "17:00" }, ctx(), f.owner);
+    const out = saveSessionSeries(f.t, { ...base, tanggal: "2026-11-09", sampai: "2026-11-21", hari: [1, 3, 5] }, ctx(), f.owner);
+    const series = seriesOf(f.t, out.data!.seri_id);
+    // Sen/Rab/Jum 9 sampai 21 Nov: 9 dan 11 sudah lewat, 16 kembar.
+    assert.deepEqual(series.map((s) => s.tanggal), ["2026-11-13", "2026-11-18", "2026-11-20"]);
+    assert.equal(out.data!.jumlah, 3);
+    assert.equal(out.entityId, series[0]!.sesi_id);
+    assert.ok(series.every((s) => s.status === "AKAN_DATANG" && s.jenis === "FISIK" && s.jam_mulai === "06:00" && s.nama === base.nama));
+    assert.match(out.message, /3 sesi berulang/);
+    assert.match(out.message, /2 tanggal yang sudah lewat/);
+    assert.match(out.message, /1 tanggal dilewati/);
+    assert.equal(session(f.t, f.sesi).seri_id, "", "sesi tunggal tidak punya seri");
+  });
+
+  test("batas seri: paling banyak 62 sesi, rentang sekitar 3 bulan, dan aturan sesi tetap berlaku", async () => {
+    const f = await fixture();
+    const count = f.t.Sesi!.length;
+    rejects(() => saveSessionSeries(f.t, { ...base, tanggal: DAY, sampai: addDays(DAY, 91), hari: [1, 2, 3, 4, 5, 6, 7] }, ctx(), f.owner), /paling banyak 62/);
+    rejects(() => saveSessionSeries(f.t, { ...base, tanggal: DAY, sampai: addDays(DAY, 93), hari: [1] }, ctx(), f.owner), /paling panjang/);
+    rejects(() => saveSessionSeries(f.t, { ...base, tanggal: "2026-11-02", sampai: "2026-11-12", hari: [1, 2, 3] }, ctx(), f.owner), /sudah lewat/);
+    rejects(() => saveSessionSeries(f.t, { ...base, tanggal: "2026-11-16", sampai: "2026-11-20", hari: [6, 7] }, ctx(), f.owner), /hari terpilih/);
+    rejects(() => saveSessionSeries(f.t, { ...base, tanggal: "2026-11-16", sampai: "2026-11-20", hari: [1] }, ctx(), f.teacher), "FORBIDDEN");
+    rejects(() => saveSessionSeries(f.t, { ...base, jam_mulai: "09:00", tanggal: "2026-11-16", sampai: "2026-11-20", hari: [1] }, ctx(), f.owner), /Jam mulai/);
+    assert.equal(f.t.Sesi!.length, count, "tidak ada sesi yang tersimpan sebagian");
+    // Pengajar boleh membuat seri untuk kelas yang diajarnya.
+    const own = saveSessionSeries(f.t, { ...base, kelas_id: f.kelasA, tanggal: "2026-11-16", sampai: "2026-11-27", hari: [2, 4] }, ctx(), f.teacher);
+    assert.equal(seriesOf(f.t, own.data!.seri_id).length, 4);
+  });
+
+  test("seluruh seri tersimpan dalam satu operasi; bila gagal tidak ada yang tersimpan", async () => {
+    const deps = await freshDeps();
+    const today = localClock("Asia/Jakarta", new Date().toISOString()).date;
+    const seeded = await fixture(today);
+    await runOperation(deps, {
+      sheet: "inti",
+      operationId: randomUUID(),
+      actorId: "SISTEM",
+      action: "uji",
+      fingerprint: {},
+      tables: INTI_TABLES,
+      apply: (t) => {
+        for (const [name, list] of Object.entries(seeded.t)) if (name !== "Pengaturan") t[name]!.push(...list);
+        return { entityType: "Uji", entityId: "seed", message: "ok" };
+      },
+    });
+    const tables = ["Pengaturan", "Pengguna", "Tautan_Akun", "Kelas", "Sesi", "Presensi"];
+    const before = (await deps.store.read("inti", ["Sesi"])).Sesi!.length;
+    await assert.rejects(
+      runOperation(deps, {
+        sheet: "inti",
+        operationId: randomUUID(),
+        actorId: seeded.owner.user.user_id,
+        action: "simpanSesiBerulang",
+        fingerprint: 1,
+        tables,
+        apply: (t, c) => saveSessionSeries(t, { ...base, tanggal: today, sampai: addDays(today, 90), hari: [1, 2, 3, 4, 5, 6, 7] }, c, seeded.owner),
+      }),
+      /paling banyak 62/,
+    );
+    assert.equal((await deps.store.read("inti", ["Sesi"])).Sesi!.length, before);
+    const result = await runOperation(deps, {
+      sheet: "inti",
+      operationId: randomUUID(),
+      actorId: seeded.owner.user.user_id,
+      action: "simpanSesiBerulang",
+      fingerprint: 2,
+      tables,
+      apply: (t, c) => saveSessionSeries(t, { ...base, tanggal: today, sampai: addDays(today, 27), hari: [1, 2, 3, 4, 5, 6] }, c, seeded.owner),
+    });
+    const after = (await deps.store.read("inti", ["Sesi"])).Sesi!.map(toSession);
+    const seri = after.filter((s) => s.seri_id && s.seri_id === (result.outcome.data as { seri_id: string }).seri_id);
+    assert.equal(after.length, before + seri.length);
+    assert.equal(seri.length, 24, "empat minggu Senin sampai Sabtu");
+  });
+
+  /** Seri Senin sampai Sabtu 16 sampai 28 Nov (12 sesi) dengan beberapa sesi yang tidak boleh ikut diubah. */
+  async function seriesFixture() {
+    const f = await fixture();
+    const out = saveSessionSeries(f.t, { ...base, tanggal: "2026-11-16", sampai: "2026-11-28", hari: [1, 2, 3, 4, 5, 6] }, ctx(), f.owner);
+    const ids = seriesOf(f.t, out.data!.seri_id).map((s) => s.sesi_id);
+    assert.equal(ids.length, 12);
+    setSessionStatus(f.t, { sesi_id: ids[3]!, status: "DIBATALKAN" }, ctx(), f.owner); // Kam 19 Nov dibatalkan
+    f.t.Presensi!.push({
+      presensi_id: `${ids[5]}:${f.a}`,
+      sesi_id: ids[5]!,
+      siswa_id: f.a,
+      status: "IZIN",
+      status_diajukan: "",
+      metode: "PENGAJAR",
+      waktu: "06:00",
+      terlambat: false,
+      catatan: "Acara keluarga",
+      disahkan_oleh: "",
+      disahkan_pada: "",
+    }); // Sab 21 Nov sudah ada presensi
+    f.t.Sesi!.find((r) => r.sesi_id === ids[7])!.status = "SELESAI"; // Sel 24 Nov: keadaan yang tidak boleh disentuh
+    return { ...f, ids, seriId: out.data!.seri_id };
+  }
+
+  test("ubah sesi ini dan berikutnya: hanya sesi yang belum berjalan dan tanpa presensi yang ikut", async () => {
+    const f = await seriesFixture();
+    const target = session(f.t, f.ids[1]!);
+    const input = { sesi_id: target.sesi_id, nama: "Latihan jasmani", tanggal: target.tanggal, jam_mulai: "06:30", jam_selesai: "08:30", jenis: "FISIK", kelas_id: "", pengajar_id: "" };
+    const out = saveSessionScoped(f.t, { ...input, lingkup: "seri" }, ctx(), f.owner);
+    const changed = (id: string) => session(f.t, id).jam_mulai === "06:30" && session(f.t, id).nama === "Latihan jasmani";
+    assert.equal(changed(f.ids[0]!), false, "sesi sebelumnya tidak ikut");
+    assert.equal(changed(f.ids[1]!), true);
+    assert.equal(changed(f.ids[2]!), true);
+    assert.equal(changed(f.ids[3]!), false, "sesi dibatalkan tidak ikut");
+    assert.equal(changed(f.ids[5]!), false, "sesi dengan presensi tidak ikut");
+    assert.equal(changed(f.ids[7]!), false, "sesi selesai tidak ikut");
+    assert.ok(f.ids.slice(8).every(changed));
+    assert.deepEqual(
+      f.ids.map((id) => session(f.t, id).tanggal),
+      seriesDates("2026-11-16", "2026-11-28", [1, 2, 3, 4, 5, 6]),
+      "tanggal tiap sesi tetap",
+    );
+    assert.match(out.message, /Sesi ini dan 7 sesi berikutnya/);
+    assert.match(out.message, /3 sesi yang sudah berjalan/);
+
+    // Hanya sesi ini.
+    const third = session(f.t, f.ids[2]!);
+    saveSessionScoped(f.t, { ...input, sesi_id: third.sesi_id, tanggal: third.tanggal, jam_mulai: "07:00", jam_selesai: "09:00", lingkup: "satu" }, ctx(), f.owner);
+    assert.equal(session(f.t, f.ids[2]!).jam_mulai, "07:00");
+    assert.equal(session(f.t, f.ids[4]!).jam_mulai, "06:30");
+  });
+
+  test("hapus sesi ini dan berikutnya: sesi selesai dan sesi dengan presensi tetap tersimpan", async () => {
+    const f = await seriesFixture();
+    const rowsBefore = f.t.Sesi!.length;
+    rejects(() => deleteSession(f.t, { sesi_id: f.ids[4]!, lingkup: "seri" }, ctx(), f.teacher), "FORBIDDEN");
+    deleteSession(f.t, { sesi_id: f.ids[9]!, lingkup: "satu" }, ctx(), f.owner);
+    assert.equal(session(f.t, f.ids[9]!).status, "DIHAPUS");
+    assert.equal(session(f.t, f.ids[10]!).status, "AKAN_DATANG");
+    const out = deleteSession(f.t, { sesi_id: f.ids[4]!, lingkup: "seri" }, ctx(), f.owner);
+    assert.deepEqual(
+      f.ids.map((id) => session(f.t, id).status),
+      ["AKAN_DATANG", "AKAN_DATANG", "AKAN_DATANG", "DIBATALKAN", "DIHAPUS", "AKAN_DATANG", "DIHAPUS", "SELESAI", "DIHAPUS", "DIHAPUS", "DIHAPUS", "DIHAPUS"],
+    );
+    assert.equal(f.t.Sesi!.length, rowsBefore, "baris tidak pernah dibuang");
+    assert.match(out.message, /^5 sesi dihapus/);
+    assert.match(out.message, /2 sesi yang sudah berjalan/);
+    // Sesi tunggal tetap memakai jalur hapus biasa.
+    assert.equal(deleteSession(f.t, { sesi_id: f.sesi, lingkup: "seri" }, ctx(), f.owner).message, "Sesi dihapus.");
+  });
+});
+
+describe("bidang presensi bisa dikelola", () => {
+  test("ubah nama hanya mengganti label; sesi tetap menyimpan kode bidang", async () => {
+    const { t, owner } = await fixture();
+    const { entityId } = saveSession(t, { sesi_id: "", nama: "Pembinaan", tanggal: DAY, jam_mulai: "13:00", jam_selesai: "14:00", jenis: "MI", kelas_id: "", pengajar_id: "" }, ctx(), owner);
+    changeSessionType(t, { value: "MI", aksi: "ubah", nama: "  Mental   Ideologi ", tampil: true }, ctx(), owner);
+    assert.equal(session(t, entityId).jenis, "MI");
+    assert.equal(sessionTypeLabel("MI", sessionTypeLabels(t)), "Mental Ideologi");
+    assert.equal(sessionTypeLabel("MI"), "MI (Mental Ideologi)", "tanpa daftar label tetap memakai label bawaan");
+    assert.ok(sessionTypeOptions(t).some((o) => o.value === "MI" && o.label === "Mental Ideologi"));
+    // Nama tidak boleh sama dengan bidang lain (kode, nama tampilan, atau nama bawaan).
+    rejects(() => changeSessionType(t, { value: "SKD", aksi: "ubah", nama: "fisik", tampil: true }, ctx(), owner), /sudah dipakai/);
+    rejects(() => changeSessionType(t, { value: "SKD", aksi: "ubah", nama: "mental ideologi", tampil: true }, ctx(), owner), /sudah dipakai/);
+    rejects(() => addSessionType(t, "Mental Ideologi", ctx(), owner), /sudah ada/);
+    // Kembali ke nama bawaan menghapus nama tampilan.
+    changeSessionType(t, { value: "MI", aksi: "ubah", nama: "MI (Mental Ideologi)", tampil: true }, ctx(), owner);
+    const stored = JSON.parse(String(t.Pengaturan!.find((r) => r.key === PRESENSI_TYPE_ARRANGEMENT_KEY)!.value));
+    assert.deepEqual(stored.nama, {});
+  });
+
+  test("bidang tersembunyi hilang dari pilihan sesi baru, tetapi tetap melabeli sesi lama", async () => {
+    const { t, owner, teacher } = await fixture();
+    addSessionType(t, "Renang", ctx(), owner);
+    const old = saveSession(t, { sesi_id: "", nama: "Renang pagi", tanggal: DAY, jam_mulai: "06:00", jam_selesai: "07:00", jenis: "Renang", kelas_id: "", pengajar_id: "" }, ctx(), owner).entityId;
+    changeSessionType(t, { value: "Renang", aksi: "ubah", nama: "Renang laut", tampil: false }, ctx(), owner);
+    assert.ok(!sessionTypeOptions(t).some((o) => o.value === "Renang"));
+    assert.equal(sessionTypeLabels(t).Renang, "Renang laut");
+    assert.equal(sessionTypeCatalog(t).find((e) => e.value === "Renang")?.hidden, true);
+    const input = { sesi_id: "", nama: "Renang sore", tanggal: DAY, jam_mulai: "16:00", jam_selesai: "17:00", jenis: "Renang", kelas_id: "", pengajar_id: "" };
+    rejects(() => saveSession(t, input, ctx(), owner), /bidang yang tersedia/);
+    // Sesi lama masih bisa dirapikan dengan bidangnya.
+    saveSession(t, { ...input, sesi_id: old, nama: "Renang pagi (koreksi)", jam_mulai: "06:00", jam_selesai: "07:00" }, ctx(), owner);
+    assert.equal(session(t, old).jenis, "Renang");
+    changeSessionType(t, { value: "Renang", aksi: "tampil" }, ctx(), owner);
+    assert.ok(sessionTypeOptions(t).some((o) => o.value === "Renang" && o.label === "Renang laut"));
+    rejects(() => changeSessionType(t, { value: "Renang", aksi: "sembunyi" }, ctx(), teacher), "FORBIDDEN");
+    rejects(() => changeSessionType(t, { value: "Tidak ada", aksi: "sembunyi" }, ctx(), owner), "NOT_FOUND");
+  });
+
+  test("urutan bisa diatur naik/turun dan minimal satu bidang tetap tampil", async () => {
+    const { t, owner } = await fixture();
+    const order = () => sessionTypeOptions(t).map((o) => o.value);
+    assert.deepEqual(order(), ["AKADEMIK", "SKD", "PSIKOTES", "FISIK", "KESWA", "MI", "ADIRAGA"]);
+    for (let i = 0; i < 3; i += 1) changeSessionType(t, { value: "FISIK", aksi: "naik" }, ctx(), owner);
+    assert.deepEqual(order().slice(0, 2), ["FISIK", "AKADEMIK"]);
+    assert.match(changeSessionType(t, { value: "FISIK", aksi: "naik" }, ctx(), owner).message, /tidak berubah/);
+    changeSessionType(t, { value: "AKADEMIK", aksi: "turun" }, ctx(), owner);
+    assert.deepEqual(order().slice(0, 3), ["FISIK", "SKD", "AKADEMIK"]);
+    // Bidang baru masuk di akhir daftar.
+    addSessionType(t, "Wawancara", ctx(), owner);
+    assert.equal(order().at(-1), "Wawancara");
+    for (const value of order().slice(1)) changeSessionType(t, { value, aksi: "sembunyi" }, ctx(), owner);
+    assert.deepEqual(order(), ["FISIK"]);
+    rejects(() => changeSessionType(t, { value: "FISIK", aksi: "sembunyi" }, ctx(), owner), /minimal satu/);
+    // Susunan rusak di spreadsheet tidak merusak daftar.
+    t.Pengaturan!.find((r) => r.key === PRESENSI_TYPE_ARRANGEMENT_KEY)!.value = "{rusak";
+    assert.equal(order().length, 8);
+  });
+
+  test("isian ubah bidang divalidasi", () => {
+    assert.deepEqual(sessionTypeChangeInput.parse({ value: "MI", aksi: "ubah", nama: "  Mental  Ideologi ", tampil: true }), { value: "MI", aksi: "ubah", nama: "Mental Ideologi", tampil: true });
+    assert.equal(sessionTypeChangeInput.safeParse({ value: "MI", aksi: "ubah", nama: " " }).success, false);
+    assert.equal(sessionTypeChangeInput.safeParse({ value: "MI", aksi: "hapus" }).success, false);
+    assert.deepEqual(sessionTypeChangeInput.parse({ value: "FISIK", aksi: "naik", nama: "abaikan" }), { value: "FISIK", aksi: "naik" });
   });
 });

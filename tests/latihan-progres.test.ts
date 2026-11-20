@@ -244,8 +244,11 @@ describe("rekap latihan owner", () => {
 
   it("parameter URL hanya memakai pilihan yang valid dan mempertahankan filter saat membuka siswa", () => {
     const awal = bacaPilihanRekap({ periode: "14", jenis: ["pauli"], durasi: "salah", grafik: "x", tanda: "x", siswa: ["S1"] });
-    assert.deepEqual(awal, { periode: 30, jenis: null, durasi: null, grafik: "aktivitas", tanda: null, siswa: null });
+    assert.deepEqual(awal, { periode: 30, jenis: null, durasi: null, grafik: "aktivitas", tanda: null, siswa: null, target: null });
     const pilihan = bacaPilihanRekap({ periode: "90", jenis: "angka", durasi: "standar", grafik: "skor", tanda: "lama" });
     assert.equal(rekapHref(pilihan, { siswa: "S/1 & 2" }, "grafik-latihan"), "/latihan?periode=90&jenis=angka&durasi=standar&grafik=skor&tanda=lama&siswa=S%2F1+%26+2#grafik-latihan");
+    assert.equal(bacaPilihanRekap({ target: "belum" }).target, "belum");
+    assert.equal(bacaPilihanRekap({ target: "x" }).target, null);
+    assert.equal(rekapHref(bacaPilihanRekap({}), { target: "sudah" }, "daftar-latihan"), "/latihan?target=sudah#daftar-latihan");
   });
 });

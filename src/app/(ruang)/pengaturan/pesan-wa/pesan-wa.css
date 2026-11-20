@@ -1,0 +1,203 @@
+/* Pengaturan → Pesan WA. Kelas berawalan pw-; warna lewat token aplikasi (terang dan gelap). */
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.pw-seg {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  max-width: 520px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.pw-seg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 13.5px/1.2 var(--body);
+  cursor: pointer;
+}
+
+.pw-seg button.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.pw-seg button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.pw-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--chart-2);
+}
+
+.pw-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.pw-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pw-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pw textarea {
+  min-height: 170px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.pw-count {
+  display: block;
+}
+
+.pw-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  max-width: 100%;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 12px/1.2 var(--body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pw-chip code {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--info-soft);
+  color: var(--info);
+  font: 700 12px/1.3 ui-monospace, Consolas, monospace;
+}
+
+.pw-chip span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pw-chip:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--ink);
+}
+
+.pw-chip:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.pw-reset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.pw-reset > .btn {
+  align-self: flex-start;
+}
+
+.pw-small {
+  font-size: 12px;
+}
+
+.pw-chat {
+  padding: 14px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, #25d366 10%, var(--surface-soft));
+}
+
+.pw-bubble {
+  position: relative;
+  max-width: 92%;
+  padding: 9px 12px;
+  border-radius: 4px 14px 14px 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.pw-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.pw-note .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+}
+
+@media (min-width: 1000px) {
+  .pw-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .pw-preview {
+    position: sticky;
+    top: 16px;
+  }
+}

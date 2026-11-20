@@ -11,14 +11,21 @@ import {
   canTeachStudent,
   classesOfStudent,
   currentReport,
+  describeWeekdays,
   DISCIPLINE,
   isAcademicStaff,
+  isoWeekday,
   liveSession,
   latestPublished,
   localClock,
   mean,
   participantsOf,
+  recordedSessionIds,
   REPORT_TABLES,
+  seriesFollowers,
+  sessionTypeCatalog,
+  sessionTypeLabel,
+  sessionTypeLabels,
   sessionTypeOptions,
   SKD_KEYS,
   skdPasses,
@@ -44,14 +51,35 @@ import {
 } from "../core/akademik";
 import { filterPresensi, susunDashboardPresensi, type RekapPresensiSiswa } from "../core/presensi-ringkasan";
 import { linkedStudentIds, taughtClassIds, toClass, toEnrollment, toLink, toStudent, toUser, type Actor, type ClassGroup, type Enrollment, type Student } from "../core/types";
+import { waTemplates } from "../core/wa";
 import { str } from "../data/rows";
 import type { Tables } from "../data/types";
 import { dataDeps } from "./data";
 
 const read = async (tables: readonly string[]) => (await dataDeps()).store.read("inti", tables);
 
-export async function loadSessionTypes() {
-  return sessionTypeOptions(await read(["Pengaturan"]));
+export interface SessionTypeRow {
+  value: string;
+  label: string;
+  hidden: boolean;
+  builtIn: boolean;
+  /** Jumlah sesi (selain yang dihapus) yang memakai bidang ini. */
+  dipakai: number;
+  /** Tanggal sesi terakhir yang memakai bidang ini. */
+  terakhir: string;
+}
+
+/** Semua bidang presensi sesuai susunan owner, beserta jumlah pemakaiannya. */
+export async function loadSessionTypeCatalog(): Promise<SessionTypeRow[]> {
+  const t = await read(["Pengaturan", "Sesi"]);
+  const usage = new Map<string, { dipakai: number; terakhir: string }>();
+  for (const s of (t.Sesi ?? []).map(toSession).filter(liveSession)) {
+    const used = usage.get(s.jenis) ?? { dipakai: 0, terakhir: "" };
+    used.dipakai += 1;
+    if (s.tanggal > used.terakhir) used.terakhir = s.tanggal;
+    usage.set(s.jenis, used);
+  }
+  return sessionTypeCatalog(t).map((entry) => ({ ...entry, ...(usage.get(entry.value) ?? { dipakai: 0, terakhir: "" }) }));
 }
 
 /** Nama kelas sesi; sesi tanpa kelas berlaku untuk semua siswa aktif. */
@@ -119,6 +147,8 @@ function teacherOptions(t: Tables) {
 // ---------------------------------------------------------------- Jadwal & presensi
 
 export interface SessionCard extends Session {
+  /** Nama tampilan bidang (mengikuti nama yang diatur owner). */
+  bidang: string;
   kelas: string;
   pengajar: string;
   peserta: number;
@@ -149,10 +179,25 @@ export interface RosterRow {
   record: Attendance | null;
 }
 
+/** Ringkasan seri untuk sesi berulang. */
+export interface SeriesInfo {
+  /** Jumlah sesi dalam seri (selain yang dihapus). */
+  total: number;
+  dari: string;
+  sampai: string;
+  /** Mis. "Senin sampai Sabtu". */
+  hari: string;
+  /** Sesi sesudahnya yang ikut bila memilih "Sesi ini dan berikutnya". */
+  berikutnya: number;
+  /** Sesi sesudahnya yang dibiarkan karena sudah berjalan atau sudah ada presensinya. */
+  dilewati: number;
+}
+
 /** Satu sesi lengkap untuk layar presensi staf: kartu sesi dan daftar peserta beserta catatannya. */
 export interface SessionWorkspace {
   session: SessionCard;
   roster: RosterRow[];
+  seri: SeriesInfo | null;
 }
 
 export interface MonthlyRecap {
@@ -173,9 +218,11 @@ const byTime = (a: Session, b: Session) => `${a.tanggal} ${a.jam_mulai}`.localeC
 
 function sessionCards(actor: Actor, t: Tables, sessions: Session[], attendance: Attendance[]) {
   const { students, enrollments, className, userName } = base(t);
+  const labels = sessionTypeLabels(t);
   return sessions.map(
     (s): SessionCard => ({
       ...s,
+      bidang: sessionTypeLabel(s.jenis, labels),
       kelas: kelasLabel(className, s.kelas_id, "Kelas tidak dikenal"),
       pengajar: userName.get(s.pengajar_id) ?? "-",
       peserta: participantsOf(s, students, enrollments).length,
@@ -194,7 +241,23 @@ function workspaceOf(actor: Actor, t: Tables, session: Session, attendance: Atte
     .filter((s): s is Student => Boolean(s))
     .sort((a, b) => a.nama.localeCompare(b.nama, "id"))
     .map((s): RosterRow => ({ siswa_id: s.siswa_id, nama: s.nama, kode_siswa: s.kode_siswa, record: recordOf.get(s.siswa_id) ?? null }));
-  return { session: sessionCards(actor, t, [session], attendance)[0]!, roster };
+  return { session: sessionCards(actor, t, [session], attendance)[0]!, roster, seri: seriesInfo(t, session, attendance) };
+}
+
+function seriesInfo(t: Tables, session: Session, attendance: Attendance[]): SeriesInfo | null {
+  if (!session.seri_id) return null;
+  const all = (t.Sesi ?? []).map(toSession);
+  const members = all.filter((s) => s.seri_id === session.seri_id && liveSession(s)).sort(byTime);
+  if (members.length === 0) return null;
+  const followers = seriesFollowers(session, all, recordedSessionIds(attendance), clockOf(t).today);
+  return {
+    total: members.length,
+    dari: members[0]!.tanggal,
+    sampai: members[members.length - 1]!.tanggal,
+    hari: describeWeekdays(members.map((s) => isoWeekday(s.tanggal))),
+    berikutnya: followers.eligible.length,
+    dilewati: followers.skipped.length,
+  };
 }
 
 /** Rekap kehadiran bulanan siswa yang diajar staf ini. */
@@ -266,9 +329,11 @@ export async function loadPresensi(actor: Actor, params: Record<string, string |
     if (selected && !strip.some((s) => s.sesi_id === selected.sesi_id)) strip.push(selected);
     const date = isDate(params.tanggal) ? params.tanggal : clock.today;
     const periode = isPeriod(params.bulan) ? params.bulan : clock.periode;
+    const templates = waTemplates({ Pengaturan: t.Pengaturan ?? [] });
     return {
       kind: "staff" as const,
       clock,
+      waKehadiran: templates.kehadiran,
       strip: cards(strip.sort(byTime)),
       selected: selected ? workspaceOf(actor, t, selected, attendance) : null,
       nearby: cards([...today, ...future].filter((s) => s.sesi_id !== selected?.sesi_id && s.status !== "DIBATALKAN").slice(0, 4)),
@@ -327,6 +392,7 @@ export async function loadQrSession(actor: Actor, sesiId: string) {
   return {
     clock,
     session,
+    bidang: sessionTypeLabel(session.jenis, sessionTypeLabels(t)),
     kelas: kelasLabel(className, session.kelas_id),
     participant: participantsOf(session, students, enrollments).includes(siswaId),
     record,

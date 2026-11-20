@@ -16,4 +16,9 @@ export const FITUR = {
    * pengeluaran di Keuangan → Transaksi, lalu laporan keuangan dibuat otomatis.
    */
   tagihan: false,
+  /**
+   * Program & kelas. Disembunyikan 20 Nov 2026: semua sesi untuk semua siswa aktif, kelas tidak dipakai.
+   * Tab di Pengaturan tidak tampil; halamannya tetap bisa dibuka lewat alamat /pengaturan/kelas-program.
+   */
+  kelas: false,
 } as const;

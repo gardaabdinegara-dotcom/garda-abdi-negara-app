@@ -1,0 +1,329 @@
+/* Pengaturan → Bidang presensi. Semua kelas berawalan bp-; warna lewat token aplikasi (terang dan gelap). */
+
+.bp {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
+}
+
+.bp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bp-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bp-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bp-sub {
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.bp-add {
+  flex: none;
+}
+
+.bp-add .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.bp-ic {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bp-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.bp-row:last-child {
+  border-bottom: 0;
+}
+
+.bp-row.is-busy {
+  opacity: 0.6;
+}
+
+.bp-move {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+
+.bp-mv {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.bp-mv:hover:not(:disabled) {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.bp-mv:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.bp-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.bp-main b {
+  overflow: hidden;
+  font-size: 14.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bp-main span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bp-tap {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.bp-tap:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* Sakelar tampil: tombol role="switch" (baris) dan checkbox role="switch" (lembar ubah). */
+.bp-sw,
+.bp-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex: none;
+  margin: 0;
+  border: 0;
+  border-radius: 99px;
+  background: var(--border);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.bp-sw::after,
+.bp-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--ink) 25%, transparent);
+  transition: left 0.15s ease;
+}
+
+.bp-sw.on,
+.bp-switch:checked {
+  background: var(--primary);
+}
+
+.bp-sw.on::after,
+.bp-switch:checked::after {
+  left: 21px;
+  background: var(--on-primary);
+}
+
+.bp-sw:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.bp-sw:focus-visible,
+.bp-switch:focus-visible,
+.bp-tap:focus-visible,
+.bp-mv:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.bp-hidden .bp-main b,
+.bp-hidden .bp-main span {
+  color: var(--muted);
+}
+
+.bp-hidden .bp-row {
+  opacity: 0.75;
+}
+
+/* ---------------------------------------------------------------- Lembar */
+
+dialog.bp-sheet {
+  width: 100%;
+  max-width: 100%;
+  max-height: 92dvh;
+  margin: auto 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 -20px 40px -20px #00000066;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+dialog.bp-sheet::backdrop {
+  background: #0000005c;
+}
+
+.bp-sheet-in {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px calc(20px + env(safe-area-inset-bottom));
+}
+
+.bp-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bp-sheet-head h2 {
+  font: 800 19px/1.25 var(--heading);
+}
+
+.bp-x {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.bp-x .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.bp-name {
+  gap: 6px;
+}
+
+.bp .hint,
+.bp-sheet .hint {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.bp-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--info-soft);
+  color: var(--info);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.bp-note .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 2px;
+}
+
+.bp-tg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.bp-tg > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bp-tg .muted {
+  font-size: 12.5px;
+}
+
+.bp-center {
+  text-align: center;
+}
+
+@media (min-width: 700px) {
+  dialog.bp-sheet {
+    width: min(440px, calc(100% - 32px));
+    margin: auto;
+    border-radius: 22px;
+  }
+
+  .bp-sheet-in {
+    padding: 22px;
+  }
+}

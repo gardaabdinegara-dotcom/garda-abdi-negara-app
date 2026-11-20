@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Icon } from "@/components/icon";
 import { HowCalculated, ResultHero, RincianList, StationTiles } from "@/components/samapta";
 import { CreateTestSheet } from "@/components/samapta-client";
+import { GrafikPerkembangan, MateriPerkembangan } from "@/components/samapta-perkembangan";
 import { SamIcon } from "@/components/samapta-icon";
 import { Empty } from "@/components/ui";
 import { canManageSamapta, POS } from "@/lib/core/samapta";
@@ -25,7 +26,7 @@ export default async function SamaptaPage({ searchParams }: { searchParams: Sear
   const params = await searchParams;
   if (canManageSamapta(actor)) return <StaffOverview actor={actor} openCreate={params.baru === "1"} />;
   if (actor.user.peran !== "SISWA") notFound();
-  return <StudentView actor={actor} tes={typeof params.tes === "string" ? params.tes : undefined} />;
+  return <StudentView actor={actor} tes={typeof params.tes === "string" ? params.tes : undefined} perkembangan={params.lihat === "perkembangan"} />;
 }
 
 // ---------------------------------------------------------------- Owner / staf
@@ -184,7 +185,21 @@ function RunningTest({ summary }: { summary: TestSummary }) {
 
 // ---------------------------------------------------------------- Siswa
 
-async function StudentView({ actor, tes }: { actor: Actor; tes?: string }) {
+/** Tab "Per tes | Perkembangan" di Hasil Samapta siswa. */
+function TabHasil({ perkembangan }: { perkembangan: boolean }) {
+  return (
+    <nav className="sam-seg" aria-label="Tampilan hasil">
+      <Link href="/samapta" aria-current={perkembangan ? undefined : "page"} scroll={false}>
+        Per tes
+      </Link>
+      <Link href="/samapta?lihat=perkembangan" aria-current={perkembangan ? "page" : undefined} scroll={false}>
+        Perkembangan
+      </Link>
+    </nav>
+  );
+}
+
+async function StudentView({ actor, tes, perkembangan }: { actor: Actor; tes?: string; perkembangan: boolean }) {
   const data = await loadMySamapta(actor);
   if (!data || data.history.length === 0) {
     return (
@@ -206,6 +221,28 @@ async function StudentView({ actor, tes }: { actor: Actor; tes?: string }) {
     );
   }
   const { history, settings, student } = data;
+  if (perkembangan) {
+    const riwayat = history.map((h) => ({ test: h.test, result: h.entry.result, score: h.entry.score }));
+    return (
+      <div className="page sam-page">
+        <header className="sam-top">
+          <div>
+            <h1>Hasil Samapta</h1>
+            <p>Perkembangan nilai kamu dari tes ke tes.</p>
+          </div>
+        </header>
+        <TabHasil perkembangan />
+        <div className="sam-sv">
+          <div className="sam-sv-main">
+            <GrafikPerkembangan riwayat={riwayat} settings={settings} />
+          </div>
+          <div className="sam-sv-side">
+            <MateriPerkembangan riwayat={riwayat} />
+          </div>
+        </div>
+      </div>
+    );
+  }
   const found = history.findIndex((h) => h.test.tes_id === tes);
   const index = found >= 0 ? found : history.length - 1;
   const item = history[index]!;
@@ -221,6 +258,7 @@ async function StudentView({ actor, tes }: { actor: Actor; tes?: string }) {
           <p>Hasil tes kamu, dibanding tes sebelumnya.</p>
         </div>
       </header>
+      <TabHasil perkembangan={false} />
       {history.length > 1 ? (
         <nav className="sam-tests" aria-label="Pilih tes">
           {[...history].reverse().map((h, i) => (

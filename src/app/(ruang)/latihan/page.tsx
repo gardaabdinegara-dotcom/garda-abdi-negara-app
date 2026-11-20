@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { MenuLatihan } from "@/components/latihan-menu";
 import { RekapLatihanView } from "@/components/latihan-rekap";
 import { bacaPilihanRekap } from "@/lib/latihan-rekap-route";
-import { canSeeAllLatihan, loadLatihanSaya, loadRekapLatihan } from "@/lib/server/latihan";
+import { canSeeAllLatihan, loadMenuLatihan, loadRekapLatihan } from "@/lib/server/latihan";
 import { getActor, requireActor } from "@/lib/server/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,5 +20,6 @@ export default async function LatihanPage({ searchParams }: { searchParams: Prom
     return <RekapLatihanView rekap={rekap} pilihan={pilihan} />;
   }
   if (actor.user.peran !== "SISWA") notFound();
-  return <MenuLatihan progres={await loadLatihanSaya(actor)} coba={false} />;
+  const { progres, target } = await loadMenuLatihan(actor);
+  return <MenuLatihan progres={progres} target={target} coba={false} />;
 }

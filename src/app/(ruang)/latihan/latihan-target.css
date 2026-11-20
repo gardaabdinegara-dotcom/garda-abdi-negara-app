@@ -1,0 +1,674 @@
+/* Target latihan mingguan: kartu siswa (cincin, titik hari, hari beruntun), ringkasan owner, bar target per siswa,
+   tombol WA di daftar, dan lembar atur target. Tanpa style inline (CSP); cincin dan segmen memakai atribut SVG. */
+
+.lt-eyebrow,
+.lp-eyebrow {
+  display: block;
+  font: 800 11px/1.3 var(--body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* ---------------------------------------------------------------- Kartu siswa */
+
+.lt-tgt.card {
+  gap: 12px;
+  border-color: var(--primary-soft);
+}
+
+.lt-tgt-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lt-tgt-top > span {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.lt-tgt-main {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.lt-ring {
+  display: block;
+  width: 72px;
+  height: 72px;
+}
+
+.lt-ring circle {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: butt;
+}
+
+.lt-ring-bg {
+  stroke: var(--chart-track);
+}
+
+.lt-ring-fill {
+  stroke: var(--primary);
+}
+
+.lt-ring-text {
+  fill: var(--ink);
+  font: 800 15px/1 var(--heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.lt-tgt-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lt-tgt-info b {
+  font: 800 16px/1.25 var(--heading);
+}
+
+.lt-tgt-info span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.lt-tgt-info .lt-tgt-msg {
+  margin-top: 2px;
+  font-weight: 750;
+}
+
+.lt-tgt-msg.is-up {
+  color: var(--primary);
+}
+
+.lt-tgt-msg.is-ok {
+  color: var(--success);
+}
+
+.lt-tgt-msg.is-warn {
+  color: var(--warning);
+}
+
+.lt-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lt-days li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.lt-days small {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.lt-days li.is-now small {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.lt-day {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--border);
+  background: transparent;
+}
+
+.lt-day.is-target {
+  border: 0;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.lt-day.is-lain {
+  border: 0;
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 1.5px var(--border);
+}
+
+.lt-day svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lt-days li.is-now .lt-day {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.lt-days li.is-later .lt-day {
+  opacity: 0.55;
+}
+
+.lt-lgd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.lt-lgd span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lt-lgd i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.lt-lgd i.is-target {
+  background: var(--primary);
+}
+
+.lt-lgd i.is-lain {
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.lt-strk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 13px;
+}
+
+.lt-strk b {
+  font-weight: 800;
+}
+
+.lt-strk span {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 650;
+  opacity: 0.9;
+}
+
+.lt-api {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lt-tgt-go.btn {
+  min-height: 48px;
+  white-space: normal;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- Ringkasan owner */
+
+.lp-tgt.card {
+  gap: 10px;
+}
+
+.lp-tgt-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 12px;
+}
+
+.lp-tgt-head > div {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.lp-tgt-head h2 {
+  margin-top: 2px;
+  font: 800 16px/1.3 var(--heading);
+}
+
+.lp-tgt-head p {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.lp-tgt-edit.btn {
+  flex: none;
+}
+
+.lp-tgt-edit .icon {
+  width: 16px;
+  height: 16px;
+}
+
+meter.lp-tgt-bar {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chart-track);
+  appearance: none;
+}
+
+meter.lp-tgt-bar::-webkit-meter-bar {
+  border: 0;
+  border-radius: 999px;
+  background: var(--chart-track);
+}
+
+meter.lp-tgt-bar::-webkit-meter-optimum-value,
+meter.lp-tgt-bar::-webkit-meter-suboptimum-value,
+meter.lp-tgt-bar::-webkit-meter-even-less-good-value {
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+meter.lp-tgt-bar::-moz-meter-bar {
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+.lp-tgt-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+  font-size: 13px;
+}
+
+.lp-tgt-foot b {
+  font: 800 16px/1 var(--heading);
+}
+
+.lp-tgt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lp-tgt-chips a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.lp-tgt-chips a:hover {
+  background: var(--surface-soft);
+}
+
+.lp-tgt-chips a[aria-current="true"] {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.lp-tgt.is-empty {
+  border-style: dashed;
+}
+
+/* Bar target per siswa: "1/3" dan segmen per hari. */
+.lp-tq {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-tq b {
+  min-width: 26px;
+  font-weight: 800;
+}
+
+.lp-tq svg {
+  width: 52px;
+  height: 6px;
+  flex: none;
+}
+
+.lp-tq rect {
+  fill: var(--chart-track);
+}
+
+.lp-tq rect.f {
+  fill: var(--primary);
+}
+
+.lp-tq.is-r b {
+  color: var(--danger);
+}
+
+.lp-tq.is-o b {
+  color: var(--warning);
+}
+
+.lp-tq.is-o rect.f {
+  fill: var(--chart-2);
+}
+
+.lp-tq.is-ok b {
+  color: var(--success);
+}
+
+.lp-rlist-main > .lp-rlist-tq {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.lp-rlist li.has-wa {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.lp-rlist li.has-wa > a {
+  flex: 1;
+  min-width: 0;
+}
+
+.lp-rlist-wa {
+  flex: none;
+}
+
+.lp-rtbl-lain {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.lp-rtbl td.lp-rtbl-wa {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 400px) {
+  .lp-rlist li.has-wa {
+    flex-wrap: wrap;
+    padding-bottom: 8px;
+  }
+
+  .lp-rlist li.has-wa > a {
+    flex-basis: 100%;
+  }
+
+  .lp-rlist-wa {
+    margin-left: 54px;
+  }
+}
+
+/* ---------------------------------------------------------------- Lembar atur target */
+
+dialog.lt-sheet {
+  width: min(480px, 100%);
+  max-width: 100%;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 -20px 40px -20px #00000066;
+  overflow: auto;
+}
+
+dialog.lt-sheet::backdrop {
+  background: #0000005c;
+}
+
+@media (min-width: 720px) {
+  dialog.lt-sheet {
+    margin: auto;
+    border-radius: 22px;
+  }
+}
+
+.lt-sheet-in {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+}
+
+.lt-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lt-sheet-head h2 {
+  margin: 0;
+  font: 800 17px/1.3 var(--heading);
+}
+
+.lt-sheet-head p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lt-sheet-x {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lt-sheet-x .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.lt-sheet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lt-fs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.lt-fs legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--secondary);
+}
+
+.lt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lt-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lt-chip.is-on {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.lt-chip input,
+.lt-segr input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lt-chip:has(input:focus-visible),
+.lt-segr label:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.lt-segr {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.lt-segr label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  padding: 4px 6px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.lt-segr label.is-on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px #00000022;
+}
+
+.lt-step-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.lt-step {
+  display: inline-grid;
+  grid-template-columns: 44px 44px 44px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lt-step button {
+  height: 44px;
+  border: 0;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font: 800 20px/1 var(--body);
+  cursor: pointer;
+}
+
+.lt-step button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.lt-step output {
+  text-align: center;
+  font: 800 18px/1 var(--heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.lt-step-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.lt-untuk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  font-size: 13px;
+}
+
+.lt-untuk span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.lt-sheet-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}

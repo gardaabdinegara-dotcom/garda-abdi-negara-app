@@ -1,42 +1,36 @@
 import type { Metadata } from "next";
 import { randomUUID } from "node:crypto";
-import { tambahBidangPresensi } from "@/app/actions/pengaturan";
-import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { PageHead } from "@/components/ui";
-import { PRESENSI_TYPE_NAME_MAX } from "@/lib/core/akademik";
-import { loadSessionTypes } from "@/lib/server/akademik";
+import { localClock, sessionTypeLabel } from "@/lib/core/akademik";
+import { loadSessionTypeCatalog } from "@/lib/server/akademik";
+import { loadSettings } from "@/lib/server/queries";
 import { requireActor } from "@/lib/server/session";
 import { SettingsTabs } from "../tabs";
+import { BidangManager, type BidangRow } from "./bidang-client";
 
 export const metadata: Metadata = { title: "Bidang presensi" };
 
+const monthFmt = (sameYear: boolean) => new Intl.DateTimeFormat("id-ID", { month: "long", ...(sameYear ? {} : { year: "numeric" }), timeZone: "UTC" });
+
 export default async function SessionTypesPage() {
   const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
-  const options = await loadSessionTypes();
+  const [catalog, settings] = await Promise.all([loadSessionTypeCatalog(), loadSettings()]);
+  const year = localClock(settings.zona_waktu || "Asia/Jakarta", new Date().toISOString()).date.slice(0, 4);
+
+  const rows: BidangRow[] = catalog.map((entry) => ({
+    value: entry.value,
+    label: entry.label,
+    asli: sessionTypeLabel(entry.value),
+    hidden: entry.hidden,
+    dipakai: entry.dipakai,
+    terakhir: entry.terakhir ? monthFmt(entry.terakhir.slice(0, 4) === year).format(new Date(`${entry.terakhir}T00:00:00Z`)) : "",
+  }));
 
   return (
     <div className="page">
       <PageHead eyebrow="Pengaturan" title="Bidang presensi" description="Pilihan bidang yang tampil saat membuat atau mengubah sesi Presensi." />
       <SettingsTabs current="bidang-presensi" owner={actor.user.peran === "OWNER"} />
-      <div className="grid-2">
-        <section className="card">
-          <h2>Tambah bidang</h2>
-          <ActionForm action={tambahBidangPresensi} operationId={randomUUID()} resetOnSuccess className="stack">
-            <Field label="Nama bidang" name="nama" placeholder="Mis. Wawancara" maxLength={PRESENSI_TYPE_NAME_MAX} required />
-            <div className="form-actions">
-              <SubmitButton>Tambah bidang</SubmitButton>
-            </div>
-          </ActionForm>
-        </section>
-        <section className="card">
-          <h2>Bidang tersedia</h2>
-          <ul className="item-list session-type-list">
-            {options.map(({ value, label }) => (
-              <li className="item" key={value}>{label}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      <BidangManager rows={rows} addOperationId={randomUUID()} editOperationId={randomUUID()} />
     </div>
   );
 }

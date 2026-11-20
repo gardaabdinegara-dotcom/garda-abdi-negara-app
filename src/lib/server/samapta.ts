@@ -21,6 +21,7 @@ import {
   type SamaptaTest,
 } from "../core/samapta";
 import { linkedStudentIds, toStudent, type Actor, type Student } from "../core/types";
+import { waTemplates } from "../core/wa";
 import type { Tables } from "../data/types";
 import { dataDeps } from "./data";
 
@@ -61,7 +62,9 @@ function model(t: Tables) {
     if (!results.has(r.tes_id)) results.set(r.tes_id, new Map());
     results.get(r.tes_id)!.set(r.siswa_id, r);
   }
-  return { settings, students, tests, results };
+  // Template pesan WA "Kirim hasil" dan nama lembaga untuk isiannya.
+  const wa = { template: waTemplates({ Pengaturan: t.Pengaturan ?? [] }).samapta, lembaga: academicSettings(t).nama_lembaga };
+  return { settings, students, tests, results, wa };
 }
 
 function entriesOf(test: SamaptaTest, m: ReturnType<typeof model>): SamaptaEntry[] {
@@ -112,7 +115,7 @@ export async function loadSamaptaTest(actor: Actor, tesId: string) {
   const previousTest = m.tests.find((x) => x.tes_id !== test.tes_id && x.status !== "DIBATALKAN" && (x.tanggal < test.tanggal || (x.tanggal === test.tanggal && x.tes_id < test.tes_id)));
   const previous = previousTest ? { test: previousTest, entries: entriesOf(previousTest, m) } : null;
   const nonParticipants = m.students.filter((s) => s.aktif && !test.peserta_ids.includes(s.siswa_id)).sort((a, b) => a.kode_siswa.localeCompare(b.kode_siswa));
-  return { settings: m.settings, test, entries, summary: summarize(test, entries), previous, nonParticipants, tests: m.tests };
+  return { settings: m.settings, test, entries, summary: summarize(test, entries), previous, nonParticipants, tests: m.tests, wa: m.wa };
 }
 
 export interface StudentHistoryItem {
@@ -129,14 +132,19 @@ export async function loadSamaptaStudent(actor: Actor, siswaId: string) {
   const m = model(t);
   const student = m.students.find((s) => s.siswa_id === siswaId);
   if (!student) notFound();
-  const history: StudentHistoryItem[] = [...m.tests]
+  return { settings: m.settings, student, history: historyOf(m, siswaId) };
+}
+
+/** Tes yang diikuti siswa (berjalan atau selesai; yang dibatalkan dilewati), lama → baru. */
+function historyOf(m: ReturnType<typeof model>, siswaId: string): StudentHistoryItem[] {
+  return [...m.tests]
     .reverse()
     .filter((test) => test.peserta_ids.includes(siswaId) && test.status !== "DIBATALKAN")
     .map((test) => {
       const entries = entriesOf(test, m);
       return { test, entry: entries.find((e) => e.student.siswa_id === siswaId)!, peserta: entries.length };
-    });
-  return { settings: m.settings, student, history };
+    })
+    .filter((h) => Boolean(h.entry));
 }
 
 /**
@@ -162,7 +170,7 @@ export async function loadSamaptaResult(actor: Actor, tesId: string, siswaId: st
     const prevEntry = prevEntries.find((e) => e.student.siswa_id === siswaId);
     if (prevEntry) previous = { test: prevTest, entry: prevEntry, peserta: prevEntries.length };
   }
-  return { settings: m.settings, test, entry, peserta: entries.length, previous };
+  return { settings: m.settings, test, entry, peserta: entries.length, previous, history: historyOf(m, siswaId), wa: m.wa };
 }
 
 /** Siswa yang masuk: riwayat tesnya sendiri. */

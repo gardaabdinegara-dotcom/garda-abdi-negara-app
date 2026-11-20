@@ -111,20 +111,21 @@ describe("menu per peran (PRD 3)", () => {
 
   test("susunan menu", () => {
     // Arah 17 Nov 2026: Presensi, Tes Samapta, Keuangan; nilai/tugas/rapor disembunyikan (lib/core/fitur.ts).
-    assert.deepEqual(keys(actor("OWNER")), ["beranda", "presensi", "samapta", "keuangan", "latihan", "siswa", "pengaturan", "panduan"]);
-    assert.deepEqual(keys(actor("ADMIN")), ["beranda", "presensi", "samapta", "latihan", "siswa", "pengaturan", "panduan"]);
-    assert.deepEqual(keys(actor("ADMIN", { akses: "LIHAT" })), ["beranda", "presensi", "samapta", "keuangan", "latihan", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("OWNER")), ["beranda", "presensi", "samapta", "keuangan", "latihan", "pengumuman", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("ADMIN")), ["beranda", "presensi", "samapta", "latihan", "pengumuman", "siswa", "pengaturan", "panduan"]);
+    assert.deepEqual(keys(actor("ADMIN", { akses: "LIHAT" })), ["beranda", "presensi", "samapta", "keuangan", "latihan", "pengumuman", "siswa", "pengaturan", "panduan"]);
     assert.deepEqual(keys(actor("PENGAJAR")), ["beranda", "presensi", "samapta", "akun-saya", "panduan"]);
     // Tagihan siswa disembunyikan: keuangan dicatat manual oleh owner.
     assert.deepEqual(keys(actor("SISWA")), ["beranda", "presensi", "samapta", "latihan", "akun-saya", "panduan"]);
     assert.deepEqual(keys(actor("WALI")), ["beranda", "presensi", "akun-saya", "panduan"]);
   });
 
-  test("menu keuangan dan pengaturan tidak bocor ke peran lain", () => {
+  test("menu keuangan, pengaturan, dan pengumuman tidak bocor ke peran lain", () => {
     for (const role of ["PENGAJAR", "SISWA", "WALI"] as const) {
       const hrefs = menuFor(actor(role, { akses: "CATAT" })).map((item) => item.href);
       assert.ok(!hrefs.includes("/pengaturan"), role);
       assert.ok(!hrefs.includes("/keuangan"), role);
+      assert.ok(!hrefs.includes("/pengumuman"), role);
     }
     assert.deepEqual(menuFor(actor("SISWA")).filter((item) => item.href.startsWith("/keuangan")).map((item) => item.href), FITUR.tagihan ? ["/keuangan/tagihan"] : []);
   });

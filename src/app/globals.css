@@ -445,6 +445,52 @@ p {
   white-space: nowrap;
 }
 
+.app-install-short {
+  display: none;
+}
+
+.app-install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+
+.app-install-steps li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  line-height: 1.45;
+}
+
+.app-install-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.app-install-ico {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--primary);
+}
+
 .app-install-dialog {
   width: min(420px, calc(100% - 32px));
   padding: 22px;
@@ -465,11 +511,7 @@ p {
 
 .app-install-dialog ol {
   margin: 0;
-  padding-inline-start: 22px;
-}
-
-.app-install-dialog li + li {
-  margin-top: 8px;
+  padding: 0;
 }
 
 .app-install-dialog .form-actions {
@@ -588,6 +630,18 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
     display: none;
   }
 
+  .app-install-short {
+    display: inline;
+  }
+
+  .app-install-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: auto 0 0;
+    border-radius: 22px 22px 0 0;
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
+  }
+
   .appbar {
     min-height: 60px;
     padding: 8px 16px;
@@ -626,7 +680,8 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
 
   .appearance-toggle,
   .app-install-button {
-    padding: 9px;
+    padding: 9px 11px;
+    gap: 5px;
   }
 
   .page {
@@ -671,6 +726,42 @@ html[data-color-mode="dark"] .appearance-toggle .when-light {
   .bottomnav a[aria-current="page"] {
     color: var(--primary);
     background: var(--primary-soft);
+  }
+}
+
+/* HP biasa: nama aplikasi tetap satu baris walau tombol Pasang berlabel. */
+@media (max-width: 420px) {
+  .appbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .appbar-brand {
+    gap: 7px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  .appbar-brand img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .appbar-tools {
+    gap: 6px;
+  }
+
+  .appbar-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .appearance-toggle,
+  .app-install-button {
+    min-height: 40px;
+    padding: 8px 9px;
+    gap: 4px;
+    font-size: 13px;
   }
 }
 

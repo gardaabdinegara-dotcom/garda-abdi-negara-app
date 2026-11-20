@@ -2,9 +2,10 @@
 // Kartu menampilkan skor terakhir dan tren; pilihan durasi dan kartu ada di komponen klien PilihLatihan.
 import Link from "next/link";
 import { JENIS_INFO, JENIS_LATIHAN } from "@/lib/core/latihan";
-import type { ProgresLatihan } from "@/lib/server/latihan";
+import type { ProgresLatihan, TargetSiswa } from "@/lib/server/latihan";
 import { Icon } from "./icon";
 import { PilihLatihan, type KartuLatihan } from "./latihan-pilih";
+import { TargetSiswaCard } from "./latihan-target";
 import { KirimTertunda } from "./latihan-tertunda";
 import { PageHead } from "./ui";
 
@@ -21,10 +22,10 @@ function ringkasan(progres: ProgresLatihan): string {
   return `${minggu} Skor ${nama} ${j.tren > 0 ? "naik" : "turun"} ${Math.abs(j.tren)} poin dari latihan sebelumnya.`;
 }
 
-export function MenuLatihan({ progres, coba }: { progres: ProgresLatihan | null; coba: boolean }) {
+export function MenuLatihan({ progres, coba, target = null }: { progres: ProgresLatihan | null; coba: boolean; target?: TargetSiswa | null }) {
   const kartu: KartuLatihan[] = JENIS_LATIHAN.map((jenis) => {
     const j = progres?.perJenis[jenis];
-    return { jenis, skor: j?.terakhir?.skor ?? null, jumlah: j?.jumlah ?? 0, tren: j?.tren ?? null };
+    return { jenis, skor: j?.terakhir?.skor ?? null, jumlah: j?.jumlah ?? 0, tren: j?.tren ?? null, target: target?.target.jenis === jenis };
   });
 
   if (coba) {
@@ -47,7 +48,9 @@ export function MenuLatihan({ progres, coba }: { progres: ProgresLatihan | null;
       {progres ? <KirimTertunda pemilik={progres.student.siswa_id} /> : null}
       <div className="lt-menu">
         <div className="lt-menu-main">
-          {progres ? (
+          {progres && target ? (
+            <TargetSiswaCard target={target} />
+          ) : progres ? (
             <section className="card lt-card lt-sapa">
               <h2>Halo, {namaDepan(progres.student.nama)}</h2>
               <p>{ringkasan(progres)}</p>

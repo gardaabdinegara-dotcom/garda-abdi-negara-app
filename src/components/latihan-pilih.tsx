@@ -16,6 +16,8 @@ export interface KartuLatihan {
   jumlah: number;
   /** Selisih skor terakhir dengan latihan sebelumnya. */
   tren: number | null;
+  /** Jenis ini yang ditargetkan pelatih minggu ini. */
+  target?: boolean;
 }
 
 const KUNCI_DURASI = "rg-latihan-durasi";
@@ -61,7 +63,7 @@ export function PilihLatihan({ kartu, coba }: { kartu: KartuLatihan[]; coba: boo
           ))}
         </div>
       </section>
-      <div className="lt-tiles">
+      <div className="lt-tiles" id="pilih-latihan">
         {kartu.map((k) => {
           const info = JENIS_INFO[k.jenis];
           const meta = coba ? "Coba tanpa menyimpan" : k.skor === null ? "Belum pernah latihan" : `Skor terakhir ${k.skor} · ${k.jumlah} latihan`;
@@ -75,7 +77,9 @@ export function PilihLatihan({ kartu, coba }: { kartu: KartuLatihan[]; coba: boo
                 <span>{meta}</span>
                 <span className="lt-tile-dur">{keteranganDurasi(k.jenis, durasi)}</span>
               </span>
-              {k.tren !== null && !coba ? (
+              {k.target && !coba ? (
+                <span className="badge badge-info">Target</span>
+              ) : k.tren !== null && !coba ? (
                 <span className={`badge ${k.tren > 0 ? "badge-success" : k.tren < 0 ? "badge-danger" : ""}`} aria-label={k.tren === 0 ? "Skor sama dengan latihan sebelumnya" : `Skor ${k.tren > 0 ? "naik" : "turun"} ${Math.abs(k.tren)} poin`}>
                   {k.tren > 0 ? "▲" : k.tren < 0 ? "▼" : "="} {Math.abs(k.tren)}
                 </span>

@@ -1,0 +1,150 @@
+/* Tombol dan lembar WhatsApp bersama (komponen wa.tsx). Warna hijau WA dipakai hanya pada tombol utama. */
+.wa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #1f8f4e33;
+  background: #e7f6ec;
+  color: #17723d;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.wa-btn .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.wa-sm {
+  min-height: 36px;
+  padding: 6px 11px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+.wa-md {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+.wa-btn:hover {
+  background: #d6f0df;
+}
+.wa-btn.is-kosong {
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+[data-color-mode="dark"] .wa-btn:not(.is-kosong) {
+  border-color: #3ccf7a40;
+  background: #12301f;
+  color: #7be0a4;
+}
+
+dialog.wa-sheet {
+  width: min(460px, 100%);
+  max-width: 100%;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 -20px 40px -20px #00000066;
+  overflow: auto;
+}
+dialog.wa-sheet::backdrop {
+  background: #0000005c;
+}
+@media (min-width: 720px) {
+  dialog.wa-sheet {
+    margin: auto;
+    border-radius: 22px;
+  }
+}
+.wa-sheet-in {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+}
+.wa-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wa-sheet-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.wa-sheet-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.wa-x {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  cursor: pointer;
+}
+.wa-bubble {
+  padding: 12px 14px;
+  border-radius: 4px 16px 16px 16px;
+  background: #dcf8c6;
+  color: #1c2014;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+[data-color-mode="dark"] .wa-bubble {
+  background: #1f3a2a;
+  color: #e6f4ea;
+}
+.wa-open,
+.wa-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+.wa-open {
+  border: 0;
+  background: #1f8f4e;
+  color: #fff;
+}
+.wa-copy {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.wa-open .icon,
+.wa-copy .icon {
+  width: 18px;
+  height: 18px;
+}
+.wa-foot {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}

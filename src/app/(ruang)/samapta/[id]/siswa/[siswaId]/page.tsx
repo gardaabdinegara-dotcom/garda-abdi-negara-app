@@ -7,7 +7,10 @@ import { ActionForm, Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { ResultHero, RincianList } from "@/components/samapta";
 import { SamIcon } from "@/components/samapta-icon";
+import { GrafikPerkembangan, MateriPerkembangan } from "@/components/samapta-perkembangan";
+import { WaKabari } from "@/components/wa";
 import { canManageSamapta, POS_INFO, TEST_STATUS_LABEL, type Pos } from "@/lib/core/samapta";
+import { waHasilSamapta } from "@/lib/core/samapta-hasil";
 import { formatDate } from "@/lib/format";
 import { loadSamaptaResult } from "@/lib/server/samapta";
 import { requireActor } from "@/lib/server/session";
@@ -20,7 +23,7 @@ export default async function SamaptaStudentPage({ params }: { params: Promise<{
   if (!canManageSamapta(actor)) notFound();
   const { id, siswaId } = await params;
   const data = await loadSamaptaResult(actor, decodeURIComponent(id), decodeURIComponent(siswaId));
-  const { test, entry, peserta, previous } = data;
+  const { test, entry, peserta, previous, history, wa } = data;
   const s = entry.student;
   const locked = test.status !== "BERJALAN";
   const missing = missingPos(entry.result);
@@ -28,6 +31,8 @@ export default async function SamaptaStudentPage({ params }: { params: Promise<{
   const ttl = [s.tempat_lahir, s.tanggal_lahir ? formatDate(s.tanggal_lahir, "long") : ""].filter(Boolean).join(", ");
   const prevName = previous ? shortTestName(previous.test.nama) : "";
   const edit = locked ? undefined : (pos: Pos) => `/samapta/${test.tes_id}/pos/${pos}?siswa=${s.siswa_id}&semua=1&dari=s-${s.siswa_id}`;
+  const kirim = waHasilSamapta(wa.template, { lembaga: wa.lembaga, tes: test.nama, peserta }, entry);
+  const riwayat = history.map((h) => ({ test: h.test, result: h.entry.result, score: h.entry.score }));
 
   return (
     <div className="page sam-page">
@@ -54,6 +59,7 @@ export default async function SamaptaStudentPage({ params }: { params: Promise<{
             <Icon name="print" />
             Cetak blangko
           </a>
+          {kirim ? <WaKabari nomor={kirim.nomor} pesan={kirim.pesan} untuk={kirim.untuk} label="Kirim hasil" judul="Kirim hasil ke wali" ukuran="md" /> : null}
         </div>
       </header>
 
@@ -81,6 +87,12 @@ export default async function SamaptaStudentPage({ params }: { params: Promise<{
           ) : missing.length ? (
             <p className="sam-note">Belum diisi: {missing.map((p) => POS_INFO[p].short).join(", ")}.</p>
           ) : null}
+          <div className="sam-sec-t">
+            <h2>Perkembangan</h2>
+            <span>{riwayat.length} tes diikuti</span>
+          </div>
+          <GrafikPerkembangan riwayat={riwayat} settings={data.settings} />
+          <MateriPerkembangan riwayat={riwayat} />
         </div>
 
         <div className="sam-sv-side">

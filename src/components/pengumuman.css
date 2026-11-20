@@ -1,0 +1,341 @@
+/* Pengumuman: kartu "Info dari pelatih" (beranda siswa), daftar dan lembar tulis (halaman owner). */
+
+.png-atas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+
+.png-atas .row {
+  gap: 8px;
+}
+
+.png-ey {
+  color: var(--primary);
+  font: 800 11.5px/1.4 var(--body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.png-tgl {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.png-judul {
+  font: 800 17px/1.25 var(--heading);
+  overflow-wrap: anywhere;
+}
+
+.png-isi {
+  margin-top: -6px;
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.png-oleh {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Kartu beranda siswa: garis aksen di kiri agar menonjol tanpa warna mencolok. */
+.png-info {
+  gap: 10px;
+  border-left: 4px solid var(--primary);
+}
+
+.png-lain {
+  margin-top: 2px;
+  border-top: 1px solid var(--line);
+}
+
+.png-lain > summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 10px 0 2px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.png-lain > summary::-webkit-details-marker {
+  display: none;
+}
+
+.png-lain > summary b {
+  color: var(--primary);
+  font-size: 13.5px;
+}
+
+.png-lain > summary b::after {
+  content: "›";
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.15s ease;
+}
+
+.png-lain[open] > summary b::after {
+  transform: rotate(90deg);
+}
+
+.png-lain > summary span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.png-lain[open] > summary span {
+  display: none;
+}
+
+.png-lain ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.png-lain li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.png-lain li .png-judul {
+  font-size: 15px;
+}
+
+/* Halaman owner */
+.png-tulis {
+  align-self: stretch;
+}
+
+.png-seg {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.png-seg a {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 11px;
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.png-seg a[aria-current="page"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.png-daftar {
+  display: grid;
+  gap: 12px;
+}
+
+.png-kartu {
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.png-kartu.is-sematan {
+  border-color: color-mix(in srgb, var(--warning) 35%, var(--line));
+}
+
+.png-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.png-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.png-hapus {
+  margin-left: auto;
+}
+
+.png-hapus .btn-ghost {
+  color: var(--danger);
+}
+
+.png-hapus .btn-ghost:hover {
+  background: var(--danger-soft);
+}
+
+/* Lembar tulis */
+.png-form {
+  gap: 14px;
+}
+
+.png-form .lembar-foot {
+  order: 1;
+}
+
+.png-form .lembar-foot .btn {
+  width: 100%;
+}
+
+.png-form textarea {
+  min-height: 112px;
+}
+
+.png-hitung {
+  align-self: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.png-hitung.is-hampir {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.png-tg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+
+.png-tg > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.png-tg b {
+  font-size: 14px;
+}
+
+.png-tg b em {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.png-tg small {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+/* Sakelar: kotak centang yang tampil sebagai tombol geser. */
+.png-tg input[type="checkbox"] {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 28px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--border);
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.png-tg input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px #00000040;
+  transition: transform 0.15s ease;
+}
+
+.png-tg input[type="checkbox"]:checked {
+  background: var(--primary);
+}
+
+.png-tg input[type="checkbox"]:checked::after {
+  transform: translateX(18px);
+}
+
+html[data-color-mode="dark"] .png-tg input[type="checkbox"]:checked::after {
+  background: var(--on-primary);
+}
+
+.png-terbit .wa-btn {
+  width: 100%;
+}
+
+.png-bubble {
+  padding: 12px 14px;
+  border-radius: 4px 16px 16px 16px;
+  background: var(--surface-soft);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 760px) {
+  .png-tulis {
+    align-self: flex-start;
+  }
+
+  .png-daftar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .png-tg input[type="checkbox"],
+  .png-tg input[type="checkbox"]::after {
+    transition: none;
+  }
+}
+
+/* Beranda siswa: kartu info berada di antara sapaan dan kartu kehadiran di urutan HTML.
+   Di layar lebar (sapaan dan kehadiran berdampingan) kartu info turun selebar baris. */
+.dash-hero-row > .png-info {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+@media (max-width: 760px) {
+  .dash-hero-row > .png-info {
+    grid-row: auto;
+  }
+}

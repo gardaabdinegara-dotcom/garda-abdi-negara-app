@@ -62,16 +62,8 @@ export function checkEnvironment(env: NodeJS.ProcessEnv = process.env, productio
       required: production,
       detail: secret.length >= 32 ? `Terisi (${secret.length} karakter)` : secret ? "Terlalu pendek, minimal 32 karakter." : "Belum diisi (di komputer sendiri dibuat otomatis di .data/).",
     },
-    {
-      key: "UPSTASH_REDIS",
-      label: "Redis Upstash",
-      ok: redis,
-      // Opsional: tanpa Redis, batas salah PIN disimpan di tab Batas_Masuk (murni spreadsheet).
-      required: false,
-      detail: redis
-        ? "Terisi"
-        : "Tidak dipakai (murni spreadsheet). Batas salah PIN disimpan di tab Batas_Masuk. Jalankan aplikasi di satu server agar penyimpanan bersamaan tidak bertabrakan.",
-    },
+    // Redis sengaja tidak dipakai (murni spreadsheet; batas salah PIN di tab Batas_Masuk). Baris hanya muncul bila diisi.
+    ...(redis ? [{ key: "UPSTASH_REDIS", label: "Redis Upstash", ok: true, required: false, detail: "Terisi (tidak wajib)." }] : []),
     {
       key: "APP_TIMEZONE",
       label: "Zona waktu aplikasi",

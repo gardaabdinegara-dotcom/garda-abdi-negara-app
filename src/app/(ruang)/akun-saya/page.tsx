@@ -43,7 +43,7 @@ export default async function MyAccountPage() {
                 </>
               ) : null}
             </dl>
-            <p className="muted">Nama dan username diubah oleh admin.</p>
+            <p className="muted">{role === "OWNER" || role === "ADMIN" ? "Ubah nama atau username di Pengaturan → Akun." : "Nama dan username diubah oleh owner."}</p>
           </section>
 
           {role === "SISWA" || role === "WALI" ? (
@@ -97,7 +97,7 @@ export default async function MyAccountPage() {
             <div className="card-head">
               <div>
                 <h2>Keamanan</h2>
-                <p>Ganti password secara berkala dan jangan bagikan ke orang lain.</p>
+                <p>{role === "SISWA" ? "Ganti PIN secara berkala dan jangan beri tahu siapa pun." : "Ganti password secara berkala dan jangan bagikan ke orang lain."}</p>
               </div>
             </div>
             <div className="row">

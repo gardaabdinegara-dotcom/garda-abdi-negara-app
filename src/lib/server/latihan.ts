@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { academicSettings, localClock } from "../core/akademik";
 import { kelompokkanPerSiswa, progresOf, rekapDari, dalamMingguIni, type FilterRekapLatihan, type ProgresLatihan, type RekapLatihan } from "../core/latihan-rekap";
 import { toLatihan, type Latihan } from "../core/latihan-simpan";
+import { bacaTarget, hariBeruntun, progresTarget, rekorBeruntun, ringkasTargetKelompok, type ProgresTarget, type RingkasTargetKelompok, type TargetLatihan } from "../core/latihan-target";
+import { waTemplates } from "../core/wa";
 import { linkedStudentIds, toStudent, type Actor, type Student } from "../core/types";
 import { AppError, type Tables } from "../data/types";
 import { dataDeps } from "./data";
@@ -24,7 +26,33 @@ function today(t: Tables): string {
 function model(t: Tables) {
   const students = (t.Siswa ?? []).map(toStudent).filter((s) => !s.dihapus_pada);
   const bySiswa = kelompokkanPerSiswa((t.Latihan_Psikotes ?? []).map(toLatihan));
-  return { students, bySiswa, hariIni: today(t) };
+  return { students, bySiswa, hariIni: today(t), target: bacaTarget(t) };
+}
+
+/** Target minggu ini milik satu siswa, ditambah hari beruntun dan rekornya. */
+export interface TargetSiswa extends ProgresTarget {
+  beruntun: number;
+  rekor: number;
+}
+
+function targetSiswa(target: TargetLatihan, riwayat: readonly Latihan[], hariIni: string): TargetSiswa {
+  const tanggal = riwayat.map((l) => l.tanggal);
+  return { ...progresTarget(target, riwayat, hariIni), beruntun: hariBeruntun(tanggal, hariIni), rekor: rekorBeruntun(tanggal, hariIni) };
+}
+
+/**
+ * Menu latihan siswa: progres dan target minggu ini (null bila owner belum memasang target).
+ * Owner/admin (mode coba) mendapat progres dan target null.
+ */
+export async function loadMenuLatihan(actor: Actor): Promise<{ progres: ProgresLatihan | null; target: TargetSiswa | null }> {
+  if (actor.user.peran !== "SISWA") return { progres: null, target: null };
+  const siswaId = linkedStudentIds(actor, "SISWA")[0];
+  if (!siswaId) return { progres: null, target: null };
+  const m = model(await read());
+  const student = m.students.find((s) => s.siswa_id === siswaId);
+  if (!student) return { progres: null, target: null };
+  const riwayat = m.bySiswa.get(siswaId) ?? [];
+  return { progres: progresOf(student, riwayat, m.hariIni), target: m.target && student.aktif ? targetSiswa(m.target, riwayat, m.hariIni) : null };
 }
 
 /** Progres milik siswa yang masuk. Null untuk owner/admin (mereka boleh mencoba latihan tanpa menyimpan). */
@@ -107,9 +135,19 @@ export async function loadHasilLatihan(actor: Actor, latihanId: string): Promise
   return { latihan: found, student, sebelumnya: pos > 0 ? sama[pos - 1]! : null, riwayatJenis: sama.slice(0, pos + 1), milikSaya };
 }
 
+export interface RekapPemilik extends RekapLatihan {
+  /** Target minggu ini untuk semua siswa aktif; null bila belum dipasang. */
+  target: RingkasTargetKelompok | null;
+  /** Template pesan WA "latihan" dan nama lembaga untuk tombol WA per siswa. */
+  wa: { template: string; lembaga: string };
+}
+
 /** Rekap semua siswa aktif untuk owner/admin. Siswa yang perlu didorong ditaruh paling atas. */
-export async function loadRekapLatihan(actor: Actor, filter: FilterRekapLatihan, siswaId?: string): Promise<RekapLatihan> {
+export async function loadRekapLatihan(actor: Actor, filter: FilterRekapLatihan, siswaId?: string): Promise<RekapPemilik> {
   if (!canSeeAllLatihan(actor)) notFound();
-  const m = model(await read());
-  return rekapDari(m.students, m.bySiswa, m.hariIni, filter, siswaId);
+  const t = await read();
+  const m = model(t);
+  const rekap = rekapDari(m.students, m.bySiswa, m.hariIni, filter, siswaId);
+  const target = m.target ? ringkasTargetKelompok(m.target, rekap.baris.map((b) => b.student.siswa_id), m.bySiswa, m.hariIni) : null;
+  return { ...rekap, target, wa: { template: waTemplates({ Pengaturan: t.Pengaturan ?? [] }).latihan, lembaga: academicSettings(t).nama_lembaga } };
 }

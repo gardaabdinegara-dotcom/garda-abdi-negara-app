@@ -88,6 +88,8 @@ export const INTI = {
     "status",
     "peserta_ids",
     ...audit,
+    // Sesi berulang: sesi yang dibuat sekaligus berbagi seri_id (kosong = sesi tunggal).
+    "seri_id",
   ]),
   Presensi: def("Presensi", [
     "presensi_id",
@@ -208,6 +210,8 @@ export const INTI = {
     "seri_json",
     ...audit,
   ]),
+  /** Info dari pelatih yang tampil di beranda siswa sampai tanggal tertentu. Hapus = status DIHAPUS. */
+  Pengumuman: def("Pengumuman", ["pengumuman_id", "judul", "isi", "tampil_sampai", "disematkan", "status", ...audit]),
   Operasi: def("Operasi", operationColumns),
   /** Hitungan salah masuk (pengganti Redis): satu baris per kunci akun/IP, dipakai ulang setelah kedaluwarsa. */
   Batas_Masuk: def("Batas_Masuk", ["kunci", "jumlah", "kedaluwarsa", "updated_at"]),
@@ -271,6 +275,8 @@ export const KEUANGAN = {
     "transaksi_rujukan_id",
     "created_at",
     "created_by",
+    // Opsional: uang masuk yang dicatat dari siswa tertentu (riwayat bayar di profil siswa, bukan tagihan).
+    "siswa_id",
   ]),
   Pemetaan_Laporan: def("Pemetaan_Laporan", ["pemetaan_id", "kategori_id", "kelompok", "berlaku_mulai", "operation_id", ...audit]),
   Aset: def("Aset", [

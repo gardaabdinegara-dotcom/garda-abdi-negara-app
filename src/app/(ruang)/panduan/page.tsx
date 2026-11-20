@@ -50,6 +50,9 @@ const SECTIONS: Section[] = [
         <b>Sebelum latihan</b>: <Link href="/akademik">Presensi</Link> → tombol <b>+</b> (Buat sesi). Pilih peserta <b>Semua siswa aktif</b> (atau satu kelas).
       </>,
       <>
+        <b>Jadwal rutin</b>: di lembar Buat sesi nyalakan <b>Ulangi</b>, pilih harinya (mis. Senin sampai Sabtu) dan <b>Sampai tanggal</b>. Semua sesi dibuat sekaligus dan bertanda <b>Berulang</b>. Saat mengubah atau menghapus, pilih <b>Hanya sesi ini</b> atau <b>Sesi ini dan berikutnya</b>.
+      </>,
+      <>
         <b>Saat mulai</b>: di layar <b>Hari ini</b>, pilih sesinya → <b>Buka sesi</b>, lalu <b>Tampilkan QR</b> (layar penuh). Siswa memindai dan menekan <b>Ajukan hadir</b>. QR berganti otomatis tiap 10 menit, jadi foto QR lama tidak berlaku.
       </>,
       <>
@@ -57,6 +60,9 @@ const SECTIONS: Section[] = [
       </>,
       <>
         <b>Selesai</b>: <b>Tutup sesi</b>. Siswa yang belum tercatat dihitung alfa. Rekap bulanan bisa diunduh sebagai CSV.
+      </>,
+      <>
+        Tab <b>Rekap</b>: siswa dengan kehadiran di bawah 75% punya tombol <b>WA wali</b> berisi pesan siap kirim. Pilihan bidang (Akademik, Fisik, KESWA, dan lain-lain) diatur di <Link href="/pengaturan/bidang-presensi">Pengaturan → Bidang presensi</Link>: tambah, ganti nama, urutkan, atau sembunyikan.
       </>,
     ],
   },
@@ -76,7 +82,10 @@ const SECTIONS: Section[] = [
         Isi jarak, jumlah gerakan, atau waktu sesuai pos. Nilai dihitung dari tabel berdasarkan jenis kelamin dan usia pada tanggal tes. Bila tanggal lahir kosong, acuan latihan memakai kelompok 18–25 tahun.
       </>,
       <>
-        Tab <b>Hasil</b> menampilkan peringkat dan klasifikasi. Cetak blangko A4 per siswa atau semua sekaligus; <b>Cetak blangko kosong</b> untuk diisi tangan.
+        Tab <b>Hasil</b> menampilkan peringkat dan klasifikasi. Cetak blangko A4 per siswa atau semua sekaligus; <b>Cetak blangko kosong</b> untuk diisi tangan. <b>Unduh Excel (CSV)</b> berisi semua nilai peserta.
+      </>,
+      <>
+        Buka baris siswa di peringkat lalu <b>Kirim hasil</b> untuk mengirim nilainya ke wali lewat WhatsApp. Halaman per siswa menampilkan grafik perkembangan dari tes ke tes.
       </>,
       <>
         Setelah semua lengkap, tekan <b>Tandai selesai</b> agar isian terkunci. Perlu koreksi? <b>Buka lagi</b>.
@@ -97,6 +106,9 @@ const SECTIONS: Section[] = [
       </>,
       <>Ketuk nama siswa untuk melihat grafik skor, perbandingan aspek latihan pertama dan terakhir, serta hasil tiap latihan.</>,
       <>
+        <b>Target mingguan</b>: tekan <b>Pasang target</b> (mis. 3 kali Kraepelin Standar per minggu). Siswa melihat progresnya di menu Latihan; filter <b>Belum memenuhi</b> menampilkan yang tertinggal, lengkap dengan tombol <b>WA siswa</b>.
+      </>,
+      <>
         Ingin merasakan layarnya? <Link href="/latihan/coba">Coba latihan</Link>: hasilnya ditampilkan tetapi tidak disimpan.
       </>,
     ],
@@ -108,7 +120,7 @@ const SECTIONS: Section[] = [
     intro: "Pembayaran siswa diurus langsung (tunai atau transfer). Di aplikasi, owner cukup mencatat setiap uang masuk dan keluar; laporan keuangan dibuat otomatis.",
     steps: [
       <>
-        <b>Uang masuk</b>: <Link href="/keuangan">Keuangan</Link> → tombol <b>Uang masuk</b>, isi nominal di papan angka, kategori mis. <b>Pembayaran bimbel siswa</b>, tulis nama/kode siswa di keterangan.
+        <b>Uang masuk</b>: <Link href="/keuangan">Keuangan</Link> → tombol <b>Uang masuk</b>, isi nominal di papan angka, kategori mis. <b>Pembayaran bimbel siswa</b>. Pilih <b>Dari siswa</b> agar pembayaran ini tampil di profil siswa (riwayat bayar, bukan tagihan).
       </>,
       <>
         <b>Uang keluar</b>: tombol <b>Uang keluar</b>, pilih kategori (honor, sewa, operasional, ATK, dan lain-lain) agar laba rugi rapi. Pindah uang kas ke bank lewat tombol <b>Pindah</b>.
@@ -118,6 +130,23 @@ const SECTIONS: Section[] = [
       </>,
       <>
         <b>Laporan</b>: <Link href="/keuangan/laporan">Keuangan → Laporan</Link> → pilih periode → buku kas, laba rugi, atau neraca. Unduh PDF atau CSV.
+      </>,
+    ],
+  },
+  {
+    id: "pengumuman",
+    title: "Pengumuman dan WhatsApp",
+    roles: ["OWNER", "ADMIN"],
+    steps: [
+      <>
+        <Link href="/pengumuman">Pengumuman</Link> → <b>Tulis pengumuman</b>: judul, isi, dan <b>Tampil sampai</b>. Pengumuman tampil di beranda siswa sebagai <b>Info dari pelatih</b> lalu hilang sendiri setelah tanggalnya. Nyalakan <b>Sematkan</b> agar selalu paling atas.
+      </>,
+      <>Tombol <b>Kirim ke WA</b> membuka WhatsApp dengan teks pengumuman; pilih grup siswa lalu kirim.</>,
+      <>
+        Tombol WhatsApp di aplikasi (profil siswa, rekap presensi, latihan, hasil samapta) hanya membuka chat dengan pesan terisi; tidak ada yang terkirim sebelum Anda menekan kirim. Teks pesannya bisa diubah di <Link href="/pengaturan/pesan-wa">Pengaturan → Pesan WA</Link>.
+      </>,
+      <>
+        <b>Kartu login</b>: <Link href="/pengaturan/akun">Pengaturan → Akun</Link> → <b>Cetak kartu login</b>. Satu lembar A4 berisi 8 kartu (nama, username, alamat aplikasi, QR). Berikan langsung ke siswanya, karena siapa pun yang tahu username bisa membuat PIN pertama.
       </>,
     ],
   },
@@ -177,8 +206,9 @@ const SECTIONS: Section[] = [
         <b>Latihan</b>: pilih Kraepelin, Pauli, angka hilang, atau simbol hilang, pilih durasi (Singkat, Standar, atau Seperti tes asli), lalu mulai. Hasil keluar begitu waktu habis: skor, ketelitian, kecepatan, stabilitas, performa, dan kurva kerja.
       </>,
       <>
-        <Link href="/latihan/progres">Progres saya</Link>: grafik skor dari latihan ke latihan. Bila sinyal putus saat menyimpan, hasil disimpan di HP dan bisa dikirim ulang.
+        <Link href="/latihan/progres">Progres saya</Link>: grafik skor dari latihan ke latihan. Bila sinyal putus saat menyimpan, hasil disimpan di HP dan bisa dikirim ulang. Kartu <b>Target minggu ini</b> menunjukkan berapa kali lagi perlu latihan.
       </>,
+      <><b>Info dari pelatih</b> di beranda berisi pengumuman terbaru: jadwal tes, perlengkapan, atau perubahan sesi.</>,
     ],
   },
   {
@@ -206,6 +236,9 @@ const SECTIONS: Section[] = [
         <Link href="/akun-saya">Akun & PIN</Link>: ganti PIN atau password, ubah tampilan terang/gelap, atau keluar dari semua perangkat bila HP hilang.
       </>,
       <>Lupa PIN? Lapor ke owner untuk direset, lalu buat PIN baru saat masuk berikutnya.</>,
+      <>
+        <b>Pasang di HP</b>: tekan tombol <b>Pasang</b> di samping tombol tema. Di Android dan komputer muncul tawaran pasang; di iPhone ikuti langkahnya (Bagikan → Tambah ke Layar Utama).
+      </>,
     ],
   },
 ];

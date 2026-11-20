@@ -1,0 +1,400 @@
+<style>
+.m-a .i-home{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/%3E%3C/svg%3E")}
+.m-a .i-presensi{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11.5 11.5 14 16 9.5M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z'/%3E%3C/svg%3E")}
+.m-a .i-lari{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2M7 21l3-4 2 2 2-6 4 2M10 9l3-2 3 3 3 1M8 13l2-4'/%3E%3C/svg%3E")}
+.m-a .i-dompet{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v3M3 7.5V18a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5'/%3E%3C/svg%3E")}
+.m-a .i-more{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='5' cy='12' r='1.7' fill='black'/%3E%3Ccircle cx='12' cy='12' r='1.7' fill='black'/%3E%3Ccircle cx='19' cy='12' r='1.7' fill='black'/%3E%3C/svg%3E")}
+.m-a .i-moon{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z'/%3E%3C/svg%3E")}
+.m-a .i-dl{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E")}
+.m-a .i-plus{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E")}
+.m-a .i-left{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E")}
+.m-a .i-right{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")}
+.m-a .i-down{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+.m-a .i-close{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
+.m-a .i-check{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E")}
+.m-a .i-back{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M11 6l-6 6 6 6'/%3E%3C/svg%3E")}
+.m-a .i-print{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z'/%3E%3C/svg%3E")}
+.m-a .i-trash{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13'/%3E%3C/svg%3E")}
+.m-a .i-wa{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20l1.3-3.9A8.3 8.3 0 1 1 8.2 19z'/%3E%3Cpath fill='black' stroke='none' d='M9.3 7.9c.3-.3.8-.3 1 .1l.8 1.6c.1.3.1.6-.2.8l-.6.6c.6 1.1 1.5 2 2.6 2.6l.6-.6c.2-.3.5-.3.8-.2l1.6.8c.4.2.4.7.1 1l-.7.7c-.6.6-1.6.8-2.5.4-1.9-.9-3.4-2.4-4.3-4.3-.4-.9-.2-1.9.4-2.5z'/%3E%3C/svg%3E")}
+.m-a .i-copy{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='11' height='11' rx='2'/%3E%3Cpath d='M5 15V5a1 1 0 0 1 1-1h9'/%3E%3C/svg%3E")}
+.m-a .i-repeat{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4'/%3E%3C/svg%3E")}
+.m-a .i-edit{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4'/%3E%3C/svg%3E")}
+.m-a .i-cal{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E")}
+.m-a .i-clock{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+.m-a .i-hp{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6.5' y='2.5' width='11' height='19' rx='2.5'/%3E%3Cpath d='M11 18.5h2'/%3E%3C/svg%3E")}
+.m-a .i-server{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='3.5' width='16' height='7' rx='1.5'/%3E%3Crect x='4' y='13.5' width='16' height='7' rx='1.5'/%3E%3Cpath d='M8 7h.01M8 17h.01M12 7h4M12 17h4'/%3E%3C/svg%3E")}
+.m-a .i-tabel{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M9 4v16'/%3E%3C/svg%3E")}
+.m-a .i-user{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21a8 8 0 0 1 16 0'/%3E%3C/svg%3E")}
+.m-a .i-scissors{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='6' r='3'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Cpath d='M8.6 7.6 20 18M8.6 16.4 20 6'/%3E%3C/svg%3E")}
+.m-a .i-info{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v5M12 8h.01'/%3E%3C/svg%3E")}
+.m-a .i-lock{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E")}
+.m-a .i-swap{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h15l-3-3M20 16H5l3 3'/%3E%3C/svg%3E")}
+.m-a .i-gear{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1'/%3E%3C/svg%3E")}
+.m-a .i-refresh{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4'/%3E%3C/svg%3E")}
+.m-a .i-qr{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2'/%3E%3C/svg%3E")}
+.m-a .i-bolt{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 3 5 14h6l-1 7 8-11h-6z'/%3E%3C/svg%3E")}
+.m-a{--wa:#1b8a4c;--on-wa:#fff;--wasoft:#e2f4e8;--chat:#efe9df;--bubble:#dcf5cb;--bubble-ink:#16210f}
+[data-theme="dark"] .m-a{--wa:#5fd38d;--on-wa:#0c2215;--wasoft:#16301f;--chat:#12170f;--bubble:#21402b;--bubble-ink:#e6efdc}
+.m-a .ic{display:inline-block;width:18px;height:18px;flex:none;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;vertical-align:-4px;font-style:normal}
+.m-a .hp-nav i.ic{display:block;margin:0 auto 3px;width:19px;height:19px}
+.m-a .hp-body{overflow:hidden;gap:10px}
+.m-a .ba-sub{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.m-a .ba-sub::after{content:"";flex:1;height:1px;background:var(--line)}
+.m-a .ba-cols+.ba-sub{margin-top:26px}
+/* kepala aplikasi */
+.m-a .ab{padding:10px 12px;gap:8px;min-height:62px}
+.m-a .ab svg.lg{width:34px;height:34px;flex:none}
+.m-a .ab b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.m-a .tb{width:40px;height:40px;border:1px solid var(--line);border-radius:13px;display:grid;place-items:center;background:var(--surface);color:var(--ink);flex:none}
+.m-a .tb.lg{width:44px;height:44px;border-radius:14px}
+.m-a .pg{width:40px;height:40px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.m-a .pt{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.m-a .back{color:var(--primary);font-weight:700;font-size:13px;display:inline-flex;gap:4px;align-items:center}
+.m-a .back .ic{width:15px;height:15px;vertical-align:0}
+.m-a .nowrap{flex-wrap:nowrap;overflow:hidden}
+.m-a .btn.wa{background:var(--wa);color:var(--on-wa)}
+.m-a .btn.xs{padding:5px 9px;font-size:11.5px;border-radius:9px;gap:4px}
+.m-a .btn.xs .ic,.m-a .btn.sm .ic{width:15px;height:15px;vertical-align:0}
+.m-a .btn.out{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.m-a .card h3{font-weight:800}
+.m-a .fl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.m-a .fl label{font-size:12px;font-weight:800;color:var(--ink)}
+.m-a .inp{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--surface);font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+.m-a .inp.ph{color:var(--muted)}
+.m-a .inp .ic{width:16px;height:16px;color:var(--muted)}
+.m-a .x{width:36px;height:36px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none}
+.m-a .sh-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.m-a .sh-h h3{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.m-a .sh-h .sub{color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.4}
+.m-a .sheet{display:flex;flex-direction:column;gap:10px}
+.m-a .scrim.lt{background:#00000030}
+/* A1: kontak */
+.m-a .ct{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.m-a .ct:last-of-type{border-bottom:0}
+.m-a .ct .main{flex:1;min-width:0}
+.m-a .ct .main span{display:block;font-size:11.5px;color:var(--muted)}
+.m-a .ct .main b{display:block;font-size:14px}
+.m-a .av.o{background:var(--osoft);color:var(--gold)}
+.m-a .av.r{background:var(--rsoft);color:var(--red)}
+.m-a .av .ic{width:16px;height:16px}
+.m-a .lnk{display:flex;gap:6px;align-items:flex-start;font-size:11.5px;color:var(--muted);background:var(--soft);border-radius:10px;padding:7px 9px;line-height:1.4}
+.m-a .lnk .ic{width:14px;height:14px;vertical-align:0;margin-top:1px}
+/* A1: rekap */
+.m-a .mo{font-size:18px;font-weight:800}
+.m-a .kps{gap:8px}
+.m-a .kp{border-radius:14px;padding:8px 12px;background:var(--soft)}
+.m-a .kp b{display:block;font-size:20px;font-weight:800;line-height:1.2}
+.m-a .kp span{font-size:12px;color:var(--muted);font-weight:600}
+.m-a .kp.g{background:var(--psoft)} .m-a .kp.g b{color:var(--primary)}
+.m-a .kp.r{background:var(--rsoft)} .m-a .kp.r b{color:var(--red)}
+.m-a .rk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.m-a .rk .main{flex:1;min-width:0}
+.m-a .rk .main b{display:block;font-size:13.5px;font-weight:800}
+.m-a .rk .main span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:1px 0 6px}
+.m-a .rk .bar{height:6px}
+.m-a .rk .end{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+.m-a .rk .pct{font-weight:800;font-size:16px}
+.m-a .rk.low{margin:0 -14px;padding:9px 14px;background:var(--rsoft);border-bottom-color:color-mix(in srgb,var(--red) 22%,transparent)}
+.m-a .rk.low .main b,.m-a .rk.low .pct{color:var(--red)}
+.m-a .rk.low .av{background:transparent;color:var(--red)}
+.m-a .rk.low .bar{background:color-mix(in srgb,var(--red) 14%,var(--surface))}
+.m-a .rk.low .bar i{background:var(--red)}
+.m-a .rkc{padding-bottom:4px}
+.m-a .rkc .sub{margin-bottom:6px}
+/* A1: lembar pesan WA */
+.m-a .to{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px;padding:8px 10px}
+.m-a .to .main{flex:1;min-width:0} .m-a .to .main b{display:block;font-size:13.5px} .m-a .to .main span{font-size:12px;color:var(--muted)}
+.m-a .chat{background:var(--chat);border-radius:14px;padding:12px 12px 12px 30px;display:flex;justify-content:flex-end}
+.m-a .bub{background:var(--bubble);color:var(--bubble-ink);border-radius:12px 12px 4px 12px;padding:9px 11px 6px;font-size:12.5px;line-height:1.48;box-shadow:0 1px 1px #0001}
+.m-a .bub small{display:block;text-align:right;font-size:10px;opacity:.6;margin-top:2px}
+.m-a .wlink{font-family:ui-monospace,Consolas,monospace;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* A1: layar lain */
+.m-a .also{display:flex;flex-direction:column;gap:12px}
+.m-a .also .card{box-shadow:var(--shadow)}
+.m-a .also .eyebrow{margin-bottom:2px}
+.m-a .also .item{padding:9px 0}
+.m-a .tok{font-family:ui-monospace,Consolas,monospace;font-size:11px;background:var(--bsoft);color:var(--blue);padding:1px 5px;border-radius:6px;font-weight:700;white-space:nowrap}
+.m-a .tpl-box{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.75;background:var(--surface)}
+.m-a .seg.tpl span{padding:6px 4px;font-size:12px}
+/* A2: buat sesi berulang */
+.m-a .sheet.tall{top:64px;padding:10px 14px 14px;overflow:hidden}
+.m-a .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-a .rep{border:1.5px solid var(--primary);background:color-mix(in srgb,var(--psoft) 55%,var(--surface));border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.m-a .rep-h{display:flex;align-items:center;gap:10px}
+.m-a .rep-h .main{flex:1} .m-a .rep-h b{display:block;font-size:14px} .m-a .rep-h span{font-size:11.5px;color:var(--muted)}
+.m-a .sw{width:44px;height:26px;border-radius:99px;background:var(--primary);position:relative;flex:none}
+.m-a .sw::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:var(--on-primary)}
+.m-a .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.m-a .days span{text-align:center;padding:6px 0;border-radius:99px;font-weight:800;font-size:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.m-a .days span.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.m-a .sum{background:var(--surface);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.m-a .sum-t{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--muted);line-height:1.4}
+.m-a .sum-t b{display:block;color:var(--primary);font-size:14px}
+.m-a .sum-t .ic{color:var(--primary);margin-top:2px}
+.m-a .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11.5px}
+.m-a .cal .dw{font-size:10px;font-weight:800;color:var(--muted);padding-bottom:1px}
+.m-a .cal i{font-style:normal;padding:3px 0;border-radius:7px;font-weight:700;color:var(--muted);line-height:1.3}
+.m-a .cal i.on{background:var(--primary);color:var(--on-primary)}
+.m-a .cal i.off{text-decoration:line-through;opacity:.7}
+.m-a .cal i small{font-size:8.5px;font-weight:800}
+/* A2: jadwal */
+.m-a .dnav{display:flex;gap:6px;align-items:center}
+.m-a .dnav .inp{flex:1;padding:8px 10px;font-size:13.5px}
+.m-a .dnav .btn{padding:9px 10px;font-size:12.5px}
+.m-a .nx{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.m-a .nx:last-child{border-bottom:0}
+.m-a .dt{width:44px;flex:none;border-radius:12px;background:var(--soft);text-align:center;padding:5px 0;line-height:1.1}
+.m-a .dt small{display:block;font-size:10.5px;font-weight:800;color:var(--muted)}
+.m-a .dt b{font-size:18px;font-weight:800}
+.m-a .nx .main{flex:1;min-width:0}
+.m-a .nx .main b{display:block;font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-a .nx .main span{display:block;font-size:12px;color:var(--muted)}
+.m-a .nx .main .row{gap:6px;margin-top:3px}
+.m-a .pill .ic{width:12px;height:12px;vertical-align:0}
+.m-a .serinfo{display:flex;gap:8px;align-items:flex-start;background:var(--bsoft);color:var(--blue);border-radius:12px;padding:8px 10px;font-size:12px;line-height:1.4}
+.m-a .serinfo .ic{width:16px;height:16px;margin-top:1px}
+.m-a .act{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.m-a .act:last-child{border-bottom:0}
+.m-a .act>.ic:first-child{width:34px;height:34px;flex:none}
+.m-a .act .ib{width:34px;height:34px;border-radius:11px;background:var(--soft);display:grid;place-items:center;flex:none}
+.m-a .act .main{flex:1} .m-a .act .main b{display:block;font-size:13.5px} .m-a .act .main span{font-size:11.5px;color:var(--muted)}
+.m-a .act.dg .main b,.m-a .act.dg .ib{color:var(--red)} .m-a .act.dg .ib{background:var(--rsoft)}
+.m-a .act>.ic{color:var(--muted)}
+/* A3: akun + kartu */
+.m-a .opt{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:var(--surface)}
+.m-a .opt .main{flex:1} .m-a .opt b{display:block;font-size:14px} .m-a .opt span{font-size:12px;color:var(--muted)}
+.m-a .opt.on{border:2px solid var(--primary);background:color-mix(in srgb,var(--psoft) 55%,var(--surface))}
+.m-a .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;background:var(--surface)}
+.m-a .opt.on .rd{border:6px solid var(--primary)}
+.m-a .info{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);line-height:1.45;background:var(--soft);border-radius:12px;padding:8px 10px}
+.m-a .info .ic{width:16px;height:16px;margin-top:1px}
+.m-a .acc{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.m-a .acc b{font-size:13.5px} .m-a .acc code{font-size:11.5px;color:var(--muted)}
+.m-a .ba-col.full{flex-basis:100%}
+.m-a .pv{background:var(--soft);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.m-a .pv-bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.m-a .pv-bar .sp{flex:1}
+.m-a .pv-in{display:flex;flex-wrap:wrap;gap:22px;padding:22px;align-items:flex-start}
+.m-a .pv-side{flex:1 1 280px;display:flex;flex-direction:column;gap:12px}
+.m-a .pv-side ol,.m-a .pv-side ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.55}
+.m-a .pv-side li{margin:2px 0}
+.m-a .a4{--pk:#1c2014;--pm:#5c6150;--pp:#4b5d2a;--cut:#9a9886;--paper:#fff;width:640px;max-width:100%;aspect-ratio:210/297;background:var(--paper);color:var(--pk);box-shadow:0 18px 40px -20px #0007,0 0 0 1px #0000000d;padding:24px 24px 18px;display:flex;flex-direction:column;gap:8px;flex:none}
+[data-theme="dark"] .m-a .a4{--paper:#f7f6f0}
+.m-a .a4-h,.m-a .a4-f{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--pm);font-weight:600}
+.m-a .a4-f{justify-content:flex-start;align-items:center}
+.m-a .a4-f .ic{width:13px;height:13px;vertical-align:0}
+.m-a .a4-g{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);border-top:1.5px dashed var(--cut);border-left:1.5px dashed var(--cut);position:relative}
+.m-a .a4-g .scx{position:absolute;top:-8px;left:-8px;width:15px;height:15px;color:var(--pm);background:var(--paper)}
+.m-a .kc{border-right:1.5px dashed var(--cut);border-bottom:1.5px dashed var(--cut);padding:11px 13px 9px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.m-a .kc-h{display:flex;gap:7px;align-items:center;border-bottom:1px solid #e4e1d6;padding-bottom:6px}
+.m-a .kc-h svg{width:24px;height:24px;flex:none}
+.m-a .kc-h b{display:block;font-size:11.5px;font-weight:800;line-height:1.15;color:var(--pp)}
+.m-a .kc-h span{display:block;font-size:9px;color:var(--pm);font-weight:600}
+.m-a .kc-m{display:flex;gap:10px;align-items:flex-start}
+.m-a .kc-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.m-a .kc-l{font-size:8.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--pm)}
+.m-a .kc-nm{font-size:13px;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-a .kc-un{font-family:ui-monospace,Consolas,monospace;font-size:14px;font-weight:800;border:1.5px solid var(--pk);border-radius:6px;padding:1px 6px;align-self:flex-start;margin-bottom:3px}
+.m-a .kc-url{font-size:9.5px;font-weight:700;color:var(--pp);word-break:break-all}
+.m-a .kc-qr{flex:none;text-align:center}
+.m-a .kc-qr svg{width:64px;height:64px;display:block}
+.m-a .kc-qr small{font-size:8px;color:var(--pm);font-weight:700}
+.m-a .kc-s{margin:0;padding-left:15px;font-size:9.5px;line-height:1.38;color:var(--pk)}
+.m-a .kc-s li::marker{font-weight:800;color:var(--pp)}
+/* A4: diagram */
+.m-a .dia{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.m-a .dia h4{font-size:13px;font-weight:800}
+.m-a .route{display:flex;align-items:stretch}
+.m-a .node{flex:none;width:126px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center}
+.m-a .node .nic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;margin:0 auto 6px;background:var(--soft);color:var(--ink)}
+.m-a .node .nic .ic{width:20px;height:20px}
+.m-a .node b{display:block;font-size:12.5px;line-height:1.25}
+.m-a .node span{display:block;font-size:11px;color:var(--muted);line-height:1.3;margin-top:2px}
+.m-a .node.far{border:2px solid var(--red)} .m-a .node.far .nic{background:var(--rsoft);color:var(--red)}
+.m-a .node.near{border:2px solid var(--primary)} .m-a .node.near .nic{background:var(--psoft);color:var(--primary)}
+.m-a .link{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;min-width:44px;padding:0 4px}
+.m-a .link::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed var(--muted);opacity:.7}
+.m-a .link small{position:relative;background:var(--bg);padding:2px 6px;border-radius:6px;font-size:11px;font-weight:800;white-space:nowrap;text-align:center;line-height:1.3}
+.m-a .link small .ic{width:13px;height:13px;vertical-align:-2px}
+.m-a .link.long{flex:1} .m-a .link.long small{color:var(--red)}
+.m-a .link.short{flex:none;width:84px} .m-a .link.short small{color:var(--primary)}
+.m-a .link.mid{flex:none;width:72px}
+.m-a .tl{display:flex;flex-direction:column;gap:8px}
+.m-a .tl-row{display:grid;grid-template-columns:1fr;gap:4px}
+.m-a .tl-bar{position:relative;height:30px;border-radius:9px;background:var(--soft);display:flex;overflow:hidden}
+.m-a .tl-bar i{display:flex;align-items:center;justify-content:center;height:100%;font-style:normal;font-size:11px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden}
+.m-a .tl-bar .go{background:repeating-linear-gradient(135deg,var(--orange) 0 6px,color-mix(in srgb,var(--orange) 62%,var(--surface)) 6px 11px)}
+.m-a .tl-bar .go.near{background:repeating-linear-gradient(135deg,var(--primary) 0 4px,color-mix(in srgb,var(--primary) 55%,var(--surface)) 4px 8px)}
+.m-a .tl-bar .sh{background:repeating-linear-gradient(135deg,var(--blue) 0 6px,color-mix(in srgb,var(--blue) 62%,var(--surface)) 6px 11px)}
+.m-a .tl-bar .sh.ok{background:var(--blue)}
+[data-theme="dark"] .m-a .tl-bar i{color:#10120c}
+.m-a .tl-ax{position:relative;height:14px;font-size:10px;color:var(--muted);font-weight:700}
+.m-a .tl-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.m-a .tl-ax span:first-child{transform:none} .m-a .tl-ax span:last-child{transform:translateX(-100%)}
+.m-a .tl-k{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px;line-height:1.45}
+.m-a .tl-k li{display:flex;gap:8px;align-items:flex-start}
+.m-a .tl-k li>i{width:14px;height:14px;border-radius:4px;flex:none;margin-top:3px}
+.m-a .tl-k .k-go{background:var(--orange)} .m-a .tl-k .k-gon{background:var(--primary)} .m-a .tl-k .k-sh{background:var(--blue)}
+.m-a .tag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:99px;vertical-align:1px}
+.m-a .tag.est{background:var(--osoft);color:var(--gold)} .m-a .tag.ms{background:var(--bsoft);color:var(--blue)}
+.m-a .tot{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:10px;font-size:13px}
+.m-a .tot b{font-size:16px}
+.m-a .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);font-weight:600}
+.m-a .legend span{display:inline-flex;gap:6px;align-items:center}
+.m-a .legend i{width:22px;height:12px;border-radius:4px;display:inline-block}
+.m-a .legend .l-est{background:repeating-linear-gradient(135deg,var(--muted) 0 4px,transparent 4px 8px);border:1px solid var(--muted)}
+.m-a .legend .l-ms{background:var(--muted)}
+.m-a .steps4{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.m-a .steps4 .card{display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.5}
+.m-a .steps4 .hd{display:flex;gap:10px;align-items:center}
+.m-a .steps4 .hd .nic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--psoft);color:var(--primary);flex:none}
+.m-a .setrow{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.m-a .setrow .crumb{font-size:11.5px;color:var(--muted);font-weight:700}
+.m-a .setrow .sel{border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface);display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.m-a .setrow .sel.old{color:var(--muted);text-decoration:line-through;font-weight:600}
+.m-a .setrow .sel.new{border:2px solid var(--primary);color:var(--primary)}
+.m-a .caveat{border:1px dashed var(--orange);background:color-mix(in srgb,var(--osoft) 60%,var(--surface));border-radius:14px;padding:10px 12px;font-size:12.5px;line-height:1.5}
+.m-a .caveat b{color:var(--gold)}
+@media (max-width:900px){.m-a .steps4{grid-template-columns:1fr}}
+
+</style>
+<section class="modul m-a" data-modul="a">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="a-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#fffaf0" stroke="#b5382a" stroke-width="2"/><circle cx="20" cy="20" r="14.6" fill="none" stroke="#d9a441" stroke-width="1.3"/><path d="M20 9.5l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" fill="#b5382a"/><path d="M8.5 21.5c3.2 1 6.2 1.6 8.6 3.8M31.5 21.5c-3.2 1-6.2 1.6-8.6 3.8M11.5 27c2.8.5 5.6 1.1 8.5 3.1 2.9-2 5.7-2.6 8.5-3.1" fill="none" stroke="#6b4a12" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="a-qr" viewBox="0 0 25 25"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM11 0h1v1h-1zM14 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM11 1h1v1h-1zM14 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM15 7h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM24 9h1v1h-1zM0 10h1v1h-1zM3 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM17 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM21 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM24 11h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM14 12h1v1h-1zM18 12h1v1h-1zM23 12h1v1h-1zM1 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM17 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM24 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM8 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM12 17h1v1h-1zM15 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM10 19h1v1h-1zM16 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM20 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM13 22h1v1h-1zM18 22h1v1h-1zM22 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1z" fill="#111" shape-rendering="crispEdges"/></symbol>
+</defs></svg>
+<nav class="g-items"><a href="#a1"><b>A1</b>Tombol WhatsApp</a><a href="#a2"><b>A2</b>Sesi presensi berulang</a><a href="#a3"><b>A3</b>Kartu login siap cetak</a><a href="#a4"><b>A4</b>Kecepatan server</a></nav>
+<section class="ba" id="a1"><header class="ba-head"><span class="ba-no">A1</span><div><h2>Tombol WhatsApp ke siswa dan wali</h2><p>Sekarang nomor WA hanya tersimpan di formulir. Untuk mengabari wali, owner menyalin nomor lalu mengetik pesan sendiri. Dengan tombol WA dan pesan yang sudah terisi, mengabari wali siswa yang jarang hadir cukup dua ketukan.</p></div></header><div class="ba-sub">1 · Profil siswa</div><div class="ba-cols"><figure class="ba-col "><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/siswa-profil.jpg" alt="Profil siswa: hanya formulir, nomor WA tidak bisa diketuk"></div><p class="ba-note">Nomor WA siswa dan wali ada di formulir, tetapi tidak bisa diketuk. Harus disalin manual ke WhatsApp.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><span class="back"><i class="ic i-back"></i>Siswa</span>
+<div><div class="eyebrow">GAN-0009</div><div class="pt">ANDI KURNIAWAN</div>
+<div class="row" style="margin-top:8px"><span class="pill b">TNI</span><span class="pill">Aktif</span></div></div>
+<div class="card anno" data-anno="Baru"><div class="row spread"><h3>Kontak</h3><span class="xs muted">ketuk untuk membuka WhatsApp</span></div>
+<div class="ct"><span class="av">AK</span><div class="main"><span>Siswa</span><b class="n">0812-0001-0008</b></div><span class="btn wa sm"><i class="ic i-wa"></i>WA siswa</span></div>
+<div class="ct"><span class="av o"><i class="ic i-user"></i></span><div class="main"><span>Wali · Ibu Rahmawati</span><b class="n">0813-4455-2190</b></div><span class="btn wa sm"><i class="ic i-wa"></i>WA wali</span></div>
+<div class="lnk"><i class="ic i-info"></i><span>Tombol membuka tautan wa.me/6281344552190. Nomor yang diawali 08 otomatis diubah ke 62.</span></div></div>
+<div class="card stack"><div><h3>Data siswa</h3><p class="sub">Terdaftar sejak 6 September 2026.</p></div>
+<div class="fl"><label>Nama lengkap *</label><div class="inp">ANDI KURNIAWAN</div></div>
+<div class="fl"><label>Jenis kelamin *</label><div class="inp">Laki-laki<i class="ic i-down"></i></div></div>
+<div class="fl"><label>Jalur target *</label><div class="inp">TNI<i class="ic i-down"></i></div></div>
+<div class="fl"><label>Tempat lahir</label><div class="inp">Takalar</div></div></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div></div><p class="ba-note"><b>Kartu Kontak di atas formulir.</b> Satu ketukan membuka chat WhatsApp siswa atau wali (tautan wa.me). Kalau nomor wali kosong, tombolnya berubah jadi "Isi nomor wali".</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah · layar lain</figcaption><div class="also">
+<div class="card"><div class="eyebrow">Latihan siswa · Perlu didorong</div>
+<div class="list"><div class="item"><span class="av o">YS</span><div class="main"><b>YOGA SAPUTRA</b><span>Belum latihan 9 hari</span></div><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div>
+<div class="item"><span class="av o">NP</span><div class="main"><b>NANDA PUTRI</b><span>Skor turun 12 poin minggu ini</span></div><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div></div>
+<div class="card"><div class="eyebrow">Tes Samapta II · Hasil</div>
+<div class="list"><div class="item"><span class="av">FN</span><div class="main"><b>FAJAR NUGROHO</b><span>Nilai 58,20 · Kurang</span></div><span class="btn wa xs"><i class="ic i-wa"></i>Kirim hasil</span></div>
+<div class="item"><span class="av">DA</span><div class="main"><b>DIMAS ANGGARA</b><span>Nilai 74,05 · Baik</span></div><span class="btn wa xs"><i class="ic i-wa"></i>Kirim hasil</span></div></div></div>
+<div class="card stack"><div class="eyebrow">Pengaturan · Template pesan WA</div>
+<div class="seg tpl"><span class="on">Kehadiran</span><span>Latihan</span><span>Samapta</span></div>
+<div class="tpl-box">Assalamualaikum Bapak/Ibu wali <span class="tok">{nama}</span>, kehadiran ananda di Bimbel Garda Abdi Negara bulan <span class="tok">{bulan}</span> <span class="tok">{persen}</span> (<span class="tok">{hadir}</span> dari <span class="tok">{sesi}</span> sesi)…</div>
+<div class="row spread"><span class="xs muted">Kata berwarna diisi otomatis.</span><span class="btn sm">Simpan template</span></div></div>
+</div><p class="ba-note"><b>Tombol yang sama muncul di tempat lain:</b> Latihan siswa bagian "Perlu didorong" dan hasil Tes Samapta. Teks pesan untuk tiap keperluan bisa diubah owner di Pengaturan.</p></figure></div><div class="ba-sub">2 · Rekap presensi bulanan</div><div class="ba-cols"><figure class="ba-col "><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/presensi-rekap.jpg" alt="Rekap presensi per siswa tanpa tombol tindakan"></div><p class="ba-note">Siswa di bawah 75% sudah ditandai merah, tetapi tidak ada tindakan lanjut dari layar ini.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><div class="row spread"><div class="pt">Presensi</div><span class="tb lg"><i class="ic i-plus"></i></span></div><div class="seg"><span class="">Hari ini</span><span class="">Jadwal</span><span class="">Ringkasan</span><span class="on">Rekap</span></div><div class="row spread"><span class="tb lg"><i class="ic i-left"></i></span><b class="mo">November</b><span class="btn sec sm"><i class="ic i-dl"></i>Ekspor CSV</span></div><div class="grid2 kps"><div class="kp g"><b>85%</b><span>Rata-rata hadir</span></div><div class="kp r"><b>3</b><span>Di bawah 75%</span></div><div class="kp"><b>24</b><span>Siswa aktif</span></div><div class="kp"><b>25</b><span>Sesi selesai</span></div></div><div class="card rkc"><h3>Per siswa</h3><p class="sub">Terendah di atas. Yang di bawah 75% bisa langsung dikabari ke walinya.</p><div class="list"><div class="rk low"><span class="av">OS</span><div class="main"><b>OKTAVIA SARI</b><span class="n">12 hadir · 1 izin · 3 sakit · 9 alfa dari 25</span><div class="bar"><i style="width:48%"></i></div></div><div class="end"><b class="pct n">48%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk low"><span class="av">HS</span><div class="main"><b>HADI SUSANTO</b><span class="n">18 hadir · 1 izin · 3 sakit · 3 alfa dari 25</span><div class="bar"><i style="width:72%"></i></div></div><div class="end"><b class="pct n">72%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk low"><span class="av">HW</span><div class="main"><b>HENDRA WIJAYA</b><span class="n">18 hadir · 0 izin · 1 sakit · 6 alfa dari 25</span><div class="bar"><i style="width:72%"></i></div></div><div class="end"><b class="pct n">72%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk"><span class="av">JS</span><div class="main"><b>JOKO SANTOSO</b><span class="n">19 hadir · 2 izin · 0 sakit · 4 alfa dari 25</span><div class="bar"><i style="width:76%"></i></div></div><div class="end"><b class="pct n">76%</b></div></div><div class="rk"><span class="av">BS</span><div class="main"><b>BAGUS SETIAWAN</b><span class="n">20 hadir · 2 izin · 0 sakit · 3 alfa dari 25</span><div class="bar"><i style="width:80%"></i></div></div><div class="end"><b class="pct n">80%</b></div></div></div></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class="on"><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div></div><p class="ba-note"><b>Tombol "WA wali" hanya di baris merah</b> (di bawah 75%), jadi owner langsung tahu siapa yang perlu dikabari.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah · setelah diketuk</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><div class="row spread"><div class="pt">Presensi</div><span class="tb lg"><i class="ic i-plus"></i></span></div><div class="seg"><span class="">Hari ini</span><span class="">Jadwal</span><span class="">Ringkasan</span><span class="on">Rekap</span></div><div class="row spread"><span class="tb lg"><i class="ic i-left"></i></span><b class="mo">November</b><span class="btn sec sm"><i class="ic i-dl"></i>Ekspor CSV</span></div><div class="grid2 kps"><div class="kp g"><b>85%</b><span>Rata-rata hadir</span></div><div class="kp r"><b>3</b><span>Di bawah 75%</span></div><div class="kp"><b>24</b><span>Siswa aktif</span></div><div class="kp"><b>25</b><span>Sesi selesai</span></div></div><div class="card rkc"><h3>Per siswa</h3><p class="sub">Terendah di atas. Yang di bawah 75% bisa langsung dikabari ke walinya.</p><div class="list"><div class="rk low"><span class="av">OS</span><div class="main"><b>OKTAVIA SARI</b><span class="n">12 hadir · 1 izin · 3 sakit · 9 alfa dari 25</span><div class="bar"><i style="width:48%"></i></div></div><div class="end"><b class="pct n">48%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk low"><span class="av">HS</span><div class="main"><b>HADI SUSANTO</b><span class="n">18 hadir · 1 izin · 3 sakit · 3 alfa dari 25</span><div class="bar"><i style="width:72%"></i></div></div><div class="end"><b class="pct n">72%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk low"><span class="av">HW</span><div class="main"><b>HENDRA WIJAYA</b><span class="n">18 hadir · 0 izin · 1 sakit · 6 alfa dari 25</span><div class="bar"><i style="width:72%"></i></div></div><div class="end"><b class="pct n">72%</b><span class="btn wa xs"><i class="ic i-wa"></i>WA wali</span></div></div><div class="rk"><span class="av">JS</span><div class="main"><b>JOKO SANTOSO</b><span class="n">19 hadir · 2 izin · 0 sakit · 4 alfa dari 25</span><div class="bar"><i style="width:76%"></i></div></div><div class="end"><b class="pct n">76%</b></div></div><div class="rk"><span class="av">BS</span><div class="main"><b>BAGUS SETIAWAN</b><span class="n">20 hadir · 2 izin · 0 sakit · 3 alfa dari 25</span><div class="bar"><i style="width:80%"></i></div></div><div class="end"><b class="pct n">80%</b></div></div></div></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class="on"><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div><div class="scrim"></div><div class="sheet">
+<div class="sh-h"><div><h3>Kabari wali</h3><p class="sub">Pesan sudah terisi dari template "Kehadiran rendah".</p></div><span class="x"><i class="ic i-close"></i></span></div>
+<div class="to"><span class="av r">OS</span><div class="main"><b>Wali OKTAVIA SARI</b><span class="n">0813-2210-4471</span></div><span class="pill r n">48%</span></div>
+<div class="chat"><div class="bub">Assalamualaikum Bapak/Ibu wali OKTAVIA SARI, kehadiran ananda di Bimbel Garda Abdi Negara bulan November 48% (12 dari 25 sesi): 1 izin, 3 sakit, 9 alfa. Mohon dukungan Bapak/Ibu agar ananda lebih rutin hadir. Terima kasih.<br>Admin Bimbel Garda Abdi Negara<small>pratinjau pesan</small></div></div>
+<div class="wlink">wa.me/6281322104471?text=Assalamualaikum%20Bapak%2FIbu%20wali…</div>
+<span class="btn wa lg block"><i class="ic i-wa"></i>Buka WhatsApp</span>
+<div class="g2"><span class="btn sec"><i class="ic i-copy"></i>Salin pesan</span><span class="btn sec"><i class="ic i-edit"></i>Ubah teks</span></div>
+<p class="xs muted" style="text-align:center">Belum ada yang terkirim sampai Anda menekan kirim di WhatsApp.</p></div></div><p class="ba-note"><b>Pratinjau pesan sebelum dikirim.</b> Nama, bulan, persentase, dan jumlah sesi terisi otomatis. "Buka WhatsApp" membuka chat wali dengan teks siap kirim; owner tetap yang menekan kirim.</p></figure></div></section>
+<section class="ba" id="a2"><header class="ba-head"><span class="ba-no">A2</span><div><h2>Sesi presensi berulang</h2><p>Sekarang sesi dibuat satu per satu: jadwal pagi Senin sampai Sabtu selama empat minggu berarti mengisi formulir yang sama 24 kali. Dengan Ulangi, satu formulir membuat seluruh seri, dan tiap sesi tetap bisa diubah atau dihapus sendiri.</p></div></header><div class="ba-cols"><figure class="ba-col "><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot short"><img src="sebelum/buat-sesi.jpg" alt="Lembar Buat sesi: satu tanggal per sesi"></div><p class="ba-note">Satu formulir hanya membuat satu sesi pada satu tanggal.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><div class="row spread"><div class="pt">Presensi</div><span class="tb lg"><i class="ic i-plus"></i></span></div><div class="seg"><span class="on">Hari ini</span><span class="">Jadwal</span><span class="">Ringkasan</span><span class="">Rekap</span></div><div class="row nowrap"><span class="chip"><i class="ic i-check"></i> 06.00 · Latihan…</span><span class="chip">15.30 · Kelas…</span><span class="chip">Sen, 23 Nov…</span></div><div class="card" style="height:220px;background:var(--hero);border:0"></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class="on"><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div><div class="scrim"></div><div class="sheet tall">
+<div class="sh-h"><div><h3>Buat sesi</h3><p class="sub">Buka sesi pada harinya agar siswa bisa presensi.</p></div><span class="x"><i class="ic i-close"></i></span></div>
+<div class="fl"><label>Nama kegiatan *</label><div class="inp">Latihan jasmani pagi</div></div>
+<div class="g2"><div class="fl"><label>Tanggal mulai *</label><div class="inp">23/11/2026<i class="ic i-cal"></i></div></div>
+<div class="fl"><label>Bidang</label><div class="inp">Fisik<i class="ic i-down"></i></div></div></div>
+<div class="g2"><div class="fl"><label>Jam mulai *</label><div class="inp">06:00<i class="ic i-clock"></i></div></div>
+<div class="fl"><label>Jam selesai *</label><div class="inp">08:00<i class="ic i-clock"></i></div></div></div>
+<div class="rep anno" data-anno="Baru">
+<div class="rep-h"><i class="ic i-repeat"></i><div class="main"><b>Ulangi</b><span>Buat banyak sesi sekaligus</span></div><span class="sw"></span></div>
+<div class="days"><span class="on">Sen</span><span class="on">Sel</span><span class="on">Rab</span><span class="on">Kam</span><span class="on">Jum</span><span class="on">Sab</span><span>Min</span></div>
+<div class="g2"><div class="fl"><label>Sampai tanggal *</label><div class="inp">20/12/2026<i class="ic i-cal"></i></div></div>
+<div class="fl"><label>Peserta</label><div class="inp">Semua siswa<i class="ic i-down"></i></div></div></div>
+<div class="sum"><div class="sum-t"><i class="ic i-cal"></i><div><b>24 sesi akan dibuat</b>23 Nov sampai 20 Des · Senin sampai Sabtu · 06.00 sampai 08.00</div></div><div class="cal"><span class="dw">Sen</span><span class="dw">Sel</span><span class="dw">Rab</span><span class="dw">Kam</span><span class="dw">Jum</span><span class="dw">Sab</span><span class="dw">Min</span><i class="on">23</i><i class="on">24</i><i class="on">25</i><i class="on">26</i><i class="on">27</i><i class="on">28</i><i class="off">29</i><i class="on">30</i><i class="on">1<small> Des</small></i><i class="on">2</i><i class="on">3</i><i class="on">4</i><i class="on">5</i><i class="off">6</i><i class="on">7</i><i class="on">8</i><i class="on">9</i><i class="on">10</i><i class="on">11</i><i class="on">12</i><i class="off">13</i><i class="on">14</i><i class="on">15</i><i class="on">16</i><i class="on">17</i><i class="on">18</i><i class="on">19</i><i class="off">20</i></div></div>
+</div>
+<span class="btn lg block">Simpan 24 sesi</span></div></div><p class="ba-note"><b>Sakelar "Ulangi"</b> memunculkan pilihan hari (Sen sampai Sab terpilih) dan "Sampai tanggal". Ringkasan dan kalender kecil langsung menunjukkan tanggal mana saja yang akan dibuat, sebelum disimpan. Minggu dicoret karena tidak dipilih.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah · tab Jadwal</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><div class="row spread"><div class="pt">Presensi</div><span class="tb lg"><i class="ic i-plus"></i></span></div><div class="seg"><span class="">Hari ini</span><span class="on">Jadwal</span><span class="">Ringkasan</span><span class="">Rekap</span></div><div class="dnav"><span class="tb"><i class="ic i-left"></i></span><div class="inp">23/11/2026<i class="ic i-cal"></i></div><span class="btn sec">Tampilkan</span><span class="tb"><i class="ic i-right"></i></span></div><div class="card"><div class="row spread"><h3>Senin, 23 November</h3><span class="pill m">2 sesi</span></div><div class="nx"><span class="dt"><small>Nov</small><b>23</b></span><div class="main"><b>Latihan jasmani pagi</b><span class="n">06.00-08.00 · Fisik</span><div class="row"><span class="xs muted">24 siswa</span><span class="pill b"><i class="ic i-repeat"></i>Berulang</span></div></div><span class="pill m">Akan datang</span></div><div class="nx"><span class="dt"><small>Nov</small><b>23</b></span><div class="main"><b>Kelas akademik &amp; SKD</b><span class="n">15.30-17.00 · Akademik</span><div class="row"><span class="xs muted">24 siswa</span></div></div><span class="pill m">Akan datang</span></div></div><div class="card"><h3>Berikutnya</h3><div class="nx"><span class="dt"><small>Nov</small><b>24</b></span><div class="main"><b>Latihan jasmani pagi</b><span class="n">06.00-08.00 · Fisik</span><div class="row"><span class="xs muted">24 siswa</span><span class="pill b"><i class="ic i-repeat"></i>Berulang</span></div></div><span class="pill m">Akan datang</span></div><div class="nx"><span class="dt"><small>Nov</small><b>25</b></span><div class="main"><b>Latihan jasmani pagi</b><span class="n">06.00-08.00 · Fisik</span><div class="row"><span class="xs muted">24 siswa</span><span class="pill b"><i class="ic i-repeat"></i>Berulang</span></div></div><span class="pill m">Akan datang</span></div></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class="on"><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class=""><i class="ic i-more"></i>Lainnya</div></div><div class="scrim lt"></div><div class="sheet">
+<div class="sh-h"><div><h3>Latihan jasmani pagi</h3><p class="sub">Sen, 23 Nov · 06.00 sampai 08.00 · Fisik</p></div><span class="x"><i class="ic i-close"></i></span></div>
+<div class="serinfo"><i class="ic i-repeat"></i><span>Bagian dari seri <b>Senin sampai Sabtu, 24 sesi</b> (23 Nov sampai 20 Des).</span></div>
+<div class="list">
+<div class="act"><span class="ib"><i class="ic i-edit"></i></span><div class="main"><b>Ubah sesi ini saja</b><span>mis. jam mundur khusus hari ini</span></div><i class="ic i-right"></i></div>
+<div class="act"><span class="ib"><i class="ic i-repeat"></i></span><div class="main"><b>Ubah seluruh seri</b><span>berlaku untuk sesi yang belum berjalan</span></div><i class="ic i-right"></i></div>
+<div class="act"><span class="ib"><i class="ic i-trash"></i></span><div class="main"><b>Hapus sesi ini saja</b><span>mis. tanggal merah atau libur</span></div></div>
+<div class="act dg"><span class="ib"><i class="ic i-trash"></i></span><div class="main"><b>Hapus seluruh seri</b><span>sesi yang sudah berjalan tetap tersimpan</span></div></div>
+</div></div></div><p class="ba-note"><b>Label "Berulang"</b> menandai sesi yang lahir dari satu seri. Saat diketuk, owner memilih: ubah atau hapus <b>sesi ini saja</b> (mis. tanggal merah) atau <b>seluruh seri</b>.</p></figure></div></section>
+<section class="ba" id="a3"><header class="ba-head"><span class="ba-no">A3</span><div><h2>Kartu login siswa siap cetak</h2><p>Sekarang username dibagikan manual satu per satu dari daftar akun. Kartu cetak berisi alamat, QR, username, dan tiga langkah masuk, jadi siswa baru bisa masuk sendiri tanpa dibimbing satu per satu.</p></div></header><div class="ba-cols"><figure class="ba-col "><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/pengaturan-akun.jpg" alt="Daftar akun: username dibagikan manual"></div><p class="ba-note">Daftar akun hanya untuk dilihat. Username harus dibacakan atau diketik ulang ke tiap siswa.</p></figure><figure class="ba-col "><figcaption class="ba-cap sesudah">Sesudah</figcaption><div class="hp"><div class="hp-bar ab"><svg class="lg" viewBox="0 0 40 40"><use href="#a-logo"/></svg><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-dl"></i></span><span class="pg">PG</span></div><div class="hp-body"><div class="eyebrow">Pengaturan</div><div class="pt">Akun pengguna</div>
+<p class="small muted">Akun Owner dan akun siswa. Reset PIN siswa yang lupa dari sini.</p>
+<div class="row"><span class="btn out">Tambah Owner</span><span class="btn anno" data-anno="Baru"><i class="ic i-print"></i>Cetak kartu login</span></div>
+<div class="row nowrap"><span class="chip on">Akun</span><span class="chip">Program &amp; kelas</span><span class="chip">Bidang presensi</span></div>
+<div class="card"><h3>Daftar akun</h3><p class="sub">Pilih akun untuk mengubah data atau reset PIN.</p>
+<div class="acc"><b>ANDI KURNIAWAN</b><code>@gan-0009</code></div><div class="acc"><b>ARIF PRATAMA</b><code>@gan-0001</code></div>
+<div class="acc"><b>BAGUS SETIAWAN</b><code>@gan-0002</code></div><div class="acc"><b>BAYU SAPUTRA</b><code>@gan-0010</code></div></div></div><div class="hp-nav"><div class=""><i class="ic i-home"></i>Beranda</div><div class=""><i class="ic i-presensi"></i>Presensi</div><div class=""><i class="ic i-lari"></i>Samapta</div><div class=""><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div><div class="scrim"></div><div class="sheet">
+<div class="sh-h"><div><h3>Cetak kartu login</h3><p class="sub">Satu kartu per siswa: alamat aplikasi, QR, username, dan 3 langkah masuk. 8 kartu per lembar A4.</p></div><span class="x"><i class="ic i-close"></i></span></div>
+<div class="fl"><label>Siapa yang dicetak?</label></div>
+<div class="opt on"><span class="rd"></span><div class="main"><b>Hanya yang belum membuat PIN</b><span>9 siswa · 2 lembar A4</span></div></div>
+<div class="opt"><span class="rd"></span><div class="main"><b>Semua siswa</b><span>24 siswa · 3 lembar A4</span></div></div>
+<div class="info"><i class="ic i-lock"></i><span>PIN tidak ikut dicetak. Siswa membuat PIN sendiri saat pertama kali masuk.</span></div>
+<span class="btn lg block"><i class="ic i-print"></i>Lihat pratinjau &amp; cetak</span>
+<p class="xs muted" style="text-align:center">Dari jendela cetak, lembar juga bisa disimpan sebagai PDF.</p></div></div><p class="ba-note"><b>Tombol "Cetak kartu login"</b> di Pengaturan, Akun. Owner memilih semua siswa atau hanya yang belum membuat PIN (siswa baru), lalu pratinjau terbuka.</p></figure><figure class="ba-col wide full"><figcaption class="ba-cap sesudah">Sesudah · lembar cetak A4</figcaption><div class="pv"><div class="pv-bar"><b>Pratinjau cetak</b><span class="small muted">Lembar 1 dari 2 · A4 tegak · 8 kartu</span><span class="sp"></span><span class="btn sec sm">Simpan PDF</span><span class="btn sm"><i class="ic i-print"></i>Cetak</span></div><div class="pv-in"><div class="a4"><div class="a4-h"><span>Kartu login siswa · Bimbel Garda Abdi Negara</span><span>Lembar 1 dari 2 · 20 Nov 2026</span></div><div class="a4-g"><span class="scx"><i class="ic i-scissors"></i></span><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">ARIF PRATAMA</b><span class="kc-l">Username</span><b class="kc-un">gan-0001</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0001</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">BAGUS SETIAWAN</b><span class="kc-l">Username</span><b class="kc-un">gan-0002</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0002</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">DIMAS ANGGARA</b><span class="kc-l">Username</span><b class="kc-un">gan-0003</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0003</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">FAJAR NUGROHO</b><span class="kc-l">Username</span><b class="kc-un">gan-0004</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0004</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">HADI SUSANTO</b><span class="kc-l">Username</span><b class="kc-un">gan-0005</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0005</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">JOKO SANTOSO</b><span class="kc-l">Username</span><b class="kc-un">gan-0006</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0006</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">NANDA PUTRI</b><span class="kc-l">Username</span><b class="kc-un">gan-0007</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0007</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div><div class="kc"><div class="kc-h"><svg viewBox="0 0 40 40"><use href="#a-logo"/></svg><div><b>Bimbel Garda Abdi Negara</b><span>Kartu masuk aplikasi Ruang Garda</span></div></div>
+<div class="kc-m"><div class="kc-id"><span class="kc-l">Nama</span><b class="kc-nm">OKTAVIA SARI</b><span class="kc-l">Username</span><b class="kc-un">gan-0008</b><span class="kc-l">Alamat aplikasi</span><span class="kc-url">garda-abdi-negara-app.vercel.app</span></div>
+<div class="kc-qr"><svg viewBox="-2 -2 29 29"><rect x="-2" y="-2" width="29" height="29" fill="#fff"/><use href="#a-qr"/></svg><small>Pindai untuk membuka</small></div></div>
+<ol class="kc-s"><li>Buka alamat di atas atau pindai QR.</li><li>Ketik username <b>gan-0008</b>.</li><li>Kosongkan PIN, tekan Masuk, lalu buat PIN 6 angka.</li></ol></div></div><div class="a4-f"><i class="ic i-scissors"></i>&nbsp;Gunting di sepanjang garis putus-putus.</div></div><aside class="pv-side"><div class="card"><h3>Isi setiap kartu</h3><ol><li>Logo dan nama lembaga, supaya siswa yakin kartunya resmi.</li><li>Nama siswa dan <b>username</b> dengan huruf jelas.</li><li>Alamat aplikasi dan <b>QR</b> yang membukanya langsung.</li><li>Tiga langkah masuk, sama dengan alur yang sudah ada: kosongkan PIN, lalu buat PIN 6 angka.</li></ol></div><div class="card"><h3>Cara pakai</h3><ul><li>Cetak di kertas A4 biasa, gunting, bagikan saat pertemuan pertama.</li><li>Berikan langsung ke siswanya dan minta buat PIN di tempat: sebelum PIN dibuat, siapa pun yang tahu username bisa membuatnya lebih dulu.</li><li>Siswa yang lupa PIN tetap direset dari Pengaturan, lalu kartunya bisa dicetak ulang.</li></ul></div></aside></div></div><p class="ba-note"><b>8 kartu per lembar A4 (2 × 4)</b> dengan garis gunting putus-putus. QR di sini hanya contoh gambar; di aplikasi, QR membuka alamat aplikasi.</p></figure></div></section>
+<section class="ba" id="a4"><header class="ba-head"><span class="ba-no">A4</span><div><h2>Kecepatan: pindahkan server ke Singapura</h2><p>Bila wilayahnya belum pernah diubah, server aplikasi di Vercel berada di Washington, Amerika (setelan bawaan; perlu dicek di Vercel → Settings → Functions), jadi setiap klik dari Gowa menempuh ±16.000 km sebelum spreadsheet dibaca. Memindahkan server ke Singapura memangkas jarak itu tanpa mengubah tampilan sama sekali.</p></div></header><div class="ba-cols"><figure class="ba-col wide"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="dia">
+<h4>Jalan satu klik sekarang</h4>
+<div class="route">
+<div class="node"><div class="nic"><i class="ic i-hp"></i></div><b>HP di Gowa</b><span>siswa &amp; owner</span></div>
+<div class="link long"><small><i class="ic i-swap"></i> ±16.000 km<br>sekali jalan</small></div>
+<div class="node far"><div class="nic"><i class="ic i-server"></i></div><b>Server Vercel</b><span>Washington, Amerika<br>(bawaan)</span></div>
+<div class="link mid"><small><i class="ic i-swap"></i></small></div>
+<div class="node"><div class="nic"><i class="ic i-tabel"></i></div><b>Google Sheets</b><span>data bimbel</span></div>
+</div>
+<div class="tl"><h4>Waktu satu klik</h4>
+<div class="tl-bar"><i class="go" style="width:32%">jalan ±0,45</i><i class="sh" style="width:43%">baca spreadsheet ±0,6</i></div><div class="tl-ax"><span style="left:0">0</span><span style="left:35.7%">0,5</span><span style="left:71.4%">1,0</span><span style="left:100%">1,4 detik</span></div>
+<ul class="tl-k">
+<li><i class="k-go"></i><span>HP ke Washington dan kembali: <b>±0,3 sampai 0,6 detik</b> <span class="tag est">perkiraan</span></span></li>
+<li><i class="k-sh"></i><span>Server membaca spreadsheet: belum diukur dari Washington, di sini dianggap sama ±0,6 detik <span class="tag est">perkiraan</span></span></li>
+</ul>
+<div class="tot"><span>Total satu klik</span><span><b>±1,0 detik</b> <span class="tag est">perkiraan</span></span></div></div>
+</div><p class="ba-note">Bagian terpanjang perjalanan adalah HP ke Amerika dan kembali, bukan membaca spreadsheet.</p></figure><figure class="ba-col wide"><figcaption class="ba-cap sesudah">Sesudah</figcaption><div class="dia">
+<h4>Jalan satu klik setelah pindah</h4>
+<div class="route">
+<div class="node"><div class="nic"><i class="ic i-hp"></i></div><b>HP di Gowa</b><span>siswa &amp; owner</span></div>
+<div class="link short"><small><i class="ic i-swap"></i> ±1.900 km</small></div>
+<div class="node near"><div class="nic"><i class="ic i-server"></i></div><b>Server Vercel</b><span>Singapura<br>(dipilih)</span></div>
+<div class="link mid"><small><i class="ic i-swap"></i></small></div>
+<div class="node"><div class="nic"><i class="ic i-tabel"></i></div><b>Google Sheets</b><span>tidak berubah</span></div>
+</div>
+<div class="tl"><h4>Waktu satu klik</h4>
+<div class="tl-bar"><i class="go near" style="width:6%"></i><i class="sh ok" style="width:43%">baca spreadsheet ±0,6</i></div><div class="tl-ax"><span style="left:0">0</span><span style="left:35.7%">0,5</span><span style="left:71.4%">1,0</span><span style="left:100%">1,4 detik</span></div>
+<ul class="tl-k">
+<li><i class="k-gon"></i><span>HP ke Singapura dan kembali: <b>±0,05 sampai 0,1 detik</b> <span class="tag est">perkiraan</span></span></li>
+<li><i class="k-sh"></i><span>Baca spreadsheet: <b>±0,6 detik</b>, diukur dari komputer di Indonesia <span class="tag ms">diukur</span></span></li>
+</ul>
+<div class="tot"><span>Total satu klik</span><span><b>±0,7 detik</b> <span class="tag est">perkiraan</span></span></div></div>
+<div class="caveat"><b>Jujur soal angka:</b> satu-satunya angka terukur adalah baca spreadsheet ±0,6 detik. Google Sheets sendiri tidak ikut pindah; kalau satu klik membaca spreadsheet beberapa kali berurutan, hematnya bisa lebih kecil. Hasil nyata diukur setelah pindah.</div>
+</div><p class="ba-note"><b>Perkiraan hemat ±0,2 sampai 0,5 detik per klik.</b> Angka pastinya baru diketahui setelah pindah dan diukur.</p></figure></div><div class="legend" style="margin-top:12px"><span><i class="l-est"></i>arsir garis-garis = perkiraan</span><span><i class="l-ms"></i>warna penuh = diukur</span><span>Jarak = garis lurus di peta (Gowa ke Washington ±16.000 km, Gowa ke Singapura ±1.900 km).</span></div><div class="steps4">
+<div class="card"><div class="hd"><span class="nic"><i class="ic i-gear"></i></span><div><h3>Cara pindah: satu setelan</h3><p class="sub">Tidak ada perubahan tampilan</p></div></div>
+<div class="setrow"><span class="crumb">Vercel › Settings › Functions › Region</span><div class="sel old">Washington, D.C., AS (iad1)</div><div class="sel new">Singapore (sin1)<i class="ic i-check"></i></div></div>
+<p>Simpan, lalu deploy ulang sekali. Tampilan, data, dan cara pakai aplikasi tetap sama.</p></div>
+<div class="card"><div class="hd"><span class="nic"><i class="ic i-clock"></i></span><div><h3>Ukur sebelum dan sesudah</h3><p class="sub">Supaya hasilnya bukan tebakan</p></div></div>
+<p>Sebelum pindah, buka Rekap presensi 5 kali dari HP dan catat lamanya. Sesudah pindah, ulangi dari HP yang sama. Kalau ternyata tidak lebih cepat, setelan dikembalikan ke Washington.</p></div>
+<div class="card"><div class="hd"><span class="nic"><i class="ic i-refresh"></i></span><div><h3>Langkah lanjutan (opsional)</h3><p class="sub">Cache singkat beberapa detik</p></div></div>
+<p>Halaman yang hanya dilihat (Beranda, Rekap, hasil samapta) boleh memakai hasil baca spreadsheet beberapa detik terakhir, jadi bolak-balik antarlayar tidak membaca ulang. Layar yang mengubah data tetap membaca langsung.</p></div>
+</div></section>
+</section>

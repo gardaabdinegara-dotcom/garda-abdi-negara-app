@@ -57,6 +57,7 @@ export const BUILDERS: Record<string, Builder> = {
     deskripsi: s(f, "deskripsi"),
     bukti_url: s(f, "bukti_url"),
     referensi_eksternal: s(f, "referensi_eksternal"),
+    siswa_id: s(f, "siswa_id"),
     alasan: s(f, "alasan"),
   }),
   "transfer.create": (f) => ({
@@ -76,6 +77,8 @@ export const BUILDERS: Record<string, Builder> = {
     kategori_id: s(f, "kategori_id"),
     deskripsi: s(f, "deskripsi"),
     alasan: s(f, "alasan"),
+    // Tanpa isian siswa_id di form, tautan siswa transaksi lama dipertahankan.
+    ...(f.get("siswa_id") === null ? {} : { siswa_id: s(f, "siswa_id") }),
   }),
   "invoice.adjust": (f) => ({
     tagihan_id: s(f, "tagihan_id"),

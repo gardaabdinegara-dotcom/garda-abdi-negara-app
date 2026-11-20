@@ -477,6 +477,8 @@ function editTransaction(before: State, d: Record<string, unknown>, ctx: Operati
       bukti_url: d.bukti_url ?? original.bukti_url ?? "",
       program_id_opsional: original.program_id_opsional ?? "",
       referensi_eksternal: original.referensi_eksternal ?? "",
+      // Tautan "Dari siswa" ikut ke versi baru; form Ubah boleh menggantinya atau mengosongkannya.
+      siswa_id: d.siswa_id !== undefined ? d.siswa_id : (original.siswa_id ?? ""),
       alasan,
     },
   });

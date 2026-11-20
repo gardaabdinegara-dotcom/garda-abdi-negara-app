@@ -27,6 +27,21 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
   - Hanya hasil akhir yang dikirim: satu baris per latihan di tab `Latihan_Psikotes`, ditambahkan tanpa membaca isi tab, jadi tetap ringan walau banyak siswa menyimpan bersamaan. Skor selalu dihitung ulang di server. Bila sinyal putus, hasil disimpan di HP dan bisa dikirim ulang tanpa tersimpan dua kali.
   - Siswa melihat hasil, kurva kerja, dan progres. Owner dan Admin melihat dashboard `/latihan` dengan filter 7, 30, atau 90 hari, grafik aktivitas dan skor kelompok, prioritas tindak lanjut, dan detail progres per siswa. Untuk satu jenis dan durasi, kartu Perubahan siswa yang sama merangkum selisih skor terbaru setiap siswa yang berlatih di kedua periode. Owner dan Admin bisa mencoba latihan tanpa menyimpan (`/latihan/coba`).
 - **Siswa** melihat presensi, hasil samapta (dengan peringkat dan perkembangan), dan latihan psikotes.
+
+### Pembaruan 20 November 2026 (rekomendasi A1 sampai C16)
+
+Disetujui dari galeri `docs/desain/arah-desain/sebelum-sesudah.html`:
+
+- **WhatsApp tanpa API:** tombol wa.me dengan pesan terisi di profil siswa, rekap presensi (< 75%), latihan (perlu didorong), hasil Tes Samapta, dan pengumuman. Teks pesan diatur di Pengaturan → Pesan WA (`src/lib/core/wa.ts`, `src/components/wa.tsx`). Tidak ada yang terkirim otomatis.
+- **Sesi berulang:** Buat sesi → Ulangi (hari + sampai tanggal, maks. 62 sesi / 92 hari) dalam satu operasi; sesi berbagi `seri_id`. Ubah/hapus "hanya sesi ini" atau "sesi ini dan berikutnya" (sesi yang sudah berjalan atau punya presensi tidak disentuh).
+- **Bidang presensi:** tambah, ganti nama, urutkan, sembunyikan (`presensi_bidang_atur` di Pengaturan). Riwayat sesi lama tetap.
+- **Kartu login siswa** siap cetak (`/cetak/kartu-login`, 8 kartu per A4 dengan QR).
+- **Pengumuman** (tab `Pengumuman`): tampil di beranda siswa sebagai "Info dari pelatih" sampai tanggal yang dipilih.
+- **Target latihan mingguan** (`latihan_target` di Pengaturan), kartu progres + hari beruntun untuk siswa, filter "Belum memenuhi" untuk owner.
+- **Grafik perkembangan Samapta** per siswa dan unduhan hasil tes (CSV yang terbuka rapi di Excel).
+- **Riwayat bayar per siswa (opsional):** Uang masuk → "Dari siswa" (kolom `Transaksi.siswa_id`); profil siswa menampilkan pembayarannya. Tetap tanpa tagihan.
+- **Perapian:** daftar siswa dan akun ringkas dengan pencarian langsung, profil siswa ringkasan dulu (ubah lewat lembar), beranda owner "Hari ini" di atas, tab Pengaturan satu baris (Program & kelas disembunyikan lewat `FITUR.kelas`), chip sesi dua baris, perbaikan teks, tombol "Pasang" berlabel dengan langkah bergambar.
+- **Wilayah server Vercel:** `vercel.json` memakai `sin1` (Singapura) agar lebih dekat ke pengguna di Gowa. Ukur kecepatan sebelum dan sesudah; bila tidak lebih cepat, hapus `vercel.json`.
 - **Keuangan catat manual:** tagihan, cicilan, tarif, piutang, dan kuitansi siswa disembunyikan (`FITUR.tagihan = false`). Owner mencatat pemasukan dan pengeluaran di **Keuangan → Pemasukan & pengeluaran**, lalu laporan (buku kas, laba rugi, neraca) dibuat otomatis. **Siapkan akun & kategori** membuat kategori lembaga yang sudah dipetakan ke laporan (mis. Pembayaran bimbel siswa → Pendapatan jasa). Setiap transaksi punya **Ubah / hapus**: transaksi lama dibalik pada tanggal aslinya, jadi jejaknya tetap ada.
 - **Hapus data:** tombol Hapus untuk akun, siswa (beserta akunnya), sesi presensi, dan tes samapta. Baris tidak dicabut dari spreadsheet (posisi baris harus tetap); baris ditandai kolom `dihapus_pada` atau status `DIHAPUS` lalu disembunyikan dari aplikasi.
 - **Mode pratinjau (owner/admin):** Pengaturan → Mode pratinjau menampilkan semua fitur dengan data contoh di memori server (`src/lib/demo/data-contoh.ts`): 24 siswa fiktif, presensi dua minggu, Tes Samapta I dan II, serta keuangan dua bulan. Hanya untuk browser owner itu (cookie 4 jam); siswa tetap melihat data asli dan spreadsheet tidak pernah disentuh.
@@ -34,7 +49,8 @@ Setelah pratinjau klien disetujui, aplikasi disederhanakan:
 
 **Spreadsheet perlu diperbarui sekali** sebelum versi ini dipakai dengan Google Sheets: jalankan `npm run setup:sheets` (pratinjau), lalu `npm run setup:sheets -- --apply`. Perintah ini:
 
-- menambah tab `Tes_Samapta`, `Hasil_Samapta`, dan `Latihan_Psikotes`;
+- menambah tab `Tes_Samapta`, `Hasil_Samapta`, `Latihan_Psikotes`, dan `Pengumuman`;
+- menambah kolom `seri_id` di ujung kanan tab `Sesi` dan `siswa_id` di ujung kanan tab `Transaksi`;
 - menambah kolom `tempat_lahir` dan `asal_sekolah` di **ujung kanan** tab `Siswa`. Data lama tidak diubah.
 
 Tanpa langkah ini, mode Sheets menampilkan galat "Header tab Siswa berubah".
@@ -230,7 +246,7 @@ Perintah di atas hanya menampilkan pratinjau. Tambahkan `--terapkan` untuk menyi
 
 ## Pengujian
 
-`npm run check` menjalankan 298 tes otomatis:
+`npm run check` menjalankan 384 tes otomatis:
 
 - Tes Samapta: klasifikasi, IMT, Garjas B dan hasil akhir, durasi renang, simpan per pos tanpa menyentuh pos lain, kunci saat selesai, hak akses, serta pembantu tampilan
 - presensi untuk semua siswa tanpa kelas dan hadir lewat QR yang langsung sah
@@ -336,6 +352,8 @@ Keuangan memakai spreadsheet Keuangan dengan kolom yang sama seperti aplikasi Ke
 - Angka biaya disimpan sebagai riwayat di `Tarif_Program` dan `Ketentuan_Biaya`.
 - Tagihan hanya bisa diterbitkan setelah ketentuan biaya pendaftaran diatur di menu **Keuangan → Tarif & biaya**.
 - Langkah pertama pemilik adalah menekan **Siapkan akun & kategori** di Ringkasan Keuangan, lalu mengisi saldo awal di **Akun & periode**.
+
+20 Nov 2026 menambah tab `Pengumuman`, kolom `seri_id` (tab `Sesi`), dan `siswa_id` (tab `Transaksi`), semuanya di ujung kanan, sudah diterapkan ke spreadsheet asli.
 
 17 Nov 2026 menambah tab `Tes_Samapta`, `Hasil_Samapta`, dan `Latihan_Psikotes` serta kolom `tempat_lahir` dan `asal_sekolah` di ujung kanan tab `Siswa`. `npm run setup:sheets -- --apply` membuat tab baru dan melengkapi header lama yang hanya kekurangan kolom di ujung kanan, tanpa mengubah data.
 

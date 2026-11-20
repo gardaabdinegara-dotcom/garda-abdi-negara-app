@@ -66,7 +66,7 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
         tab={tab}
         create={
           canCreate ? (
-            <CreateSessionButton key={`${tab}:${selected?.session.sesi_id ?? ""}:${createDate}`} {...sessionOptions} date={createDate} />
+            <CreateSessionButton key={`${tab}:${selected?.session.sesi_id ?? ""}:${createDate}`} {...sessionOptions} date={createDate} today={clock.today} />
           ) : null
         }
       />
@@ -100,7 +100,7 @@ export default async function PresensiPage({ searchParams }: { searchParams: Sea
       ) : tab === "jadwal" ? (
         <ScheduleTab schedule={data.schedule} today={clock.today} />
       ) : (
-        <RecapTab recap={data.recap} today={clock.today} />
+        <RecapTab recap={data.recap} today={clock.today} wa={{ template: data.waKehadiran, lembaga: clock.settings.nama_lembaga }} />
       )}
     </div>
   );

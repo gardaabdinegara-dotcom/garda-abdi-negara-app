@@ -3,20 +3,25 @@ import { DURASI_LABEL, JENIS_INFO } from "@/lib/core/latihan";
 import {
   BATAS_LAMA_HARI,
   BATAS_TURUN,
+  catatanDorong,
   PERIODE_REKAP,
   type FokusRekap,
   type RekapBaris,
-  type RekapLatihan,
 } from "@/lib/core/latihan-rekap";
 import type { Latihan } from "@/lib/core/latihan-simpan";
+import type { ProgresTarget } from "@/lib/core/latihan-target";
+import { isiTemplate, nomorWa } from "@/lib/core/wa";
 import { initials } from "@/lib/format";
 import { rekapHref, type PilihanRekap } from "@/lib/latihan-rekap-route";
+import type { RekapPemilik } from "@/lib/server/latihan";
 import { Icon } from "./icon";
 import { ASPEK, HariSejak, TandaBadge, TrenPill, tanggalPendek } from "./latihan-progres";
 import { RekapFilter } from "./latihan-progres-filter";
+import { TargetMini, TargetRingkasan, teksLatihanLain } from "./latihan-target";
 import { GrafikRekap, type TitikRekap } from "./grafik-rekap";
 import { PerubahanSiswaCard } from "./perubahan-siswa";
 import { Empty, PageHead } from "./ui";
+import { WaKabari } from "./wa";
 
 const angka = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
 const labelSesi = (l: Latihan) => `${JENIS_INFO[l.jenis].nama} · ${DURASI_LABEL[l.durasi]}`;
@@ -31,7 +36,7 @@ const TANDA = [
 ] as const;
 
 interface RekapProps {
-  rekap: RekapLatihan;
+  rekap: RekapPemilik;
   pilihan: PilihanRekap;
 }
 
@@ -173,74 +178,124 @@ function DetailSiswa({ fokus, pilihan, rekap }: RekapProps & { fokus: FokusRekap
   );
 }
 
+/** Tombol WA ke siswa dengan pesan template "latihan"; hanya untuk siswa yang perlu didorong. */
+function WaDorong({ baris, rekap, target }: { baris: RekapBaris; rekap: RekapPemilik; target: ProgresTarget | null }) {
+  const catatan = catatanDorong(baris, target);
+  if (!catatan) return null;
+  const { student } = baris;
+  const pesan = isiTemplate(rekap.wa.template, { nama: student.nama, catatan, lembaga: rekap.wa.lembaga });
+  return (
+    <WaKabari
+      nomor={nomorWa(student.no_wa)}
+      pesan={pesan}
+      label="WA siswa"
+      judul="Dorong latihan lewat WhatsApp"
+      untuk={`${student.nama}${student.no_wa ? ` · ${student.no_wa}` : ""}`}
+    />
+  );
+}
+
 function DaftarSiswa({ rekap, pilihan }: RekapProps) {
-  const terlihat = rekap.baris.filter((b) => !pilihan.tanda || (pilihan.tanda === "perlu" ? b.tanda !== null : b.tanda === pilihan.tanda));
-  const judul = pilihan.tanda === "perlu" ? "Siswa perlu perhatian" : TANDA.find((t) => t.key === pilihan.tanda)?.judul ?? "Daftar siswa";
+  const perSiswa = rekap.target?.perSiswa ?? null;
+  const progres = (b: RekapBaris) => perSiswa?.[b.student.siswa_id] ?? null;
+  const filterTarget = perSiswa ? pilihan.target : null;
+  let terlihat = rekap.baris.filter((b) => !pilihan.tanda || (pilihan.tanda === "perlu" ? b.tanda !== null : b.tanda === pilihan.tanda));
+  if (filterTarget) {
+    terlihat = terlihat
+      .filter((b) => (progres(b)?.terpenuhi ?? false) === (filterTarget === "sudah"))
+      .sort((a, b) => (progres(a)?.selesai ?? 0) - (progres(b)?.selesai ?? 0) || a.student.nama.localeCompare(b.student.nama, "id"));
+  }
+  const judulTanda = pilihan.tanda === "perlu" ? "Siswa perlu perhatian" : TANDA.find((t) => t.key === pilihan.tanda)?.judul ?? "Daftar siswa";
+  const judul = filterTarget === "belum" ? "Belum memenuhi target" : filterTarget === "sudah" ? "Sudah memenuhi target" : judulTanda;
   const hrefSiswa = (b: RekapBaris) => rekapHref(pilihan, { siswa: b.student.siswa_id }, "grafik-latihan");
+  // Siswa di bawah target ikut diberi tombol WA hanya saat saringan "Belum memenuhi" dipakai.
+  const targetWa = (b: RekapBaris) => (filterTarget === "belum" ? progres(b) : null);
+  const keterangan = filterTarget === "belum" ? "Urut paling kurang. Ketuk WA untuk mengingatkan." : "Pilih nama untuk melihat progres.";
 
   return (
     <section id="daftar-latihan" className="card lp-card lp-monitor-roster" aria-labelledby="judul-daftar-latihan">
       <div className="lp-card-head">
         <div>
           <h2 id="judul-daftar-latihan">{judul}</h2>
-          <p>{angka.format(terlihat.length)} siswa · Pilih nama untuk melihat progres.</p>
+          <p>{angka.format(terlihat.length)} siswa · {keterangan}</p>
         </div>
-        {pilihan.tanda ? (
-          <Link href={rekapHref(pilihan, { tanda: null }, "daftar-latihan")} className="lp-monitor-text-link" prefetch={false}>Tampilkan semua</Link>
+        {pilihan.tanda || filterTarget ? (
+          <Link href={rekapHref(pilihan, { tanda: null, target: null }, "daftar-latihan")} className="lp-monitor-text-link" prefetch={false}>Tampilkan semua</Link>
         ) : null}
       </div>
       {terlihat.length > 0 ? (
         <>
           <ul className="lp-rlist">
-            {terlihat.map((b) => (
-              <li key={b.student.siswa_id} className={b.tanda ? `is-${b.tanda}` : undefined}>
-                <Link href={hrefSiswa(b)} prefetch={false} aria-current={pilihan.siswa === b.student.siswa_id ? "true" : undefined}>
-                  <span className="lp-av" aria-hidden="true">{initials(b.student.nama)}</span>
-                  <span className="lp-rlist-main">
-                    <b>{b.student.nama}</b>
-                    <span className="lp-rlist-sub">{angka.format(b.sesi)} sesi{b.hariSejak !== null ? <> · Terakhir <HariSejak hari={b.hariSejak} /></> : null}</span>
-                    {b.terakhir ? <span className="lp-rlist-sub">{labelSesi(b.terakhir)}</span> : null}
-                    <TandaBadge baris={b} />
-                  </span>
-                  <span className="lp-rlist-end">
-                    <b className={b.terakhir ? undefined : "is-empty"} aria-label={b.terakhir ? `Skor terakhir ${b.terakhir.skor}` : "Tidak ada skor"}>{b.terakhir?.skor ?? "—"}</b>
-                    {b.terakhir ? <TrenPill tren={b.tren} judulBaru={JUDUL_SESI_BARU} /> : null}
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {terlihat.map((b) => {
+              const p = progres(b);
+              const lain = p ? teksLatihanLain(p) : null;
+              const adaWa = catatanDorong(b, targetWa(b)) !== null;
+              return (
+                <li key={b.student.siswa_id} className={[b.tanda ? `is-${b.tanda}` : "", adaWa ? "has-wa" : ""].filter(Boolean).join(" ") || undefined}>
+                  <Link href={hrefSiswa(b)} prefetch={false} aria-current={pilihan.siswa === b.student.siswa_id ? "true" : undefined}>
+                    <span className="lp-av" aria-hidden="true">{initials(b.student.nama)}</span>
+                    <span className="lp-rlist-main">
+                      <b>{b.student.nama}</b>
+                      <span className="lp-rlist-sub">{angka.format(b.sesi)} sesi{b.hariSejak !== null ? <> · Terakhir <HariSejak hari={b.hariSejak} /></> : null}</span>
+                      {b.terakhir ? <span className="lp-rlist-sub">{labelSesi(b.terakhir)}</span> : null}
+                      {lain ? <span className="lp-rlist-sub">{lain}</span> : null}
+                      {p ? <span className="lp-rlist-tq">Target <TargetMini p={p} /></span> : null}
+                      <TandaBadge baris={b} />
+                    </span>
+                    <span className="lp-rlist-end">
+                      <b className={b.terakhir ? undefined : "is-empty"} aria-label={b.terakhir ? `Skor terakhir ${b.terakhir.skor}` : "Tidak ada skor"}>{b.terakhir?.skor ?? "-"}</b>
+                      {b.terakhir ? <TrenPill tren={b.tren} judulBaru={JUDUL_SESI_BARU} /> : null}
+                    </span>
+                  </Link>
+                  {adaWa ? <span className="lp-rlist-wa"><WaDorong baris={b} rekap={rekap} target={targetWa(b)} /></span> : null}
+                </li>
+              );
+            })}
           </ul>
           <table className="lp-rtbl">
             <thead>
               <tr>
                 <th scope="col">Siswa</th>
+                {perSiswa ? <th scope="col">Target</th> : null}
                 <th scope="col" className="r">Sesi</th>
                 <th scope="col">Skor terakhir</th>
                 <th scope="col">Tren</th>
                 <th scope="col">Aktivitas terakhir</th>
+                <th scope="col"><span className="sr-only">Kabari</span></th>
               </tr>
             </thead>
             <tbody>
-              {terlihat.map((b) => (
-                <tr key={b.student.siswa_id} className={b.tanda ? `is-${b.tanda}` : undefined}>
-                  <td className="lp-rtbl-nm">
-                    <Link href={hrefSiswa(b)} prefetch={false} aria-current={pilihan.siswa === b.student.siswa_id ? "true" : undefined}>
-                      <b>{b.student.nama}</b>
-                      <span>{b.student.kode_siswa}</span>
-                    </Link>
-                    <TandaBadge baris={b} />
-                  </td>
-                  <td className="r">{angka.format(b.sesi)}</td>
-                  <td>{b.terakhir ? <span className="lp-skor"><b>{b.terakhir.skor}</b><em>{labelSesi(b.terakhir)}</em></span> : <span className="muted">—</span>}</td>
-                  <td>{b.terakhir ? <TrenPill tren={b.tren} judulBaru={JUDUL_SESI_BARU} /> : <span className="muted">—</span>}</td>
-                  <td>{b.hariSejak === null ? <span className="muted">Belum pernah</span> : <HariSejak hari={b.hariSejak} />}</td>
-                </tr>
-              ))}
+              {terlihat.map((b) => {
+                const p = progres(b);
+                const lain = p ? teksLatihanLain(p) : null;
+                return (
+                  <tr key={b.student.siswa_id} className={b.tanda ? `is-${b.tanda}` : undefined}>
+                    <td className="lp-rtbl-nm">
+                      <Link href={hrefSiswa(b)} prefetch={false} aria-current={pilihan.siswa === b.student.siswa_id ? "true" : undefined}>
+                        <b>{b.student.nama}</b>
+                        <span>{b.student.kode_siswa}</span>
+                      </Link>
+                      <TandaBadge baris={b} />
+                    </td>
+                    {perSiswa ? (
+                      <td>
+                        {p ? <TargetMini p={p} /> : <span className="muted">-</span>}
+                        {lain ? <span className="lp-rtbl-lain">{lain}</span> : null}
+                      </td>
+                    ) : null}
+                    <td className="r">{angka.format(b.sesi)}</td>
+                    <td>{b.terakhir ? <span className="lp-skor"><b>{b.terakhir.skor}</b><em>{labelSesi(b.terakhir)}</em></span> : <span className="muted">-</span>}</td>
+                    <td>{b.terakhir ? <TrenPill tren={b.tren} judulBaru={JUDUL_SESI_BARU} /> : <span className="muted">-</span>}</td>
+                    <td>{b.hariSejak === null ? <span className="muted">Belum pernah</span> : <HariSejak hari={b.hariSejak} />}</td>
+                    <td className="lp-rtbl-wa"><WaDorong baris={b} rekap={rekap} target={targetWa(b)} /></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-          <p className="lp-monitor-note">Sesi dan skor mengikuti filter. Aktivitas terakhir mencakup semua latihan.</p>
+          <p className="lp-monitor-note">Sesi dan skor mengikuti filter. Aktivitas terakhir mencakup semua latihan.{perSiswa ? " Target dihitung Senin sampai Minggu ini." : ""}</p>
         </>
-      ) : <Empty title="Tidak ada siswa dalam kategori ini" />}
+      ) : <Empty title={filterTarget === "sudah" ? "Belum ada siswa yang memenuhi target" : filterTarget === "belum" ? "Semua siswa sudah memenuhi target" : "Tidak ada siswa dalam kategori ini"} />}
     </section>
   );
 }
@@ -256,6 +311,15 @@ export function RekapLatihanView({ rekap, pilihan }: RekapProps) {
         description="Pantau aktivitas dan perkembangan latihan psikotes siswa aktif."
         actions={<Link className="btn btn-secondary" href="/latihan/coba"><Icon name="target" /> Coba latihan</Link>}
       />
+
+      {rekap.siswaAktif > 0 ? (
+        <TargetRingkasan
+          ringkas={rekap.target}
+          siswaAktif={rekap.siswaAktif}
+          filter={rekap.target ? pilihan.target : null}
+          href={(target) => rekapHref(aktif, { target }, "daftar-latihan")}
+        />
+      ) : null}
 
       {rekap.siswaAktif === 0 ? (
         <section className="card lp-card">

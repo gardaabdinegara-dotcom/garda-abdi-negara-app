@@ -21,6 +21,7 @@ import {
   type Student,
   type User,
 } from "../core/types";
+import { waTemplates, type WaJenis } from "../core/wa";
 import { dataDeps } from "./data";
 
 /** Data akun yang aman dikirim ke tampilan (tanpa hash password). */
@@ -80,6 +81,12 @@ export async function loadSettings(): Promise<Settings> {
     samapta_baik: num(value("samapta_baik")),
     samapta_cukup: num(value("samapta_cukup")),
   };
+}
+
+/** Template pesan WhatsApp yang berlaku (isian Pengaturan, selain itu bawaan). */
+export async function loadWaTemplates(): Promise<Record<WaJenis, string>> {
+  const t = await read(["Pengaturan"]);
+  return waTemplates({ Pengaturan: t.Pengaturan ?? [] });
 }
 
 export interface Catalog {

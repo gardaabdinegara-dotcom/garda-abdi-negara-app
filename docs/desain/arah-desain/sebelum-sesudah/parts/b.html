@@ -1,0 +1,656 @@
+<style>
+/* ===== Bagian B: fitur tambahan (semua CSS di bawah .m-b) ===== */
+.m-b .i-home{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/%3E%3C/svg%3E")}
+.m-b .i-presensi{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='2.5'/%3E%3Cpath d='M8.5 12.2l2.4 2.4 4.6-5'/%3E%3C/svg%3E")}
+.m-b .i-lari{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13.5' cy='4' r='1.8'/%3E%3Cpath d='M7 21l3.2-4.5 2.3 2 1.8-5.5M10.2 8.7 13 7l2.6 3 3 1M8.5 13l1.7-4.3M14.3 13.5l3.2 1.5'/%3E%3C/svg%3E")}
+.m-b .i-latihan{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Ccircle cx='12' cy='12' r='4.5'/%3E%3Ccircle cx='12' cy='12' r='1.2' fill='black'/%3E%3C/svg%3E")}
+.m-b .i-dompet{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v3M3 7.5V18a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5'/%3E%3Cpath d='M16.5 14h.01'/%3E%3C/svg%3E")}
+.m-b .i-more{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='5' cy='12' r='1.6' fill='black'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='black'/%3E%3Ccircle cx='19' cy='12' r='1.6' fill='black'/%3E%3C/svg%3E")}
+.m-b .i-moon{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'/%3E%3C/svg%3E")}
+.m-b .i-unduh{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10.5l5 5 5-5M5 20h14'/%3E%3C/svg%3E")}
+.m-b .i-arrow{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E")}
+.m-b .i-right{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")}
+.m-b .i-left{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6 6 6'/%3E%3C/svg%3E")}
+.m-b .i-down{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+.m-b .i-toa{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9.5h3l8-4.5v14l-8-4.5H4zM7 14.5l1.4 5h2.6l-1.1-4.4M18.5 9.5a3.5 3.5 0 0 1 0 5'/%3E%3C/svg%3E")}
+.m-b .i-pin{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3.5h6l-1 5.5 3 3v2H7v-2l3-3zM12 14v6.5'/%3E%3C/svg%3E")}
+.m-b .i-cal{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5' width='16' height='15' rx='2'/%3E%3Cpath d='M4 10h16M9 3v4M15 3v4'/%3E%3C/svg%3E")}
+.m-b .i-user{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21a8 8 0 0 1 16 0'/%3E%3C/svg%3E")}
+.m-b .i-kunci{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M11 12l8-8M16 7l2.5 2.5M14 9l2 2'/%3E%3C/svg%3E")}
+.m-b .i-plus{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E")}
+.m-b .i-edit{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4'/%3E%3C/svg%3E")}
+.m-b .i-wa{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20l1.3-3.9A8 8 0 1 1 8.4 19z'/%3E%3Cpath d='M9 9.5c.3 2.6 2.4 4.7 5 5l1-1.5-1.8-1-1 .8a3.7 3.7 0 0 1-1.6-1.6l.8-1-1-1.8z' fill='black' stroke-width='1'/%3E%3C/svg%3E")}
+.m-b .i-close{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E")}
+.m-b .i-check{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E")}
+.m-b .i-api{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21a6 6 0 0 0 6-6c0-4.2-3.2-6.4-4.2-10.5C11.6 6.6 10.6 8.7 10.8 11c-1.1-.8-1.6-2-1.6-3.2C7.4 9.7 6 12.4 6 15a6 6 0 0 0 6 6z'/%3E%3C/svg%3E")}
+.m-b .i-grip{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='6' r='1.6' fill='black' stroke='none'/%3E%3Ccircle cx='15' cy='6' r='1.6' fill='black' stroke='none'/%3E%3Ccircle cx='9' cy='12' r='1.6' fill='black' stroke='none'/%3E%3Ccircle cx='15' cy='12' r='1.6' fill='black' stroke='none'/%3E%3Ccircle cx='9' cy='18' r='1.6' fill='black' stroke='none'/%3E%3Ccircle cx='15' cy='18' r='1.6' fill='black' stroke='none'/%3E%3C/svg%3E")}
+.m-b .i-info{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v5.5M12 7.5v.01'/%3E%3C/svg%3E")}
+.m-b .i-tabel{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='3.5' width='17' height='17' rx='2'/%3E%3Cpath d='M3.5 9h17M3.5 14.5h17M9.5 9v11.5'/%3E%3C/svg%3E")}
+.m-b .i-print{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z'/%3E%3C/svg%3E")}
+.m-b .i-cash{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='6' width='18' height='12' rx='2'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3C/svg%3E")}
+.m-b .i-bank{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10l9-6 9 6M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 20.5h18'/%3E%3C/svg%3E")}
+.m-b .i-bksp{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 5H9l-6 7 6 7h12zM12 9.5l5 5M17 9.5l-5 5'/%3E%3C/svg%3E")}
+.m-b .i-search{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E")}
+.m-b .i-clip{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17a1.7 1.7 0 0 1-2.4-2.4L15 7'/%3E%3C/svg%3E")}
+.m-b .ic{display:inline-block;width:18px;height:18px;flex:none;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;vertical-align:-4px;font-style:normal}
+.m-b .ic.s{width:15px;height:15px;vertical-align:-3px}
+.m-b .hp-nav i.ic{display:block;margin:0 auto 3px;width:19px;height:19px}
+.m-b .hp-bar{min-height:62px;gap:8px;padding:10px 14px}
+.m-b .hp-bar .logo{width:34px;height:34px;flex:none;background:radial-gradient(circle,#e2b04a 0 20%,#7b2b19 21% 31%,#f4ecd9 32% 70%,#b3382b 71%);box-shadow:inset 0 0 0 1px #0002}
+.m-b .hp-bar b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.m-b .tb{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:none}
+.m-b .me{width:40px;height:40px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.m-b .hp-body{gap:12px;padding:14px 14px 20px}
+.m-b .hp-body>*{flex-shrink:0}
+.m-b .hp .card{border-radius:18px;box-shadow:0 1px 2px #1c20140f}
+.m-b .pt{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.m-b .ps{color:var(--muted);font-size:13.5px;line-height:1.45;margin-top:4px}
+.m-b .eyebrow{display:block}
+.m-b .back{color:var(--primary);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:2px}
+.m-b .tap{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:none}
+.m-b .sq{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--psoft);color:var(--primary);font-weight:800;font-size:17px}
+.m-b .sq.o{background:var(--osoft);color:var(--gold)}.m-b .sq.r{background:var(--rsoft);color:var(--red)}.m-b .sq.b{background:var(--bsoft);color:var(--blue)}
+.m-b .sq.sm{width:34px;height:34px;border-radius:10px;font-size:14px}
+.m-b .sw{position:relative;display:inline-block;flex:none;width:42px;height:25px;border-radius:99px;background:var(--primary)}
+.m-b .sw::after{content:"";position:absolute;top:3px;left:20px;width:19px;height:19px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px #0003}
+.m-b .sw.off{background:var(--line)}.m-b .sw.off::after{left:3px}
+.m-b .up{color:var(--primary);font-weight:800;font-size:12.5px;white-space:nowrap}
+.m-b .dn{color:var(--red);font-weight:800;font-size:12.5px;white-space:nowrap}
+.m-b .lbl{font-size:12.5px;font-weight:800;color:var(--ink)}
+.m-b .lbl em,.m-b .tg em{font-style:normal;font-weight:600;color:var(--muted);font-size:11.5px}
+.m-b .hint{font-size:11.5px;color:var(--muted);line-height:1.4}
+.m-b .note{display:flex;gap:8px;align-items:flex-start;background:var(--bsoft);color:var(--blue);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45}
+.m-b .note .ic{margin-top:1px}
+.m-b .note.o{background:var(--osoft);color:var(--gold)}
+.m-b .tg{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:14px}
+.m-b .tg>div{flex:1;min-width:0}.m-b .tg b{display:block;font-size:13.5px}.m-b .tg span{display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:1px}
+.m-b .sheet{display:flex;flex-direction:column;gap:12px}
+.m-b .sheet::before{margin-bottom:0}
+.m-b .sh-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.m-b .sh-h b{font-size:17px}
+.m-b .input.ta{min-height:72px;line-height:1.45}
+.m-b .input.ir{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.m-b .chip.sm{padding:6px 10px;font-size:12px}
+.m-b .seg.ics span{display:flex;align-items:center;justify-content:center;gap:6px}
+.m-b .ba-sub{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.m-b .ba-cols+.ba-sub{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+
+/* B5 pengumuman */
+.m-b .hero{position:relative;overflow:hidden}
+.m-b .hero::after{content:"";position:absolute;right:-34px;top:-26px;width:150px;height:150px;border-radius:50%;border:18px solid #ffffff12}
+.m-b .hero .hd{font-size:12.5px;color:#e3e8d4}
+.m-b .hero .hg{font-size:23px;font-weight:800;letter-spacing:-.01em;margin-top:2px}
+.m-b .hero .hs{font-size:13.5px;color:#e3e8d4;margin-top:2px}
+.m-b .hero .hpill{display:inline-flex;align-items:center;gap:6px;margin-top:12px;border:1px solid #ffffff38;background:#0000002e;border-radius:99px;padding:7px 12px;font-weight:700;font-size:12.5px}
+.m-b .hero .hbtn{display:flex;width:max-content;align-items:center;gap:8px;margin-top:12px;background:#fff;color:#1c2014;border-radius:12px;padding:10px 16px;font-weight:800;font-size:13.5px}
+.m-b .info{border-left:4px solid var(--orange);display:flex;flex-direction:column;gap:6px}
+.m-b .info .ey{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.m-b .info .it{font-size:16px;font-weight:800}
+.m-b .info p{font-size:13.5px;line-height:1.45}
+.m-b .info .im{font-size:11.5px;color:var(--muted)}
+.m-b .info .more{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:10px;margin-top:4px;font-size:12.5px}
+.m-b .info .more b{color:var(--primary);white-space:nowrap}
+.m-b .info .more span{flex:1;min-width:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-b .donut{display:flex;align-items:center;gap:18px;margin-top:10px}
+.m-b .donut svg{width:84px;height:84px;flex:none}
+.m-b .dn-b{fill:none;stroke:var(--soft);stroke-width:10}.m-b .dn-f{fill:none;stroke:var(--primary);stroke-width:10;stroke-linecap:round}
+.m-b .big{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.m-b .mini{display:flex;flex-direction:column;gap:6px}
+.m-b .mini b{font-size:21px;font-weight:800}
+.m-b .ann{display:flex;flex-direction:column;gap:6px}
+.m-b .ann .at{font-size:15px;font-weight:800}
+.m-b .ann p{font-size:13px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.m-b .ann .am{display:flex;flex-wrap:wrap;gap:6px}
+.m-b .ann.pin{border-left:4px solid var(--orange)}
+.m-b .ann .tap{width:32px;height:32px;border-radius:10px}
+
+/* B6 target latihan */
+.m-b .tgt{display:flex;flex-direction:column;gap:12px}
+.m-b .tgt-m{display:flex;align-items:center;gap:14px}
+.m-b .tgt-m b{font-size:16px;display:block}.m-b .tgt-m span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.m-b .tgt-m span.up{color:var(--primary);margin-top:4px}
+.m-b .ring{width:74px;height:74px;flex:none}
+.m-b .rb{fill:none;stroke:var(--soft);stroke-width:8}.m-b .rf{fill:none;stroke:var(--primary);stroke-width:8}
+.m-b .rt{font-size:17px;font-weight:800;fill:var(--ink)}
+.m-b .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.m-b .days small{display:block;font-size:10.5px;color:var(--muted);margin-top:5px;font-weight:700}
+.m-b .days .now small{color:var(--gold)}
+.m-b .d{width:30px;height:30px;margin:0 auto;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--line);box-sizing:border-box}
+.m-b .d.t{background:var(--primary);color:var(--on-primary);border:0}
+.m-b .d.t .ic{width:15px;height:15px}
+.m-b .d.l{background:var(--psoft);border:0}
+.m-b .d.l::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.m-b .now .d{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--orange)}
+.m-b .lgd{display:flex;gap:14px;font-size:11px;color:var(--muted)}
+.m-b .lgd i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--primary);margin-right:5px;vertical-align:0}
+.m-b .lgd i.l{background:var(--psoft);box-shadow:inset 0 0 0 2.5px var(--primary)}
+.m-b .strk{display:flex;align-items:center;gap:8px;background:var(--osoft);color:var(--gold);border-radius:12px;padding:8px 12px;font-size:12.5px}
+.m-b .strk b{font-size:14px;flex:1}
+.m-b .opt3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.m-b .opt3 span{border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center;font-weight:700;font-size:13px;display:grid;place-items:center;line-height:1.2}
+.m-b .opt3 span.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.m-b .lat{display:flex;align-items:center;gap:12px}
+.m-b .lat .main{flex:1;min-width:0}.m-b .lat .main b{display:block;font-size:15px}.m-b .lat .main span{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+.m-b .go{width:34px;height:34px;border-radius:50%;background:var(--psoft);color:var(--primary);display:grid;place-items:center;flex:none}
+.m-b .chips{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden}
+.m-b .chips .chip{flex:none}
+.m-b .th,.m-b .rk{display:grid;grid-template-columns:1fr 58px 34px;gap:8px;align-items:center}
+.m-b .th{font-size:11px;font-weight:700;color:var(--muted);padding:10px 0 6px;border-bottom:1px solid var(--line)}
+.m-b .th span:last-child{text-align:right}
+.m-b .rk{padding:9px 0;border-bottom:1px solid var(--line)}
+.m-b .rk:last-child{border-bottom:0}
+.m-b .rk .who{display:flex;gap:10px;align-items:center;min-width:0}
+.m-b .rk .who div{min-width:0}
+.m-b .rk .who b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-b .rk .who div span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-b .av.sm{width:30px;height:30px;font-size:10.5px}
+.m-b .tq{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.m-b .tq b{font-size:13.5px;font-weight:800}
+.m-b .seg3{display:flex;gap:3px}.m-b .seg3 i{width:14px;height:5px;border-radius:99px;background:var(--soft)}
+.m-b .tq .seg3 i.f{background:var(--primary)}
+.m-b .tq.r b{color:var(--red)}.m-b .tq.r .seg3 i.f{background:var(--red)}
+.m-b .tq.o b{color:var(--gold)}.m-b .tq.o .seg3 i.f{background:var(--orange)}
+.m-b .sk{font-weight:800;font-size:15px;text-align:right}
+.m-b .step{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;width:max-content}
+.m-b .step span{width:44px;height:40px;display:grid;place-items:center;font-size:20px;font-weight:700;background:var(--soft)}
+.m-b .step b{width:52px;text-align:center;font-size:18px}
+
+/* B7 bidang */
+.m-b .tabsx{display:flex;gap:8px;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,#000 78%,transparent);mask-image:linear-gradient(90deg,#000 78%,transparent)}
+.m-b .tabsx .chip{flex:none;padding:9px 14px;font-size:13px}
+.m-b .bi{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.m-b .bi:last-child{border-bottom:0}
+.m-b .bi .grip{color:var(--muted)}
+.m-b .bi .main{flex:1;min-width:0}.m-b .bi .main b{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.m-b .bi .main span{font-size:11.5px;color:var(--muted)}
+.m-b .bi .tap{width:34px;height:34px;border-radius:10px}
+.m-b .bi.drag{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 8px;margin:4px -8px;box-shadow:0 10px 22px -10px #0006;transform:rotate(-.6deg)}
+.m-b .bi.drag .grip{color:var(--primary)}
+.m-b .hid .bi .main b,.m-b .hid .bi .grip{color:var(--muted)}
+.m-b .hid .bi{opacity:.62}
+.m-b .old{font-size:12px;color:var(--muted)}
+.m-b .old s{color:var(--red);text-decoration-thickness:1.5px}
+
+/* B8 grafik samapta */
+.m-b .chart{width:100%;height:auto;display:block;margin-top:8px}
+.m-b .ch-ax{font-size:10px;fill:var(--muted)}
+.m-b .ch-gl{stroke:var(--line);stroke-width:1}
+.m-b .ch-t{stroke:var(--muted);stroke-width:1.3;stroke-dasharray:5 4;fill:none}
+.m-b .ch-t.o{stroke:var(--orange)}
+.m-b .ch-tl{font-size:10px;font-weight:700;fill:var(--muted)}
+.m-b .ch-tl.o{fill:var(--gold)}
+.m-b .ch-ar{fill:var(--primary);fill-opacity:.12}
+.m-b .ch-ln{fill:none;stroke:var(--primary);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.m-b .ch-p{fill:var(--surface);stroke:var(--primary);stroke-width:2.5}
+.m-b .ch-p.last{fill:var(--primary)}
+.m-b .ch-halo{fill:var(--primary);fill-opacity:.18}
+.m-b .ch-v{font-size:10.5px;font-weight:700;fill:var(--muted)}
+.m-b .ch-bb{fill:var(--primary)}
+.m-b .ch-bt{font-size:11.5px;font-weight:800;fill:var(--on-primary)}
+.m-b .ch-x{font-size:11px;font-weight:700;fill:var(--ink)}
+.m-b .ch-x2{font-size:10px;fill:var(--muted)}
+.m-b .sp{width:60px;height:24px;flex:none}
+.m-b .sp polyline{fill:none;stroke:var(--primary);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.m-b .sp circle{fill:var(--primary)}
+.m-b .sp.dn polyline{stroke:var(--red)}.m-b .sp.dn circle{fill:var(--red)}
+.m-b .mr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.m-b .mr:last-child{border-bottom:0}
+.m-b .mr .main{flex:1;min-width:0}.m-b .mr .main b{display:block;font-size:13.5px}.m-b .mr .main span{display:block;font-size:11.5px;color:var(--muted)}
+.m-b .mr .up,.m-b .mr .dn{width:34px;text-align:right}
+.m-b .val{min-width:40px;height:32px;padding:0 6px;border-radius:10px;background:var(--psoft);color:var(--primary);display:grid;place-items:center;font-weight:800;font-size:14.5px}
+.m-b .xprev{border:1px solid var(--line);border-radius:12px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 84%,transparent);mask-image:linear-gradient(90deg,#000 84%,transparent)}
+.m-b .xprev .tbl{font-size:11px}
+.m-b .xprev .tbl th{background:var(--soft);font-size:10.5px;padding:6px 6px;white-space:nowrap}
+.m-b .xprev .tbl td{padding:6px 6px;white-space:nowrap}
+.m-b .xprev .tbl tr:last-child td{border-bottom:0}
+.m-b .xls{color:#1d7a46}
+[data-theme="dark"] .m-b .xls{color:#7fd6a2}
+
+/* B9 riwayat bayar */
+.m-b .sheet.full{top:58px;gap:10px;padding-top:8px}
+.m-b .amt{text-align:center;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.m-b .amt small{font-size:17px;color:var(--muted);margin-right:6px;font-weight:800}
+.m-b .amt-s{text-align:center;font-size:11.5px;color:var(--muted);margin-top:-6px}
+.m-b .pick{display:flex;align-items:center;gap:10px;border:2px solid var(--primary);border-radius:14px;padding:7px 10px;background:var(--psoft)}
+.m-b .pick .main{flex:1;min-width:0}.m-b .pick .main b{display:block;font-size:13.5px}.m-b .pick .main span{font-size:11.5px;color:var(--muted)}
+.m-b .pick .av{background:var(--primary);color:var(--on-primary);width:32px;height:32px;font-size:11px}
+.m-b .pick .x{color:var(--muted)}
+.m-b .ket{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px;padding:10px 12px}
+.m-b .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m-b .keys span{height:36px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:18px;font-weight:700}
+.m-b .rowf{display:flex;gap:8px;align-items:stretch}
+.m-b .rowf .seg{flex:1}
+.m-b .tap.w{width:auto;height:auto;padding:0 12px;display:flex;gap:6px;font-weight:700;font-size:13px}
+.m-b .clip{display:flex;align-items:center;gap:6px;color:var(--primary);font-weight:700;font-size:12.5px}
+.m-b mark{background:var(--osoft);color:inherit;border-radius:3px;padding:0 1px}
+.m-b .srch{display:flex;align-items:center;gap:8px;border:2px solid var(--primary)}
+.m-b .caret{display:inline-block;width:2px;height:18px;background:var(--primary);margin-left:-6px}
+.m-b .sheet .list .item{padding:9px 0}
+.m-b .item.sel{background:var(--psoft);border-radius:12px;padding:9px 10px;margin:0 -10px;border-bottom:0}
+.m-b .item .ck{color:var(--primary)}
+.m-b .item.sel .av{background:var(--primary);color:var(--on-primary)}
+.m-b .tot{background:var(--soft);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;margin:10px 0 4px}
+.m-b .tot b{font-size:22px;font-weight:800;letter-spacing:-.01em}.m-b .tot span{font-size:12px;color:var(--muted)}
+.m-b .plus{color:var(--primary);font-weight:800;font-size:13.5px;white-space:nowrap}
+.m-b .coll{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+.m-b .coll b{font-size:14.5px}
+</style>
+<section class="modul m-b" data-modul="b">
+<nav class="g-items"><a href="#b5"><b>B5</b>Pengumuman</a><a href="#b6"><b>B6</b>Target latihan mingguan</a><a href="#b7"><b>B7</b>Bidang presensi</a><a href="#b8"><b>B8</b>Grafik Samapta</a><a href="#b9"><b>B9</b>Riwayat bayar siswa</a></nav>
+
+<!-- ================= B5 Pengumuman ================= -->
+<section class="ba" id="b5">
+  <header class="ba-head"><span class="ba-no">B5</span><div><h2>Pengumuman dari pelatih</h2><p>Info jadwal sekarang disebar lewat grup WA dan mudah tenggelam. Dengan pengumuman di aplikasi, info penting tampil di beranda siswa sampai tanggal yang dipilih, lalu hilang sendiri.</p></div></header>
+  <div class="ba-sub"><i class="ic i-user s"></i>Tampilan siswa</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/beranda-siswa.jpg" alt="Beranda siswa sekarang"></div><p class="ba-note">Beranda siswa belum punya tempat untuk info dari pelatih. Jadwal tes dan perubahan sesi hanya ada di grup WA.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">AP</span></div>
+        <div class="hp-body">
+          <div class="hero">
+            <div class="hd">Jumat, 20 November 2026</div>
+            <div class="hg">Selamat sore, Arif</div>
+            <div class="hs">Ada 1 hal yang perlu kamu perhatikan.</div>
+            <span class="hpill"><i class="ic i-lari s"></i>Tes Samapta II: Baik</span>
+            <span class="hbtn">Buka presensi<i class="ic i-arrow s"></i></span>
+          </div>
+          <div class="card info anno" data-anno="Baru">
+            <div class="row spread"><span class="ey"><i class="ic i-toa s"></i>Info dari pelatih</span><span class="pill o"><i class="ic i-pin s"></i>Disematkan</span></div>
+            <div class="it">Tes Samapta III</div>
+            <p>Minggu, 29 Nov 06.00 di Lap. Syekh Yusuf. Bawa sepatu lari dan air minum.</p>
+            <div class="im">Pelatih Garda · Kamis, 19 Nov 2026</div>
+            <div class="more"><b>2 info lain</b><span>Libur sesi Senin 23 Nov · Cicilan 3</span><i class="ic i-right s"></i></div>
+          </div>
+          <div class="card">
+            <h3>Kehadiran bulan ini</h3><div class="sub">November 2026</div>
+            <div class="donut"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="dn-b" cx="42" cy="42" r="34"/><circle class="dn-f" cx="42" cy="42" r="34" stroke-dasharray="188 214" transform="rotate(-90 42 42)"/></svg><div><div class="big">88%</div><div class="small muted" style="margin-top:4px">Hadir 7 dari 8 sesi · Disiplin</div></div></div>
+          </div>
+          <div class="grid2">
+            <div class="card mini"><span class="sq sm"><i class="ic i-cal s"></i></span><b>88%</b><span class="xs muted">Kehadiran November 2026</span></div>
+            <div class="card mini"><span class="sq sm o"><i class="ic i-lari s"></i></span><b>78,5</b><span class="xs muted">Tes Samapta II · Baik</span></div>
+          </div>
+        </div>
+        <div class="hp-nav"><div class="on"><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-latihan"></i>Latihan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note"><b>Kartu Info dari pelatih</b> tepat di bawah sapaan. Info yang disematkan selalu paling atas, lengkap dengan tanggal kirim. Info lain dibuka lewat <b>2 info lain</b>.</p>
+    </figure>
+  </div>
+
+  <div class="ba-sub"><i class="ic i-kunci s"></i>Tampilan owner</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot-none">Belum ada halaman pengumuman.<br>Owner menulis info di grup WA, lalu siswa harus mencari sendiri di antara chat lain.</div><p class="ba-note">Tidak ada catatan info mana yang masih berlaku dan mana yang sudah lewat.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · daftar</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><span class="eyebrow">Lainnya</span><div class="pt">Pengumuman</div><p class="ps">Tampil di beranda siswa sampai tanggal yang kamu pilih, lalu hilang sendiri.</p></div>
+          <span class="btn lg block anno" data-anno="Baru"><i class="ic i-plus"></i>Tulis pengumuman</span>
+          <div class="seg"><span class="on">Sedang tampil · 3</span><span>Sudah lewat · 5</span></div>
+          <div class="card ann pin">
+            <div class="row spread"><span class="row" style="gap:6px"><span class="pill o"><i class="ic i-pin s"></i>Disematkan</span><span class="xs muted">Kamis, 19 Nov</span></span><span class="tap"><i class="ic i-edit s"></i></span></div>
+            <div class="at">Tes Samapta III</div>
+            <p>Minggu, 29 Nov 06.00 di Lap. Syekh Yusuf. Bawa sepatu lari dan air minum.</p>
+            <div class="am"><span class="pill m"><i class="ic i-cal s"></i>Tampil sampai 29 Nov</span><span class="pill"><i class="ic i-wa s"></i>Dikirim ke WA</span></div>
+          </div>
+          <div class="card ann">
+            <div class="row spread"><span class="xs muted">Rabu, 18 Nov</span><span class="tap"><i class="ic i-edit s"></i></span></div>
+            <div class="at">Libur sesi Senin 23 Nov</div>
+            <p>Sesi Senin dipindah ke Selasa 24 Nov, jam dan tempat sama.</p>
+            <div class="am"><span class="pill m"><i class="ic i-cal s"></i>Tampil sampai 23 Nov</span><span class="pill"><i class="ic i-wa s"></i>Dikirim ke WA</span></div>
+          </div>
+          <div class="card ann">
+            <div class="row spread"><span class="xs muted">Senin, 16 Nov</span><span class="tap"><i class="ic i-edit s"></i></span></div>
+            <div class="at">Cicilan 3 paling lambat 5 Des</div>
+            <p>Bayar di kas atau transfer BRI. Simpan bukti transfer.</p>
+            <div class="am"><span class="pill m"><i class="ic i-cal s"></i>Tampil sampai 5 Des</span></div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Halaman <b>Pengumuman</b> di menu Lainnya. Terlihat mana yang disematkan, sampai kapan tampil, dan mana yang sudah dikirim ke WA.</p>
+    </figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · tulis</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><span class="eyebrow">Lainnya</span><div class="pt">Pengumuman</div><p class="ps">Tampil di beranda siswa sampai tanggal yang kamu pilih, lalu hilang sendiri.</p></div>
+          <span class="btn lg block"><i class="ic i-plus"></i>Tulis pengumuman</span>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="sh-h"><b>Pengumuman baru</b><span class="tap"><i class="ic i-close s"></i></span></div>
+          <div class="field"><label>Judul *</label><div class="input">Tes Samapta III</div></div>
+          <div class="field"><label>Isi *</label><div class="input ta">Minggu, 29 Nov 06.00 di Lap. Syekh Yusuf. Bawa sepatu lari dan air minum.</div><span class="hint">72 / 300 karakter</span></div>
+          <div class="field"><label>Tampil sampai</label><div class="input ir"><span>Minggu, 29 November 2026</span><i class="ic i-cal s muted"></i></div><span class="hint">Setelah tanggal ini, info hilang sendiri dari beranda siswa.</span></div>
+          <div class="tg"><div><b>Sematkan di atas</b><span>Selalu tampil paling atas di beranda siswa.</span></div><i class="sw"></i></div>
+          <div class="tg"><div><b>Kirim juga lewat WA <em>opsional</em></b><span>Membuka WhatsApp dengan teks siap kirim ke grup.</span></div><i class="sw"></i></div>
+          <span class="btn lg block">Terbitkan dan buka WA</span>
+        </div>
+      </div>
+      <p class="ba-note">Form singkat: <b>Judul, Isi, Tampil sampai</b>, sematkan, dan kirim lewat WA. WA hanya membuka teks siap kirim, jadi tidak ada layanan atau biaya tambahan.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= B6 Target latihan mingguan ================= -->
+<section class="ba" id="b6">
+  <header class="ba-head"><span class="ba-no">B6</span><div><h2>Target latihan mingguan</h2><p>Siswa belum punya patokan harus latihan apa dan berapa kali. Pelatih cukup memasang satu target per minggu: siswa melihat progresnya, owner langsung tahu siapa yang belum memenuhi.</p></div></header>
+  <div class="ba-sub"><i class="ic i-user s"></i>Tampilan siswa</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/latihan-siswa.jpg" alt="Menu Latihan siswa sekarang"></div><p class="ba-note">Siswa hanya melihat jumlah latihan minggu ini. Tidak ada patokan berapa kali harus latihan.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">AP</span></div>
+        <div class="hp-body">
+          <div><div class="pt">Latihan Psikotes</div><p class="ps">Pilih durasi, lalu ketuk jenis latihan.</p></div>
+          <div class="card tgt anno" data-anno="Baru">
+            <div class="row spread"><span class="eyebrow">Target minggu ini</span><span class="xs muted">16 sampai 22 Nov</span></div>
+            <div class="tgt-m">
+              <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="rb" cx="32" cy="32" r="26" stroke-dasharray="48.45 6" transform="rotate(-83.4 32 32)"/><circle class="rf" cx="32" cy="32" r="26" stroke-dasharray="48.45 6 48.45 60.46" transform="rotate(-83.4 32 32)"/><text class="rt" x="32" y="38" text-anchor="middle">2/3</text></svg>
+              <div><b>Kraepelin Standar</b><span>3 kali seminggu · dari pelatih</span><span class="up">Tinggal 1 lagi sampai Minggu</span></div>
+            </div>
+            <div class="days">
+              <div><span class="d t"><i class="ic i-check"></i></span><small>Sen</small></div>
+              <div><span class="d l"></span><small>Sel</small></div>
+              <div><span class="d t"><i class="ic i-check"></i></span><small>Rab</small></div>
+              <div><span class="d l"></span><small>Kam</small></div>
+              <div class="now"><span class="d l"></span><small>Jum</small></div>
+              <div><span class="d"></span><small>Sab</small></div>
+              <div><span class="d"></span><small>Min</small></div>
+            </div>
+            <div class="lgd"><span><i></i>Kraepelin Standar</span><span><i class="l"></i>Latihan lain</span></div>
+            <div class="strk"><i class="ic i-api"></i><b>5 hari beruntun</b><span>Rekor 9 hari</span></div>
+            <span class="btn block">Kerjakan Kraepelin Standar · 10 menit</span>
+          </div>
+          <div class="card"><h3>Durasi</h3><div class="sub">Latihan rutin dengan waktu per kolom seperti tes.</div><div class="opt3"><span>Singkat</span><span class="on">Standar</span><span>Seperti tes asli</span></div></div>
+          <div class="card lat"><span class="sq">+</span><div class="main"><b>Kraepelin</b><span>Skor terakhir 81 · 12 latihan</span><span>20 kolom × 30 detik · total 10 menit</span></div><span class="pill">Target</span></div>
+          <div class="card lat"><span class="sq o">Σ</span><div class="main"><b>Pauli</b><span>Skor terakhir 80 · 1 latihan</span></div><span class="go"><i class="ic i-arrow s"></i></span></div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div class="on"><i class="ic i-latihan"></i>Latihan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note"><b>Target minggu ini</b> di paling atas: cincin 2/3, titik per hari Sen sampai Min, dan hari beruntun sebagai penyemangat. Tombolnya langsung membuka latihan yang ditargetkan.</p>
+    </figure>
+  </div>
+
+  <div class="ba-sub"><i class="ic i-kunci s"></i>Tampilan owner</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/latihan-rekap.jpg" alt="Rekap latihan siswa untuk owner sekarang"></div><p class="ba-note">Rekap sudah menandai skor turun dan jeda latihan, tetapi belum ada ukuran siapa yang cukup berlatih minggu ini.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · rekap</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><div class="pt">Latihan siswa</div><p class="ps">Pantau aktivitas dan perkembangan latihan psikotes siswa aktif.</p></div>
+          <div class="card stack anno" data-anno="Baru">
+            <div class="row spread" style="flex-wrap:nowrap;align-items:flex-start"><div><span class="eyebrow">Target minggu ini</span><b style="font-size:15px;display:block;margin-top:2px">Kraepelin Standar · 3× seminggu</b><span class="xs muted">16 sampai 22 Nov · semua siswa aktif</span></div><span class="btn sec sm"><i class="ic i-edit s"></i>Ubah</span></div>
+            <div class="bar"><i style="width:58%"></i></div>
+            <div class="row spread small"><span><b>14</b> dari 24 siswa sudah memenuhi</span><span class="muted">sisa 2 hari</span></div>
+          </div>
+          <div class="chips"><span class="chip">Semua · 24</span><span class="chip on">Belum memenuhi · 10</span><span class="chip">Sudah · 14</span></div>
+          <div class="card">
+            <div class="row spread"><b style="font-size:15px">Daftar siswa</b><span class="xs muted">10 siswa · urut paling kurang</span></div>
+            <div class="th"><span>Siswa</span><span>Target</span><span>Skor</span></div>
+            <div class="rk"><div class="who"><span class="av sm">OS</span><div><b>OKTAVIA SARI</b><span>Terakhir 9 hari lalu</span></div></div><div class="tq r"><b>0/3</b><span class="seg3"><i></i><i></i><i></i></span></div><span class="sk">74</span></div>
+            <div class="rk"><div class="who"><span class="av sm">JS</span><div><b>JOKO SANTOSO</b><span>1 latihan lain · Pauli</span></div></div><div class="tq r"><b>0/3</b><span class="seg3"><i></i><i></i><i></i></span></div><span class="sk">70</span></div>
+            <div class="rk"><div class="who"><span class="av sm">DA</span><div><b>DIMAS ANGGARA</b><span>Terakhir kemarin</span></div></div><div class="tq o"><b>1/3</b><span class="seg3"><i class="f"></i><i></i><i></i></span></div><span class="sk">80</span></div>
+            <div class="rk"><div class="who"><span class="av sm">BS</span><div><b>BAGUS SETIAWAN</b><span>Terakhir hari ini</span></div></div><div class="tq o"><b>1/3</b><span class="seg3"><i class="f"></i><i></i><i></i></span></div><span class="sk">85</span></div>
+            <div class="rk"><div class="who"><span class="av sm">YS</span><div><b>YOGA SAPUTRA</b><span>Terakhir 3 hari lalu</span></div></div><div class="tq o"><b>1/3</b><span class="seg3"><i class="f"></i><i></i><i></i></span></div><span class="sk">76</span></div>
+            <div class="rk"><div class="who"><span class="av sm">HS</span><div><b>HADI SUSANTO</b><span>Terakhir kemarin</span></div></div><div class="tq"><b>2/3</b><span class="seg3"><i class="f"></i><i class="f"></i><i></i></span></div><span class="sk">87</span></div>
+            <div class="rk"><div class="who"><span class="av sm">NP</span><div><b>NANDA PUTRI</b><span>Terakhir hari ini</span></div></div><div class="tq"><b>2/3</b><span class="seg3"><i class="f"></i><i class="f"></i><i></i></span></div><span class="sk">78</span></div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Ringkasan target di atas, kolom <b>Target 2/3</b> di daftar, dan filter <b>Belum memenuhi</b> untuk mengingatkan siswa yang tertinggal.</p>
+    </figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · atur target</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><div class="pt">Latihan siswa</div><p class="ps">Pantau aktivitas dan perkembangan latihan psikotes siswa aktif.</p></div>
+          <div class="card"><span class="eyebrow">Target minggu ini</span><b style="font-size:15px">Kraepelin Standar · 3× seminggu</b></div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="sh-h"><b>Target latihan mingguan</b><span class="tap"><i class="ic i-close s"></i></span></div>
+          <p class="hint" style="margin-top:-6px">Siswa melihat target ini di menu Latihan. Hitungan mulai ulang setiap Senin.</p>
+          <div class="field"><label>Jenis latihan</label><div class="row" style="gap:6px"><span class="chip on">Kraepelin</span><span class="chip">Pauli</span><span class="chip">Angka hilang</span><span class="chip">Simbol hilang</span></div></div>
+          <div class="field"><label>Durasi</label><div class="seg"><span>Singkat</span><span class="on">Standar</span><span>Seperti tes asli</span></div></div>
+          <div class="field"><label>Berapa kali per minggu</label><div class="row" style="gap:12px"><div class="step"><span>−</span><b>3</b><span>+</span></div><span class="small muted">kali · 10 menit tiap latihan</span></div></div>
+          <div class="field"><label>Untuk</label><div class="seg"><span class="on">Semua siswa aktif · 24</span><span>Pilih kelas</span></div></div>
+          <span class="btn lg block">Simpan target</span>
+        </div>
+      </div>
+      <p class="ba-note">Satu target untuk semua siswa: <b>jenis, durasi, berapa kali per minggu</b>. Cukup diatur sekali; berlaku terus sampai diubah.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= B7 Bidang presensi ================= -->
+<section class="ba" id="b7">
+  <header class="ba-head"><span class="ba-no">B7</span><div><h2>Bidang presensi bisa dikelola</h2><p>Sekarang bidang hanya bisa ditambah: salah ketik tidak bisa diperbaiki dan bidang lama tidak bisa disingkirkan. Usulan: ubah nama, atur urutan, dan sembunyikan tanpa menghapus riwayat sesi.</p></div></header>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/bidang.jpg" alt="Pengaturan bidang presensi sekarang"></div><p class="ba-note">Daftar bidang hanya teks. Salah ketik tetap tersimpan dan bidang yang tidak dipakai tetap muncul di pilihan sesi.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · daftar</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><span class="eyebrow">Pengaturan</span><div class="pt">Bidang presensi</div><p class="ps">Pilihan bidang yang tampil saat membuat atau mengubah sesi Presensi.</p></div>
+          <div class="tabsx"><span class="chip">Akun</span><span class="chip">Program &amp; kelas</span><span class="chip on">Bidang presensi</span><span class="chip">Lembaga</span><span class="chip">Sistem</span></div>
+          <div class="card anno" data-anno="Baru">
+            <div class="row spread" style="flex-wrap:nowrap"><div><h3>Bidang tersedia</h3><div class="sub">Geser <i class="ic i-grip s"></i> untuk mengatur urutan.</div></div><span class="btn sm"><i class="ic i-plus s"></i>Tambah</span></div>
+            <div class="list" style="margin-top:6px">
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>Akademik</b><span>dipakai 38 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+              <div class="bi drag"><i class="ic i-grip grip"></i><div class="main"><b>Fisik</b><span>dipakai 61 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>Psikotes</b><span>dipakai 52 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>KESWA (Kesehatan Jiwa)</b><span>dipakai 12 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>MI (Mental Ideologi)</b><span>dipakai 9 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+            </div>
+          </div>
+          <div class="card hid">
+            <div class="row" style="gap:6px"><h3>Disembunyikan</h3><span class="pill m">2</span></div>
+            <div class="sub">Tidak muncul saat membuat sesi baru. Riwayat sesi lama tetap aman.</div>
+            <div class="list" style="margin-top:4px">
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>ADIRAGA</b><span>dipakai 4 sesi · terakhir Agustus</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw off"></i></div>
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>Renang</b><span>dipakai 2 sesi · terakhir Juli</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw off"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Tiap baris punya <b>pegangan geser</b> untuk urutan, jumlah pemakaian, tombol <b>ubah</b>, dan sakelar tampil. Bidang yang dimatikan pindah ke bagian <b>Disembunyikan</b> dan tampil redup.</p>
+    </figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · ubah nama</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div><span class="eyebrow">Pengaturan</span><div class="pt">Bidang presensi</div><p class="ps">Pilihan bidang yang tampil saat membuat atau mengubah sesi Presensi.</p></div>
+          <div class="card"><h3>Bidang tersedia</h3>
+            <div class="list" style="margin-top:6px">
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>Akademik</b><span>dipakai 38 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+              <div class="bi"><i class="ic i-grip grip"></i><div class="main"><b>Fisik</b><span>dipakai 61 sesi</span></div><span class="tap"><i class="ic i-edit s"></i></span><i class="sw"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="sh-h"><b>Ubah bidang</b><span class="tap"><i class="ic i-close s"></i></span></div>
+          <div class="field"><label>Nama bidang *</label><div class="input" style="border:2px solid var(--primary)">MI (Mental Ideologi)<span class="caret" style="margin-left:2px;vertical-align:-3px"></span></div><span class="old">Nama lama: <s>MI (Mental Idiologi)</s></span></div>
+          <div class="note"><i class="ic i-info s"></i><span>Dipakai di <b>9 sesi</b>. Sesi lama tetap tersimpan lengkap dengan presensinya, dan ikut tampil dengan nama baru.</span></div>
+          <div class="tg"><div><b>Tampilkan saat membuat sesi</b><span>Matikan untuk menyembunyikan tanpa menghapus.</span></div><i class="sw"></i></div>
+          <span class="btn lg block">Simpan perubahan</span>
+          <p class="hint" style="text-align:center">Bidang yang sudah dipakai tidak bisa dihapus, hanya disembunyikan.</p>
+        </div>
+      </div>
+      <p class="ba-note">Ganti nama untuk memperbaiki salah ketik. <b>Riwayat sesi lama tetap utuh</b>; bidang yang sudah dipakai hanya bisa disembunyikan, tidak dihapus.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= B8 Grafik perkembangan Samapta ================= -->
+<section class="ba" id="b8">
+  <header class="ba-head"><span class="ba-no">B8</span><div><h2>Grafik perkembangan Samapta per siswa</h2><p>Hasil tes sekarang dilihat satu per satu, jadi arah perkembangan sulit terbaca. Grafik menunjukkan nilai dari Tes I sampai Tes III terhadap batas Baik dan Baik Sekali, dan owner bisa mengunduh hasil tes ke Excel.</p></div></header>
+  <div class="ba-sub"><i class="ic i-user s"></i>Tampilan siswa</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/hasil-samapta-siswa.jpg" alt="Hasil Samapta di akun siswa sekarang"></div><p class="ba-note">Siswa melihat satu tes per halaman, dibandingkan dengan satu tes sebelumnya saja.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">AP</span></div>
+        <div class="hp-body">
+          <div class="pt">Hasil Samapta</div>
+          <div class="seg"><span>Per tes</span><span class="on">Perkembangan</span></div>
+          <div class="card anno" data-anno="Baru">
+            <div class="row spread" style="flex-wrap:nowrap;align-items:flex-start"><div><h3>Hasil akhir</h3><div class="sub">Tes III di atas batas Baik Sekali</div></div><span class="pill">▲ 18,62 sejak Tes I</span></div>
+            <svg class="chart" viewBox="0 0 340 198" role="img" aria-label="Grafik hasil akhir: Tes I 64,63, Tes II 78,5, Tes III 83,25">
+              <line class="ch-gl" x1="34" y1="160" x2="326" y2="160"/>
+              <line class="ch-gl" x1="34" y1="87" x2="326" y2="87" stroke-opacity=".6"/>
+              <line class="ch-gl" x1="34" y1="14" x2="326" y2="14" stroke-opacity=".6"/>
+              <text class="ch-ax" x="26" y="163.5" text-anchor="end">50</text>
+              <text class="ch-ax" x="26" y="90.5" text-anchor="end">70</text>
+              <text class="ch-ax" x="26" y="17.5" text-anchor="end">90</text>
+              <path class="ch-ar" d="M60 106.6 L175 56 L290 38.6 L290 160 L60 160 Z"/>
+              <line class="ch-t o" x1="34" y1="47" x2="326" y2="47"/>
+              <text class="ch-tl o" x="96" y="41">Baik Sekali · 81</text>
+              <line class="ch-t" x1="34" y1="120" x2="326" y2="120"/>
+              <text class="ch-tl" x="96" y="114">Baik · 61</text>
+              <path class="ch-ln" d="M60 106.6 L175 56 L290 38.6"/>
+              <circle class="ch-p" cx="60" cy="106.6" r="4.5"/>
+              <circle class="ch-p" cx="175" cy="56" r="4.5"/>
+              <circle class="ch-halo" cx="290" cy="38.6" r="11"/>
+              <circle class="ch-p last" cx="290" cy="38.6" r="5.5"/>
+              <text class="ch-v" x="60" y="95" text-anchor="middle">64,63</text>
+              <text class="ch-v" x="182" y="74">78,5</text>
+              <rect class="ch-bb" x="259" y="4" width="62" height="21" rx="7"/>
+              <path class="ch-bb" d="M285 24.5 L290 30 L295 24.5 Z"/>
+              <text class="ch-bt" x="290" y="18.5" text-anchor="middle">83,25</text>
+              <text class="ch-x" x="60" y="179" text-anchor="middle">Tes I</text><text class="ch-x2" x="60" y="192" text-anchor="middle">18 Okt</text>
+              <text class="ch-x" x="175" y="179" text-anchor="middle">Tes II</text><text class="ch-x2" x="175" y="192" text-anchor="middle">15 Nov</text>
+              <text class="ch-x" x="290" y="179" text-anchor="middle">Tes III</text><text class="ch-x2" x="290" y="192" text-anchor="middle">29 Nov</text>
+            </svg>
+          </div>
+          <div class="card">
+            <div class="row spread"><h3>Per materi</h3><span class="xs muted">Tes I sampai III</span></div>
+            <div class="list" style="margin-top:4px">
+              <div class="mr"><div class="main"><b>Lari 12 menit</b><span>2.620 m</span></div><svg class="sp" viewBox="0 0 64 24"><polyline points="4,18.9 32,6.4 60,5.1"/><circle cx="60" cy="5.1" r="2.6"/></svg><span class="up">▲ 3</span><span class="val">88</span></div>
+              <div class="mr"><div class="main"><b>Pull up</b><span>13 kali</span></div><svg class="sp" viewBox="0 0 64 24"><polyline points="4,16.2 32,5.6 60,4.2"/><circle cx="60" cy="4.2" r="2.6"/></svg><span class="up">▲ 3</span><span class="val">90</span></div>
+              <div class="mr"><div class="main"><b>Sit up</b><span>38 kali</span></div><svg class="sp dn" viewBox="0 0 64 24"><polyline points="4,14.9 32,13.6 60,14.4"/><circle cx="60" cy="14.4" r="2.6"/></svg><span class="dn">▼ 2</span><span class="val">67</span></div>
+              <div class="mr"><div class="main"><b>Push up</b><span>37 kali</span></div><svg class="sp" viewBox="0 0 64 24"><polyline points="4,5.1 32,13.1 60,9.1"/><circle cx="60" cy="9.1" r="2.6"/></svg><span class="up">▲ 9</span><span class="val">79</span></div>
+              <div class="mr"><div class="main"><b>Shuttle run</b><span>16,8 detik</span></div><svg class="sp" viewBox="0 0 64 24"><polyline points="4,12.2 32,16.7 60,9.6"/><circle cx="60" cy="9.6" r="2.6"/></svg><span class="up">▲ 16</span><span class="val">78</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-latihan"></i>Latihan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Tab <b>Perkembangan</b>: garis hasil akhir Tes I sampai Tes III dengan garis putus <b>Baik 61</b> dan <b>Baik Sekali 81</b>, titik terakhir diberi label. Di bawahnya tren tiap materi dengan grafik kecil dan ▲/▼ dibanding tes sebelumnya.</p>
+    </figure>
+  </div>
+
+  <div class="ba-sub"><i class="ic i-kunci s"></i>Tampilan owner</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/samapta-siswa.jpg" alt="Hasil Samapta satu siswa di akun owner sekarang"></div><p class="ba-note">Owner membuka hasil siswa satu per satu. Untuk rekap di luar aplikasi, nilai harus disalin manual.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · halaman tes</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <span class="back"><i class="ic i-left s"></i>Tes Samapta</span>
+          <div><div class="row spread" style="flex-wrap:nowrap"><div class="pt">Tes Samapta III</div><span class="pill">Selesai</span></div><p class="ps">Minggu, 29 Nov 2026 · Lap. Syekh Yusuf · 24 peserta</p></div>
+          <span class="btn lg block anno" data-anno="Baru"><i class="ic i-tabel"></i>Unduh Excel hasil tes</span>
+          <p class="hint" style="margin-top:-4px">Satu file .xlsx untuk semua peserta: nilai mentah dan nilai tiap materi, Garjas A, Garjas B, hasil akhir, dan peringkat. Bisa dibuka di Excel atau Google Sheets.</p>
+          <span class="btn sec block"><i class="ic i-print s"></i>Cetak semua blangko</span>
+          <div class="grid3"><div class="kpi"><b>75,4</b><span>Rata-rata</span></div><div class="kpi"><b>6</b><span>Baik Sekali</span></div><div class="kpi"><b>3</b><span>Di bawah Baik</span></div></div>
+          <div class="card">
+            <div class="row spread"><h3>Isi file</h3><span class="xs muted xls"><i class="ic i-tabel s"></i> Hasil Tes Samapta III.xlsx</span></div>
+            <div class="xprev" style="margin-top:10px"><table class="tbl n"><thead><tr><th>No</th><th>Nama</th><th>Lari</th><th>Pull up</th><th>Sit up</th><th>Push up</th><th>Shuttle</th><th>Akhir</th></tr></thead><tbody><tr><td>1</td><td>HADI SUSANTO</td><td>90</td><td>92</td><td>80</td><td>84</td><td>80</td><td><b>87</b></td></tr><tr><td>2</td><td>ARIF PRATAMA</td><td>88</td><td>90</td><td>67</td><td>79</td><td>78</td><td><b>83,25</b></td></tr><tr><td>3</td><td>OKTAVIA SARI</td><td>84</td><td>80</td><td>82</td><td>78</td><td>80</td><td><b>82</b></td></tr></tbody></table></div>
+            <p class="hint" style="margin-top:8px">Ketuk nama siswa di daftar peserta untuk melihat grafik perkembangannya.</p>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div class="on"><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Halaman tes punya tombol <b>Unduh Excel hasil tes</b>: satu file berisi semua peserta, nilai per materi, dan peringkat. Grafik perkembangan yang sama juga tampil di halaman hasil tiap siswa milik owner.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= B9 Riwayat bayar per siswa ================= -->
+<section class="ba" id="b9">
+  <header class="ba-head"><span class="ba-no">B9</span><div><h2>Riwayat bayar per siswa <span class="pill m" style="vertical-align:3px">opsional</span></h2><p>Keuangan tetap dicatat manual, tanpa tagihan. Bedanya, uang masuk bisa ditautkan ke satu siswa, jadi riwayat bayarnya terkumpul di profil siswa tanpa perlu menggulir seluruh riwayat keuangan.</p></div></header>
+  <div class="ba-sub"><i class="ic i-dompet s"></i>Mencatat uang masuk</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot short"><img src="sebelum/uang-masuk.jpg" alt="Lembar Uang masuk sekarang"></div><p class="ba-note">"Pilih siswa" hanya menyalin nama ke keterangan. Tersimpan sebagai teks, jadi riwayat bayar satu siswa tidak bisa dikumpulkan.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · uang masuk</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body"><div class="pt">Keuangan</div></div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div class="on"><i class="ic i-dompet"></i>Keuangan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+        <div class="scrim"></div>
+        <div class="sheet full">
+          <div class="rowf"><div class="seg"><span class="on">Uang masuk</span><span>Uang keluar</span><span>Pindah</span></div><span class="tap" style="width:42px;height:auto"><i class="ic i-close s"></i></span></div>
+          <div class="amt"><small>Rp</small>1.500.000</div>
+          <div class="amt-s">Ketik nominal</div>
+          <div class="lbl">Untuk apa?</div>
+          <div class="row" style="gap:6px"><span class="chip on">Pembayaran bimbel siswa</span><span class="chip">Biaya pendaftaran &amp; formulir</span><span class="chip">Pemasukan lain</span></div>
+          <div class="lbl">Dari siswa <em>opsional</em></div>
+          <div class="pick anno" data-anno="Baru"><span class="av">AP</span><div class="main"><b>ARIF PRATAMA</b><span>GAN-0001 · TNI A</span></div><span class="btn ghost sm">Ganti</span><i class="ic i-close s x"></i></div>
+          <div class="input ket"><span>Pembayaran bimbel · ARIF PRATAMA</span><span class="pill">otomatis</span></div>
+          <div class="rowf"><div class="seg ics"><span class="on"><i class="ic i-cash s"></i>Kas tunai</span><span><i class="ic i-bank s"></i>BRI</span></div><span class="tap w"><i class="ic i-cal s"></i>Hari ini</span></div>
+          <span class="clip"><i class="ic i-clip s"></i>Tambah bukti atau detail (opsional)</span>
+          <div class="keys"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>000</span><span>0</span><span><i class="ic i-bksp"></i></span></div>
+          <span class="btn lg block">Simpan uang masuk</span>
+        </div>
+      </div>
+      <p class="ba-note">Pilihan <b>Dari siswa</b> (opsional). Setelah dipilih, keterangan terisi otomatis <b>Pembayaran bimbel · ARIF PRATAMA</b> dan masih bisa ditambah, mis. "Cicilan 3".</p>
+    </figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · cari siswa</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body"><div class="pt">Keuangan</div></div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div class="on"><i class="ic i-dompet"></i>Keuangan</div><div><i class="ic i-more"></i>Lainnya</div></div>
+        <div class="scrim"></div>
+        <div class="sheet" style="top:150px">
+          <div class="sh-h"><b>Dari siswa</b><span class="tap"><i class="ic i-close s"></i></span></div>
+          <div class="input srch"><i class="ic i-search s muted"></i><span>ar<span class="caret" style="margin-left:1px;vertical-align:-3px"></span></span></div>
+          <p class="hint" style="margin-top:-4px">Cari nama atau kode GAN. 4 siswa cocok.</p>
+          <div class="list">
+            <div class="item sel"><span class="av">AP</span><div class="main"><b><mark>AR</mark>IF PRATAMA</b><span>GAN-0001 · TNI A · terakhir bayar 5 Nov</span></div><i class="ic i-check ck"></i></div>
+            <div class="item"><span class="av">DA</span><div class="main"><b>DIMAS ANGG<mark>AR</mark>A</b><span>GAN-0003 · TNI A · terakhir bayar 7 Nov</span></div></div>
+            <div class="item"><span class="av">FN</span><div class="main"><b>FAJ<mark>AR</mark> NUGROHO</b><span>GAN-0012 · Polri A · terakhir bayar 9 Okt</span></div></div>
+            <div class="item"><span class="av">OS</span><div class="main"><b>OKTAVIA S<mark>AR</mark>I</b><span>GAN-0023 · Polri A · terakhir bayar 9 Nov</span></div></div>
+            <div class="item"><span class="av" style="background:var(--soft);color:var(--muted)">-</span><div class="main"><b>Tanpa siswa</b><span>Pemasukan umum, tidak ditautkan</span></div></div>
+          </div>
+          <span class="btn lg block">Pilih ARIF PRATAMA</span>
+        </div>
+      </div>
+      <p class="ba-note">Cari dengan nama atau kode GAN. Pilihan <b>Tanpa siswa</b> tetap ada untuk pemasukan umum, jadi cara mencatat lama tidak berubah.</p>
+    </figure>
+  </div>
+
+  <div class="ba-sub"><i class="ic i-user s"></i>Melihat riwayat bayar</div>
+  <div class="ba-cols">
+    <figure class="ba-col"><figcaption class="ba-cap sebelum">Sebelum</figcaption><div class="shot"><img src="sebelum/keuangan.jpg" alt="Riwayat keuangan sekarang"></div><p class="ba-note">Riwayat keuangan berurut tanggal. Untuk tahu Arif sudah bayar berapa kali, owner harus menggulir dan mencari namanya.</p></figure>
+    <figure class="ba-col"><figcaption class="ba-cap sesudah">Sesudah · profil siswa</figcaption>
+      <div class="hp">
+        <div class="hp-bar"><span class="logo"></span><b>Ruang Garda</b><span class="tb"><i class="ic i-moon"></i></span><span class="tb"><i class="ic i-unduh"></i></span><span class="me">PG</span></div>
+        <div class="hp-body">
+          <div class="stack" style="gap:4px"><span class="back"><i class="ic i-left s"></i>Siswa</span><span class="eyebrow">GAN-0001</span><div class="pt">ARIF PRATAMA</div><div class="row" style="gap:6px"><span class="pill b">TNI</span><span class="pill">Aktif</span></div></div>
+          <div class="card coll"><b>Data siswa</b><i class="ic i-down muted"></i></div>
+          <div class="card coll"><b>Presensi, samapta &amp; latihan</b><i class="ic i-down muted"></i></div>
+          <div class="card anno" data-anno="Baru">
+            <h3>Pembayaran</h3><div class="sub">Uang masuk yang ditautkan ke siswa ini.</div>
+            <div class="tot"><span>Total tercatat</span><b>Rp3.500.000</b><span>3 kali bayar · terakhir Kamis, 5 Nov 2026</span></div>
+            <div class="list">
+              <div class="item"><span class="sq sm"><i class="ic i-unduh s"></i></span><div class="main"><b>Cicilan 2</b><span>Kamis, 5 Nov 2026 · Kas</span></div><span class="plus">+Rp1.500.000</span></div>
+              <div class="item"><span class="sq sm"><i class="ic i-unduh s"></i></span><div class="main"><b>Cicilan 1</b><span>Senin, 5 Okt 2026 · BRI</span></div><span class="plus">+Rp1.500.000</span></div>
+              <div class="item"><span class="sq sm"><i class="ic i-unduh s"></i></span><div class="main"><b>Pendaftaran &amp; formulir</b><span>Sabtu, 12 Sep 2026 · Kas</span></div><span class="plus">+Rp500.000</span></div>
+            </div>
+            <div class="note"><i class="ic i-info s"></i><span>Ini catatan uang yang sudah diterima, <b>bukan tagihan</b>. Sisa bayar tidak dihitung otomatis.</span></div>
+          </div>
+        </div>
+        <div class="hp-nav"><div><i class="ic i-home"></i>Beranda</div><div><i class="ic i-presensi"></i>Presensi</div><div><i class="ic i-lari"></i>Samapta</div><div><i class="ic i-dompet"></i>Keuangan</div><div class="on"><i class="ic i-more"></i>Lainnya</div></div>
+      </div>
+      <p class="ba-note">Kartu <b>Pembayaran</b> di profil siswa: daftar uang masuk yang ditautkan, tanggal, cara bayar, dan total. Hanya catatan, <b>bukan tagihan</b>; transaksi lama tanpa tautan tetap aman di Keuangan.</p>
+    </figure>
+  </div>
+</section>
+</section>

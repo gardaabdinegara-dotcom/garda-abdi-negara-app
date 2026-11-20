@@ -2746,3 +2746,236 @@ input.sam-fm-txt:not([type="checkbox"]) {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------- Perkembangan (grafik per siswa) */
+
+/* Tab "Per tes | Perkembangan" di Hasil Samapta siswa. */
+.sam-seg {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  width: 100%;
+  max-width: 420px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.sam-seg a {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 4px 10px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.sam-seg a:hover {
+  color: var(--ink);
+}
+
+.sam-seg a[aria-current="page"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px #00000022;
+}
+
+.sam-pk-pill {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sam-pk-pill.is-up {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.sam-pk-pill.is-down {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.sam-chart {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.sam-ch-gl {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.sam-ch-ax,
+.sam-ch-x2 {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sam-ch-x {
+  fill: var(--ink);
+  font-size: 11.5px;
+  font-weight: 750;
+}
+
+.sam-ch-ar {
+  fill: var(--primary);
+  opacity: 0.09;
+}
+
+.sam-ch-t {
+  stroke: var(--sam-k2);
+  stroke-width: 1.3;
+  stroke-dasharray: 5 4;
+}
+
+.sam-ch-t.is-bs {
+  stroke: var(--sam-k1);
+}
+
+.sam-ch-tl {
+  fill: var(--sam-k2);
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.sam-ch-tl.is-bs {
+  fill: var(--sam-k1);
+}
+
+.sam-ch-ln {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sam-ch-p {
+  fill: var(--surface);
+  stroke: var(--primary);
+  stroke-width: 2.4;
+}
+
+.sam-ch-p.is-last {
+  fill: var(--primary);
+}
+
+.sam-ch-halo {
+  fill: var(--primary);
+  opacity: 0.16;
+}
+
+.sam-ch-v {
+  fill: var(--secondary);
+  font-size: 11px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.sam-ch-bb {
+  fill: var(--primary);
+}
+
+.sam-ch-bt {
+  fill: var(--on-primary);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.sam-mr {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sam-mr li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sam-mr li:last-child {
+  border-bottom: 0;
+}
+
+.sam-mr-main {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.sam-mr-main b {
+  display: block;
+  font-size: 13.5px;
+}
+
+.sam-mr-main span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sam-sp {
+  width: 64px;
+  height: 24px;
+  flex: none;
+}
+
+.sam-sp polyline {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sam-sp circle {
+  fill: var(--primary);
+}
+
+.sam-sp.is-down polyline {
+  stroke: var(--danger);
+}
+
+.sam-sp.is-down circle {
+  fill: var(--danger);
+}
+
+.sam-mr .sam-d {
+  min-width: 40px;
+  text-align: right;
+}
+
+.sam-csv-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 360px) {
+  .sam-sp {
+    width: 48px;
+  }
+
+  .sam-mr li {
+    gap: 7px;
+  }
+}

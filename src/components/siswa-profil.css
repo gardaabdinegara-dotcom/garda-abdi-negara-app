@@ -1,0 +1,261 @@
+/* Profil siswa: kepala profil, tombol cepat, tiga angka ringkasan, data diri, dan tautan (siswa/[id]/page.tsx). */
+
+.sp-kepala {
+  gap: 14px;
+}
+
+.sp-prof {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sp-av {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font: 800 19px/1 var(--heading);
+}
+
+.sp-prof > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sp-kode {
+  color: var(--muted);
+  font: 600 12.5px/1.3 ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+.sp-nama {
+  font-size: clamp(20px, 5.4vw, 26px);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.sp-pills {
+  margin-top: 4px;
+  gap: 6px;
+}
+
+.sp-qa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sp-qa > * {
+  flex: 1 1 140px;
+}
+
+.sp-qa .btn {
+  min-height: 44px;
+}
+
+.sp-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.sp-eyebrow {
+  color: var(--muted);
+  font: 700 11px/1.4 var(--body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sp-tiles {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.sp-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.sp-tile:hover {
+  border-color: var(--primary);
+}
+
+.sp-tile .sp-k {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-tile b {
+  font: 800 22px/1.15 var(--heading);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-tile > span:last-child {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.sp-tile .badge {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+/* Data diri hanya dibaca: label kecil di kiri, isi di kanan. */
+.sp-data dl {
+  display: grid;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+  gap: 9px 16px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.sp-data dt {
+  color: var(--muted);
+}
+
+.sp-data dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.sp-data dd.is-kosong {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.sp-links {
+  gap: 2px;
+  padding: 8px 14px;
+}
+
+.sp-lk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.sp-links > :last-child,
+.sp-links > :last-child > summary {
+  border-bottom: 0;
+}
+
+a.sp-lk:hover span:not(.tone-box) {
+  color: var(--primary);
+}
+
+.sp-lk > span:not(.tone-box) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sp-lk small {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.sp-lk > .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transform: rotate(180deg);
+}
+
+.sp-bahaya > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.sp-bahaya > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sp-bahaya > summary > span:not(.tone-box) {
+  color: var(--danger);
+}
+
+.sp-bahaya[open] > summary > .icon {
+  transform: rotate(-90deg);
+}
+
+.sp-bahaya-in {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 4px 12px;
+}
+
+.sp-bahaya-in p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* Lembar ubah data: tombol simpan menempel di dasar lembar, pesan galat di atasnya. */
+.sp-form .lembar-foot {
+  order: 1;
+}
+
+@media (max-width: 360px) {
+  .sp-tiles {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sp-tile b {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 960px) {
+  .sp-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .sp-kepala {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .sp-qa > * {
+    flex: 0 0 auto;
+  }
+}

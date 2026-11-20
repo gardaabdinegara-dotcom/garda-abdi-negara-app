@@ -2,16 +2,31 @@
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { Fragment } from "react";
-import { DISCIPLINE, sessionTypeLabel, type AttendanceStatus, type SessionStatus, type SessionTypeOption } from "@/lib/core/akademik";
+import { daysBetween, DISCIPLINE, WEEKDAY_SHORT, isoWeekday, type AttendanceStatus, type SessionStatus, type SessionTypeOption } from "@/lib/core/akademik";
 import type { RekapPresensiSiswa } from "@/lib/core/presensi-ringkasan";
 import type { ClassGroup } from "@/lib/core/types";
-import { initials } from "@/lib/format";
-import type { Clock, FamilyAttendance, MonthlyRecap, MySession, SessionCard, SessionWorkspace } from "@/lib/server/akademik";
+import { isiTemplate, nomorWa } from "@/lib/core/wa";
+import { formatPhone, initials } from "@/lib/format";
+import type { Clock, FamilyAttendance, MonthlyRecap, MySession, SeriesInfo, SessionCard, SessionWorkspace } from "@/lib/server/akademik";
 import type { PresensiQr } from "@/lib/server/qr-presensi";
 import { SessionFields } from "./akademik";
-import { CreateSession, HeroActions, LiveCounters, PendingCard, PresensiLive, RosterCard, StudentActions, type RosterItem, type SessionMeta } from "./presensi-client";
+import {
+  CreateSession,
+  HeroActions,
+  LiveCounters,
+  PendingCard,
+  PresensiLive,
+  RepeatIc,
+  RosterCard,
+  ScrollRow,
+  StudentActions,
+  type RosterItem,
+  type SessionMeta,
+} from "./presensi-client";
+import { WaKabari } from "./wa";
 import { addMinutes, dayBadge, fmtTime, longDay, monthName, nowTime, pct, relativeDay, shiftDay, shiftMonth, shortDate, shortName, timeRange, toMinutesSafe } from "./presensi-format";
 import { PrIcon } from "./presensi-icons";
+import { dayMonth } from "./presensi-tanggal";
 
 export type PresensiTab = "hari" | "jadwal" | "rekap" | "ringkasan";
 
@@ -48,44 +63,79 @@ type SessionOptions = {
   sessionTypes: SessionTypeOption[];
 };
 
-/** Tombol + lembar Buat sesi. */
-export function CreateSessionButton({ date, ...options }: SessionOptions & { date: string }) {
+/** Tombol + lembar Buat sesi (dengan sakelar Ulangi untuk sesi berulang). */
+export function CreateSessionButton({ date, today, ...options }: SessionOptions & { date: string; today: string }) {
   return (
     <CreateSession operationId={randomUUID()}>
-      <SessionFields {...options} date={date} />
+      <SessionFields {...options} date={date} today={today} />
     </CreateSession>
+  );
+}
+
+/** "Bagian dari seri Senin sampai Sabtu, 24 sesi (23 Nov sampai 20 Des)." */
+export function seriesText(seri: SeriesInfo): string {
+  const range = seri.dari === seri.sampai ? dayMonth(seri.dari) : `${dayMonth(seri.dari)} sampai ${dayMonth(seri.sampai)}`;
+  return `Bagian dari seri ${seri.hari}, ${seri.total} sesi (${range}).`;
+}
+
+/** Lencana kecil untuk sesi yang lahir dari satu seri. */
+export function RepeatBadge() {
+  return (
+    <span className="pr-pill b pr-rep-pill">
+      <RepeatIc />
+      Berulang
+    </span>
   );
 }
 
 // ---------------------------------------------------------------- Strip sesi hari ini
 
-function stripLabel(s: SessionCard, today: string): string {
+const STRIP_STATUS: Record<SessionStatus, { label: string; cls: string }> = {
+  AKTIF: { label: "Berlangsung", cls: "live" },
+  SELESAI: { label: "Selesai", cls: "done" },
+  AKAN_DATANG: { label: "Terjadwal", cls: "soon" },
+  DIBATALKAN: { label: "Batal", cls: "off" },
+  DIHAPUS: { label: "Dihapus", cls: "off" },
+};
+
+/** Baris 1 chip: "06.00" untuk hari ini, "Besok 06.00", "Sen 06.00", atau "30 Nov 06.00". */
+function stripWhen(s: SessionCard, today: string): string {
   const time = fmtTime(s.jam_mulai);
-  if (s.tanggal !== today) return `${relativeDay(s.tanggal, today)} ${time}`;
-  if (s.status === "AKTIF") return `${time} · berjalan`;
-  if (s.status === "SELESAI") return `${time} · selesai`;
-  if (s.status === "DIBATALKAN") return `${time} · batal`;
-  return `${time} · nanti`;
+  if (s.tanggal === today) return time;
+  const diff = daysBetween(today, s.tanggal);
+  if (diff === 1) return `Besok ${time}`;
+  if (diff === -1) return `Kemarin ${time}`;
+  if (Math.abs(diff) < 7) return `${WEEKDAY_SHORT[isoWeekday(s.tanggal)]} ${time}`;
+  return `${dayMonth(s.tanggal)} ${time}`;
 }
 
+/** Chip sesi dua baris: jam, titik status, dan label; lalu nama sesi utuh (paling banyak dua baris). */
 export function SessionStrip({ items, selectedId, today }: { items: SessionCard[]; selectedId: string | null; today: string }) {
   if (items.length === 0) return null;
   return (
-    <nav className="pr-strip" aria-label="Pilih sesi">
+    <ScrollRow className="pr-strip" label="Pilih sesi" current={selectedId}>
       {items.map((s) => {
         const on = s.sesi_id === selectedId;
-        const cls = [on ? "on" : "", s.status === "SELESAI" ? "done" : "", s.status === "DIBATALKAN" ? "off" : ""].filter(Boolean).join(" ");
+        const status = STRIP_STATUS[s.status];
         return (
-          <Link key={s.sesi_id} href={`/akademik?sesi=${encodeURIComponent(s.sesi_id)}`} className={cls || undefined} aria-current={on ? "true" : undefined} title={s.nama} scroll={false}>
-            {s.status === "AKTIF" ? <i className="pr-pulse" aria-hidden="true" /> : <PrIcon name={s.status === "SELESAI" ? "ok" : s.status === "DIBATALKAN" ? "ban" : "cal"} size="sm" />}
-            <span>
-              <small className="n">{stripLabel(s, today)}</small>
-              <b>{s.nama}</b>
+          <Link
+            key={s.sesi_id}
+            href={`/akademik?sesi=${encodeURIComponent(s.sesi_id)}`}
+            className={`pr-chip2 ${status.cls}${on ? " on" : ""}`}
+            aria-current={on ? "true" : undefined}
+            title={s.nama}
+            scroll={false}
+          >
+            <span className="l1">
+              <b className="n">{stripWhen(s, today)}</b>
+              <i className={`pr-dot ${status.cls}`} aria-hidden="true" />
+              {status.label}
             </span>
+            <span className="l2">{s.nama}</span>
           </Link>
         );
       })}
-    </nav>
+    </ScrollRow>
   );
 }
 
@@ -178,8 +228,9 @@ export function SessionHero({
           <span className="pr-dk-only">
             {longDay(s.tanggal)} · {timeRange(s.jam_mulai, s.jam_selesai)} ·{" "}
           </span>
-          {sessionTypeLabel(s.jenis)} · {s.kelas === "Semua siswa" ? "Semua siswa" : `Kelas ${s.kelas}`} · {s.peserta} siswa
+          {s.bidang} · {s.kelas === "Semua siswa" ? "Semua siswa" : `Kelas ${s.kelas}`} · {s.peserta} siswa
           {s.canManage ? null : ` · ${s.pengajar}`}
+          {s.seri_id ? " · Berulang" : ""}
         </p>
       </div>
       {s.status === "AKTIF" || s.status === "SELESAI" ? (
@@ -204,6 +255,7 @@ export function SessionHero({
         editFields={editFields}
         editOperationId={randomUUID()}
         deleteOperationId={randomUUID()}
+        series={ws.seri ? { info: seriesText(ws.seri), berikutnya: ws.seri.berikutnya, dilewati: ws.seri.dilewati } : null}
       />
     </section>
   );
@@ -244,10 +296,38 @@ export function SessionWorkspaceView({
 }
 
 export function EditSessionFields({ ws, ...options }: SessionOptions & { ws: SessionWorkspace }) {
+  const { seri } = ws;
   return (
     <>
       <input type="hidden" name="sesi_id" value={ws.session.sesi_id} />
-      <SessionFields {...options} session={ws.session} date={ws.session.tanggal} />
+      <SessionFields {...options} session={ws.session} date={ws.session.tanggal} typeLabel={ws.session.bidang} />
+      {seri ? (
+        <fieldset className="pr-scope">
+          <legend>Terapkan perubahan ke</legend>
+          <p className="pr-serinfo">
+            <RepeatIc />
+            <span>{seriesText(seri)}</span>
+          </p>
+          <label className="pr-opt">
+            <input type="radio" name="lingkup" value="satu" defaultChecked />
+            <span>
+              <b>Hanya sesi ini</b>
+              <small>mis. jam mundur khusus hari ini</small>
+            </span>
+          </label>
+          <label className={`pr-opt${seri.berikutnya ? "" : " is-off"}`}>
+            <input type="radio" name="lingkup" value="seri" disabled={seri.berikutnya === 0} />
+            <span>
+              <b>Sesi ini dan berikutnya di seri ini</b>
+              <small className="n">
+                {seri.berikutnya
+                  ? `${seri.berikutnya} sesi berikutnya yang belum berjalan ikut berubah. Tanggal tiap sesi tetap.${seri.dilewati ? ` ${seri.dilewati} sesi yang sudah berjalan atau sudah ada presensinya tidak diubah.` : ""}`
+                  : "Tidak ada sesi berikutnya yang belum berjalan."}
+              </small>
+            </span>
+          </label>
+        </fieldset>
+      ) : null}
     </>
   );
 }
@@ -402,11 +482,14 @@ function ScheduleItem({ s, today }: { s: SessionCard; today: string }) {
       <span className="pr-main">
         <b>{s.nama}</b>
         <span className="n">
-          {timeRange(s.jam_mulai, s.jam_selesai)} · {sessionTypeLabel(s.jenis)} · {s.kelas === "Semua siswa" ? "Semua siswa" : s.kelas}
+          {timeRange(s.jam_mulai, s.jam_selesai)} · {s.bidang} · {s.kelas === "Semua siswa" ? "Semua siswa" : s.kelas}
         </span>
-        <span className="n">
-          {s.status === "AKAN_DATANG" ? `${s.peserta} siswa` : `${s.hadir}/${s.peserta} hadir`}
-          {s.menunggu ? ` · ${s.menunggu} menunggu` : ""}
+        <span className="pr-nrow">
+          <span className="n">
+            {s.status === "AKAN_DATANG" ? `${s.peserta} siswa` : `${s.hadir}/${s.peserta} hadir`}
+            {s.menunggu ? ` · ${s.menunggu} menunggu` : ""}
+          </span>
+          {s.seri_id ? <RepeatBadge /> : null}
         </span>
       </span>
       <span className={`pr-pill ${pill.cls}`}>{pill.label}</span>
@@ -511,12 +594,44 @@ function breakdown(s: { hadir: number; izin: number; sakit: number; alfa: number
   return `${s.hadir} hadir · ${s.izin} izin · ${s.sakit} sakit · ${s.alfa} alfa dari ${s.total} sesi`;
 }
 
-export function AttendanceRecapRows({ rows, emptyText }: { rows: RekapPresensiSiswa[]; emptyText: string }) {
+/** Data pesan WA kehadiran untuk siswa di bawah batas (Rekap bulanan). */
+export interface RecapWa {
+  template: string;
+  lembaga: string;
+  /** Nama bulan rekap, mis. "November". */
+  bulan: string;
+}
+
+function WaWali({ wa, student, summary }: { wa: RecapWa } & Pick<RekapPresensiSiswa, "student" | "summary">) {
+  const wali = nomorWa(student.no_wa_wali);
+  const siswa = nomorWa(student.no_wa);
+  const nomor = wali ?? siswa;
+  const pesan = isiTemplate(wa.template, {
+    nama: student.nama,
+    bulan: wa.bulan,
+    persen: pct(summary.persen),
+    hadir: summary.hadir,
+    sesi: summary.total,
+    izin: summary.izin,
+    sakit: summary.sakit,
+    alfa: summary.alfa,
+    lembaga: wa.lembaga,
+  });
+  const untuk = wali
+    ? `Wali ${student.nama} · ${formatPhone(wali)} · ${pct(summary.persen)}`
+    : siswa
+      ? `${student.nama} · ${formatPhone(siswa)} · nomor wali belum diisi, dikirim ke nomor siswa`
+      : undefined;
+  return <WaKabari nomor={nomor} pesan={pesan} label={wali || !siswa ? "WA wali" : "WA siswa"} judul="Kabari wali" untuk={untuk} />;
+}
+
+export function AttendanceRecapRows({ rows, emptyText, wa }: { rows: RekapPresensiSiswa[]; emptyText: string; wa?: RecapWa }) {
   if (rows.length === 0) return <p className="pr-muted pr-xs">{emptyText}</p>;
   return (
     <div className="pr-list pr-rlist">
       {rows.map(({ student, summary }) => {
         const isLow = summary.persen !== null && summary.persen < DISCIPLINE.cukup;
+        const pctEl = <b className={`pr-pctv n${isLow ? " pr-red" : ""}`}>{pct(summary.persen)}</b>;
         return (
           <div className={`pr-item pr-rrow${isLow ? " low" : ""}`} key={student.siswa_id}>
             <span className={`pr-av${isLow ? " r" : ""}`} aria-hidden="true">{initials(student.nama)}</span>
@@ -530,7 +645,14 @@ export function AttendanceRecapRows({ rows, emptyText }: { rows: RekapPresensiSi
                 </svg>
               ) : null}
             </div>
-            <b className={`pr-pctv n${isLow ? " pr-red" : ""}`}>{pct(summary.persen)}</b>
+            {wa && isLow ? (
+              <div className="pr-rend">
+                {pctEl}
+                <WaWali wa={wa} student={student} summary={summary} />
+              </div>
+            ) : (
+              pctEl
+            )}
           </div>
         );
       })}
@@ -538,7 +660,7 @@ export function AttendanceRecapRows({ rows, emptyText }: { rows: RekapPresensiSi
   );
 }
 
-export function RecapTab({ recap, today }: { recap: MonthlyRecap; today: string }) {
+export function RecapTab({ recap, today, wa }: { recap: MonthlyRecap; today: string; wa?: Omit<RecapWa, "bulan"> }) {
   const { periode } = recap;
   const current = today.slice(0, 7);
   const low = recap.rows.filter((r) => r.summary.persen !== null && r.summary.persen < DISCIPLINE.cukup).length;
@@ -584,9 +706,11 @@ export function RecapTab({ recap, today }: { recap: MonthlyRecap; today: string 
           <div className="pr-head">
             <h2>Per siswa</h2>
           </div>
-          <p className="pr-xs pr-muted">Terendah di atas. Siswa tanpa catatan pada sesi selesai dihitung alfa.</p>
+          <p className="pr-xs pr-muted">
+            Terendah di atas. {wa ? `Yang di bawah ${DISCIPLINE.cukup}% bisa langsung dikabari ke walinya. ` : ""}Siswa tanpa catatan pada sesi selesai dihitung alfa.
+          </p>
         </div>
-        <AttendanceRecapRows rows={recap.rows} emptyText="Belum ada siswa aktif." />
+        <AttendanceRecapRows rows={recap.rows} emptyText="Belum ada siswa aktif." wa={wa ? { ...wa, bulan: monthName(periode, today) } : undefined} />
       </section>
     </div>
   );

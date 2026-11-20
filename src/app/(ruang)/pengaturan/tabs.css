@@ -1,0 +1,46 @@
+/* Tab Pengaturan satu baris: digeser ke samping, tidak terlipat. Efek pudar di tepi yang masih berisi tab. */
+.set-tabs {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* Ruang untuk cincin fokus tanpa terpotong. */
+  padding: 3px 2px;
+  margin: -3px -2px;
+}
+
+.set-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.set-tabs > .tab {
+  flex: none;
+  white-space: nowrap;
+}
+
+.set-tabs[data-fade="r"] {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent);
+}
+
+.set-tabs[data-fade="l"] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px);
+  mask-image: linear-gradient(90deg, transparent, #000 32px);
+}
+
+.set-tabs[data-fade="l r"] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 48px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 48px), transparent);
+}
+
+/* Ponsel: deretan menempel ke tepi layar agar jelas bisa digeser. */
+@media (max-width: 900px) {
+  .set-tabs {
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scroll-padding-inline: 16px;
+  }
+}

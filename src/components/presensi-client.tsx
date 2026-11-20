@@ -9,13 +9,28 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { ajukanPresensi, catatPresensi, hapusSesi, sahkanPresensi, simpanSesi, ubahStatusSesi } from "@/app/actions/akademik";
 import { initialActionState, type ActionState } from "@/lib/action-state";
-import { isLate, type AttendanceStatus, type SessionStatus } from "@/lib/core/akademik";
+import {
+  addDays,
+  daysBetween,
+  describeWeekdays,
+  isLate,
+  isoWeekday,
+  SERIES_MAX_DAYS,
+  SERIES_MAX_SESSIONS,
+  seriesDates,
+  WEEKDAY_LONG,
+  WEEKDAY_SHORT,
+  WEEKDAYS,
+  type AttendanceStatus,
+  type SessionStatus,
+} from "@/lib/core/akademik";
 import { UJI_SISWA_FIELD } from "@/lib/core/uji-siswa";
 import { initials } from "@/lib/format";
-import { ActionForm, SubmitButton } from "./form";
+import { ActionForm, Field, SubmitButton, useFieldError } from "./form";
 import { useUjiSiswaId } from "./uji-siswa-context";
 import { addMinutes, fmtTime, nowTime, shortName } from "./presensi-format";
 import { PrIcon } from "./presensi-icons";
+import { dayMonth } from "./presensi-tanggal";
 
 type Action = (prev: ActionState, formData: FormData) => Promise<ActionState>;
 type Mark = "HADIR" | "IZIN" | "SAKIT" | "ALFA" | "KOSONG";
@@ -96,23 +111,286 @@ export function Sheet({
   );
 }
 
+/** Isian sesi bisa mengganti label tombol simpan, mis. "Simpan 24 sesi" saat Ulangi aktif. */
+const SubmitLabelContext = createContext<(label: string | null) => void>(() => {});
+
 /** Form sesi (tambah/ubah) di dalam lembar. Isian dikirim dari server sebagai children. */
-function SessionForm({ children, operationId, submitLabel, onDone }: { children: React.ReactNode; operationId: string; submitLabel: string; onDone: () => void }) {
+function SessionForm({ children, operationId, submitLabel, onDone }: { children: React.ReactNode; operationId: string; submitLabel: string; onDone: (message: string) => void }) {
+  const [label, setLabel] = useState<string | null>(null);
   const action = useCallback(
     async (prev: ActionState, data: FormData) => {
       const result = await simpanSesi(prev, data);
-      if (result.ok) onDone();
+      if (result.ok) onDone(result.message);
       return result;
     },
     [onDone],
   );
   return (
-    <ActionForm action={action} operationId={operationId} className="stack pr-form">
-      {children}
-      <div className="form-actions">
-        <SubmitButton>{submitLabel}</SubmitButton>
+    <SubmitLabelContext value={setLabel}>
+      <ActionForm action={action} operationId={operationId} className="stack pr-form">
+        {children}
+        <div className="form-actions">
+          <SubmitButton>{label ?? submitLabel}</SubmitButton>
+        </div>
+      </ActionForm>
+    </SubmitLabelContext>
+  );
+}
+
+// ---------------------------------------------------------------- Isian sesi dan Ulangi (sesi berulang)
+
+/** Ikon panah berputar untuk sesi berulang. */
+export function RepeatIc({ size = "sm" }: { size?: "sm" | "md" }) {
+  return (
+    <svg className={`pr-ic pr-ic-${size}`} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M17 2.5l3.5 3.5L17 9.5M20.5 6H8a4.5 4.5 0 0 0-4.5 4.5V12M7 21.5L3.5 18 7 14.5M3.5 18H16a4.5 4.5 0 0 0 4.5-4.5V12" />
+    </svg>
+  );
+}
+
+export interface SessionFieldsProps {
+  classes: { kelas_id: string; nama_kelas: string }[];
+  teachers: { user_id: string; nama: string }[];
+  /** Pilihan bidang; bidang sesi yang sedang diubah sudah ikut di dalamnya walau disembunyikan. */
+  sessionTypes: { value: string; label: string }[];
+  session?: { nama: string; tanggal: string; jam_mulai: string; jam_selesai: string; jenis: string; kelas_id: string; pengajar_id: string };
+  date: string;
+  /** Diisi saat membuat sesi baru: menampilkan sakelar Ulangi. */
+  today?: string;
+}
+
+interface SeriesPlan {
+  dates: string[];
+  past: number;
+  error: string | null;
+}
+
+function planSeries(start: string, end: string, days: number[], today: string): SeriesPlan {
+  if (!start || !end) return { dates: [], past: 0, error: "Isi tanggal mulai dan sampai tanggal." };
+  if (end < start) return { dates: [], past: 0, error: "Sampai tanggal harus sama dengan atau sesudah tanggal mulai." };
+  if (daysBetween(start, end) > SERIES_MAX_DAYS) return { dates: [], past: 0, error: `Rentang paling panjang ${SERIES_MAX_DAYS} hari (sekitar 3 bulan).` };
+  if (days.length === 0) return { dates: [], past: 0, error: "Pilih minimal satu hari." };
+  const all = seriesDates(start, end, days);
+  const dates = all.filter((d) => d >= today);
+  if (all.length === 0) return { dates, past: 0, error: "Tidak ada tanggal yang jatuh pada hari terpilih." };
+  if (dates.length === 0) return { dates, past: all.length, error: "Semua tanggal itu sudah lewat." };
+  if (dates.length > SERIES_MAX_SESSIONS) return { dates, past: all.length - dates.length, error: `Paling banyak ${SERIES_MAX_SESSIONS} sesi sekali buat (terpilih ${dates.length}). Perpendek rentang atau kurangi hari.` };
+  return { dates, past: all.length - dates.length, error: null };
+}
+
+/** Isian sesi untuk tambah dan ubah. Saat menambah, sakelar Ulangi membuat satu seri sesi sekaligus. */
+export function SessionFieldsClient({ classes, teachers, sessionTypes, session, date, today }: SessionFieldsProps) {
+  const repeatable = !session && Boolean(today);
+  const [times, setTimes] = useState({ tanggal: session?.tanggal ?? date, jam_mulai: session?.jam_mulai ?? "07:00", jam_selesai: session?.jam_selesai ?? "09:00" });
+  const [ulangi, setUlangi] = useState(false);
+
+  return (
+    <div
+      className="stack pr-sfields"
+      onChange={(event) => {
+        const el = event.target as HTMLInputElement;
+        if (el.name === "tanggal" || el.name === "jam_mulai" || el.name === "jam_selesai") setTimes((v) => ({ ...v, [el.name]: el.value }));
+      }}
+    >
+      <div className="form-grid two">
+        <Field label="Nama kegiatan" name="nama" defaultValue={session?.nama} placeholder="mis. Latihan jasmani pagi" required className="span-all" />
+        <Field label={ulangi ? "Tanggal mulai" : "Tanggal"} name="tanggal" type="date" defaultValue={session?.tanggal ?? date} required />
+        <Field label="Bidang" name="jenis" type="select" defaultValue={session?.jenis ?? (sessionTypes.some((o) => o.value === "FISIK") ? "FISIK" : sessionTypes[0]?.value)} options={sessionTypes} />
+        <Field label="Jam mulai" name="jam_mulai" type="time" defaultValue={session?.jam_mulai ?? "07:00"} required />
+        <Field label="Jam selesai" name="jam_selesai" type="time" defaultValue={session?.jam_selesai ?? "09:00"} required />
+        <Field
+          label="Peserta"
+          name="kelas_id"
+          type="select"
+          defaultValue={session?.kelas_id ?? ""}
+          options={[{ value: "", label: "Semua siswa aktif" }, ...classes.map((c) => ({ value: c.kelas_id, label: `Kelas ${c.nama_kelas}` }))]}
+          hint="Peserta dibekukan saat sesi dibuka."
+        />
+        {teachers.length ? (
+          <Field
+            label="Pengajar"
+            name="pengajar_id"
+            type="select"
+            defaultValue={session?.pengajar_id ?? ""}
+            options={[{ value: "", label: "Saya sendiri" }, ...teachers.map((t) => ({ value: t.user_id, label: t.nama }))]}
+            hint="Pengajar harus sudah ditautkan ke kelas yang dipilih."
+          />
+        ) : null}
       </div>
-    </ActionForm>
+      {repeatable ? <RepeatBlock on={ulangi} onToggle={setUlangi} start={times.tanggal} jamMulai={times.jam_mulai} jamSelesai={times.jam_selesai} today={today!} /> : null}
+    </div>
+  );
+}
+
+function RepeatBlock({
+  on,
+  onToggle,
+  start,
+  jamMulai,
+  jamSelesai,
+  today,
+}: {
+  on: boolean;
+  onToggle: (on: boolean) => void;
+  start: string;
+  jamMulai: string;
+  jamSelesai: string;
+  today: string;
+}) {
+  const [days, setDays] = useState<number[]>([1, 2, 3, 4, 5, 6]);
+  const [end, setEnd] = useState(() => addDays(start || today, 27));
+  const setLabel = useContext(SubmitLabelContext);
+  const endId = useId();
+  const hariError = useFieldError("hari");
+  const sampaiError = useFieldError("sampai");
+  const plan = useMemo(() => (on ? planSeries(start, end, days, today) : null), [on, start, end, days, today]);
+  const count = plan && !plan.error ? plan.dates.length : 0;
+
+  useEffect(() => {
+    setLabel(on && count ? `Simpan ${count} sesi` : null);
+  }, [on, count, setLabel]);
+  useEffect(() => () => setLabel(null), [setLabel]);
+
+  // Selama "Sampai tanggal" belum diubah sendiri, ia mengikuti tanggal mulai (empat minggu).
+  // Bila tanggal mulai digeser melewatinya, ia ikut bergeser.
+  const [endTouched, setEndTouched] = useState(false);
+  const [lastStart, setLastStart] = useState(start);
+  if (start !== lastStart) {
+    setLastStart(start);
+    if (start && (!endTouched || end < start)) setEnd(addDays(start, 27));
+  }
+
+  const toggleDay = (day: number) => setDays((list) => (list.includes(day) ? list.filter((d) => d !== day) : [...list, day].sort((a, b) => a - b)));
+
+  return (
+    <div className={`pr-rep${on ? " on" : ""}`}>
+      <label className="pr-rep-h">
+        <span className="pr-rep-ic">
+          <RepeatIc size="md" />
+        </span>
+        <span className="pr-main">
+          <b>Ulangi</b>
+          <span>Buat banyak sesi sekaligus</span>
+        </span>
+        <input type="checkbox" role="switch" name="ulangi" className="pr-switch" checked={on} onChange={(e) => onToggle(e.target.checked)} aria-describedby={on ? "pr-rep-sum" : undefined} />
+      </label>
+      {on ? (
+        <>
+          <fieldset className="pr-days" aria-invalid={hariError ? true : undefined}>
+            <legend className="sr-only">Ulangi pada hari</legend>
+            {WEEKDAYS.map((day) => (
+              <label key={day} title={WEEKDAY_LONG[day]}>
+                <input type="checkbox" name="hari" value={day} checked={days.includes(day)} onChange={() => toggleDay(day)} />
+                <span>{WEEKDAY_SHORT[day]}</span>
+              </label>
+            ))}
+          </fieldset>
+          {hariError ? <span className="field-error">{hariError}</span> : null}
+          <div className="field">
+            <label htmlFor={endId}>
+              Sampai tanggal<span className="muted"> *</span>
+            </label>
+            <input id={endId} type="date" name="sampai" value={end} min={start || undefined} onChange={(e) => {
+                setEndTouched(true);
+                setEnd(e.target.value);
+              }}
+              required aria-invalid={sampaiError ? true : undefined} />
+            {sampaiError ? <span className="field-error">{sampaiError}</span> : null}
+          </div>
+          <div className={`pr-sum${plan?.error ? " err" : ""}`} id="pr-rep-sum" aria-live="polite">
+            <div className="pr-sum-t">
+              <PrIcon name="cal" size="sm" />
+              {plan?.error ? (
+                <span>
+                  <b>Belum bisa dibuat</b>
+                  {plan.error}
+                </span>
+              ) : plan ? (
+                <span className="n">
+                  <b>{plan.dates.length} sesi akan dibuat</b>
+                  {dayMonth(plan.dates[0]!)} sampai {dayMonth(plan.dates[plan.dates.length - 1]!)} · {describeWeekdays(days)} · {fmtTime(jamMulai)} sampai {fmtTime(jamSelesai)}
+                  {plan.past ? ` · ${plan.past} tanggal yang sudah lewat tidak dibuat` : ""}
+                </span>
+              ) : null}
+            </div>
+            {plan && !plan.error ? <MiniCalendar start={start} end={end} picked={new Set(plan.dates)} /> : null}
+          </div>
+          <p className="pr-xs pr-muted">Tanggal yang sudah punya sesi dengan nama dan jam mulai yang sama dilewati. Tiap sesi tetap bisa diubah atau dihapus sendiri.</p>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** Kalender kecil seri (sampai 6 minggu): tanggal terpilih ditandai, hari yang tidak dipilih dicoret. */
+function MiniCalendar({ start, end, picked }: { start: string; end: string; picked: ReadonlySet<string> }) {
+  const first = addDays(start, 1 - isoWeekday(start));
+  const last = addDays(end, 7 - isoWeekday(end));
+  const weeks = (daysBetween(first, last) + 1) / 7;
+  if (weeks > 6) return null;
+  const cells: string[] = [];
+  for (let d = first; d <= last; d = addDays(d, 1)) cells.push(d);
+  return (
+    <div className="pr-cal" aria-hidden="true">
+      {WEEKDAYS.map((day) => (
+        <span key={day} className="dw">
+          {WEEKDAY_SHORT[day]}
+        </span>
+      ))}
+      {cells.map((d) => {
+        const inRange = d >= start && d <= end;
+        const dayNum = Number(d.slice(8));
+        return (
+          <i key={d} className={!inRange ? "out" : picked.has(d) ? "on" : "off"}>
+            {inRange ? dayNum : ""}
+            {inRange && dayNum === 1 && d !== start ? <small> {dayMonth(d).split(" ")[1]}</small> : null}
+          </i>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Deretan geser (chip sesi)
+
+/**
+ * Deretan yang bisa digeser ke samping. Item aktif (aria-current) digulir agar terlihat, dan tepi
+ * yang masih menyimpan item lain diberi efek pudar.
+ */
+export function ScrollRow({ className, label, current, children }: { className: string; label: string; current?: string | null; children: React.ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const [fade, setFade] = useState("");
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const active = el.querySelector<HTMLElement>("[aria-current]");
+    if (active && el.scrollWidth > el.clientWidth) {
+      // Geser seperlunya agar item aktif terlihat utuh (dengan sedikit ruang), tanpa memotong item pertama.
+      // Hanya digeser bila item aktif terpotong; saat digeser, sisakan ruang selebar efek pudar.
+      const padLeft = 40;
+      const padRight = 56;
+      const left = active.offsetLeft;
+      const right = left + active.offsetWidth;
+      if (left < el.scrollLeft) el.scrollLeft = Math.max(0, left - padLeft);
+      else if (right > el.scrollLeft + el.clientWidth) el.scrollLeft = right + padRight - el.clientWidth;
+    }
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      setFade([el.scrollLeft > 2 ? "l" : "", el.scrollLeft < max - 2 ? "r" : ""].filter(Boolean).join(" "));
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
+    observer?.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer?.disconnect();
+    };
+  }, [current]);
+  return (
+    <nav ref={ref} className={className} aria-label={label} data-fade={fade || undefined}>
+      {children}
+    </nav>
   );
 }
 
@@ -469,6 +747,7 @@ export function HeroActions({
   editFields,
   editOperationId,
   deleteOperationId,
+  series = null,
 }: {
   isToday: boolean;
   isAdmin: boolean;
@@ -478,14 +757,22 @@ export function HeroActions({
   editFields: React.ReactNode | null;
   editOperationId: string;
   deleteOperationId: string;
+  /** Sesi bagian dari seri: hapus menawarkan "hanya sesi ini" atau "sesi ini dan berikutnya". */
+  series?: { info: string; berikutnya: number; dilewati: number } | null;
 }) {
   const { meta, items } = useLive();
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const [menu, setMenu] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [remove, setRemove] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeEdit = useCallback(() => setEdit(false), []);
+  const doneEdit = useCallback((text: string) => {
+    setEdit(false);
+    setMessage({ ok: true, text });
+  }, []);
+  const closeRemove = useCallback(() => setRemove(false), []);
 
   useEffect(() => {
     if (!menu) return;
@@ -600,7 +887,20 @@ export function HeroActions({
                     Batalkan sesi
                   </button>
                 ) : null}
-                {isAdmin ? (
+                {isAdmin && series ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="pr-danger"
+                    onClick={() => {
+                      setMenu(false);
+                      setRemove(true);
+                    }}
+                  >
+                    <PrIcon name="trash" size="sm" />
+                    Hapus sesi…
+                  </button>
+                ) : isAdmin ? (
                   <ActionForm action={hapusSesi} operationId={deleteOperationId} confirm={`Hapus sesi "${meta.nama}"? Sesi dan catatan kehadirannya hilang dari aplikasi dan rekap.`} className="pr-menu-form">
                     <input type="hidden" name="sesi_id" value={meta.id} />
                     <input type="hidden" name="tanggal" value={meta.tanggal} />
@@ -622,9 +922,44 @@ export function HeroActions({
       ) : null}
       {canEdit ? (
         <Sheet open={edit} onClose={closeEdit} title="Ubah detail sesi" sub="Peserta dan tanggal sesi yang sudah dibuka tidak bisa diubah.">
-          <SessionForm operationId={editOperationId} submitLabel="Simpan perubahan" onDone={closeEdit}>
+          <SessionForm operationId={editOperationId} submitLabel="Simpan perubahan" onDone={doneEdit}>
             {editFields}
           </SessionForm>
+        </Sheet>
+      ) : null}
+      {isAdmin && series ? (
+        <Sheet open={remove} onClose={closeRemove} title="Hapus sesi" sub={`${meta.nama} · ${dayMonth(meta.tanggal)} · ${fmtTime(meta.jamMulai)} sampai ${fmtTime(meta.jamSelesai)}`}>
+          <p className="pr-serinfo">
+            <RepeatIc />
+            <span>{series.info}</span>
+          </p>
+          <ActionForm action={hapusSesi} operationId={deleteOperationId} className="pr-acts">
+            <input type="hidden" name="sesi_id" value={meta.id} />
+            <input type="hidden" name="tanggal" value={meta.tanggal} />
+            <button type="submit" name="lingkup" value="satu" className="pr-act">
+              <span className="pr-ib">
+                <PrIcon name="trash" size="sm" />
+              </span>
+              <span className="pr-main">
+                <b>Hapus sesi ini saja</b>
+                <span>mis. tanggal merah atau libur. Sesi lain di seri tetap ada.</span>
+              </span>
+            </button>
+            <button type="submit" name="lingkup" value="seri" className="pr-act dg" disabled={series.berikutnya === 0}>
+              <span className="pr-ib">
+                <RepeatIc />
+              </span>
+              <span className="pr-main">
+                <b>Sesi ini dan berikutnya di seri ini</b>
+                <span className="n">
+                  {series.berikutnya
+                    ? `${series.berikutnya + 1} sesi dihapus. Sesi yang sudah berjalan atau sudah ada presensinya tetap tersimpan.`
+                    : "Tidak ada sesi berikutnya yang belum berjalan."}
+                </span>
+              </span>
+            </button>
+          </ActionForm>
+          <p className="pr-xs pr-muted">Sesi yang dihapus hilang dari jadwal dan rekap.</p>
         </Sheet>
       ) : null}
     </>

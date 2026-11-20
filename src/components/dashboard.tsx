@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { TrendPoint } from "@/lib/core/akademik";
 import { DISCIPLINE } from "@/lib/core/akademik";
 import { Icon, type IconName } from "./icon";
+import { WaKabari } from "./wa";
+import "./dashboard.css";
 
 export type Tone = "green" | "gold" | "violet" | "red" | "blue";
 
@@ -31,7 +33,7 @@ export function dayLabel(tanggal: string): string {
 
 export function Hero({ eyebrow, title, text, chips = [], action }: { eyebrow: string; title: string; text: string; chips?: HeroChip[]; action?: { href: string; label: string } }) {
   return (
-    <section className="hero-card" aria-label="Ringkasan hari ini">
+    <section className={`hero-card${action ? "" : " is-penuh"}`} aria-label="Ringkasan hari ini">
       <img className="hero-watermark" src="/brand/garda-logo-192-v1.webp" alt="" width={260} height={260} />
       <small>{eyebrow}</small>
       <h1>{title}</h1>
@@ -278,5 +280,137 @@ export function Shortcuts({ items }: { items: { href: string; icon: IconName; to
         ))}
       </div>
     </section>
+  );
+}
+
+// ---------------------------------------------------------------- Beranda owner: Hari ini dan angka ringkas
+
+export type StatusSesiHariIni = "AKAN_DATANG" | "AKTIF" | "SELESAI" | "DIBATALKAN" | "DIHAPUS";
+
+export interface SesiHariIni {
+  key: string;
+  title: string;
+  sub: string;
+  status: StatusSesiHariIni;
+  href: string;
+}
+
+export interface PerluPerhatian {
+  key: string;
+  title: string;
+  sub: string;
+  href: string;
+  wa: { nomor: string | null; pesan: string; untuk: string };
+}
+
+const SESI_LABEL: Record<StatusSesiHariIni, string> = { AKAN_DATANG: "Akan datang", AKTIF: "Berlangsung", SELESAI: "Selesai", DIBATALKAN: "Dibatalkan", DIHAPUS: "Dihapus" };
+const SESI_TONE: Record<StatusSesiHariIni, Tone> = { AKAN_DATANG: "blue", AKTIF: "gold", SELESAI: "green", DIBATALKAN: "red", DIHAPUS: "red" };
+
+/** Kartu "Hari ini": sesi hari ini dengan statusnya, lalu siswa yang perlu perhatian beserta tombol WA wali. */
+export function HariIniCard({ sessions, perhatian, action, empty }: { sessions: SesiHariIni[]; perhatian: PerluPerhatian[]; action?: { href: string; label: string }; empty: React.ReactNode }) {
+  return (
+    <section className="card hi-card" aria-labelledby="hari-ini-judul">
+      <div className="card-head">
+        <div>
+          <h2 id="hari-ini-judul">Hari ini</h2>
+          <p>Sesi dan siswa yang perlu perhatian</p>
+        </div>
+        {action ? (
+          <Link href={action.href} className="btn btn-secondary btn-sm">
+            {action.label}
+            <Icon name="arrow" />
+          </Link>
+        ) : null}
+      </div>
+      {sessions.length === 0 ? (
+        <p className="muted small">{empty}</p>
+      ) : (
+        <ul className="dash-list">
+          {sessions.map((s) => (
+            <li key={s.key}>
+              <Link href={s.href}>
+                <span className={`tone-box small tone-${SESI_TONE[s.status]}`}>
+                  <Icon name="clock" />
+                </span>
+                <span className="dash-list-text">
+                  <b>{s.title}</b>
+                  <small>{s.sub}</small>
+                </span>
+                <span className={`hi-pill hi-${s.status.toLowerCase()}`}>
+                  {s.status === "AKTIF" ? <i className="hi-nyala" aria-hidden="true" /> : null}
+                  {SESI_LABEL[s.status]}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      {perhatian.length ? (
+        <>
+          <div className="hi-divider">Perlu perhatian</div>
+          <ul className="dash-list hi-perhatian">
+            {perhatian.map((p) => (
+              <li key={p.key}>
+                <div>
+                  <Link href={p.href} className="hi-main">
+                    <span className="tone-box small tone-red">
+                      <Icon name="userAlert" />
+                    </span>
+                    <span className="dash-list-text">
+                      <b>{p.title}</b>
+                      <small>{p.sub}</small>
+                    </span>
+                  </Link>
+                  <WaKabari nomor={p.wa.nomor} pesan={p.wa.pesan} label="WA wali" judul="Kabari wali lewat WhatsApp" untuk={p.wa.untuk} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+export interface KpiMiniItem {
+  key: string;
+  label: string;
+  value: string;
+  /** Satuan kecil sebelum angka, mis. "Rp". */
+  prefix?: string;
+  note?: string;
+  href?: string;
+  meter?: { value: number; max: number };
+}
+
+/** Satu baris angka kecil: siswa/kapasitas, kehadiran, samapta, saldo. */
+export function KpiMini({ items }: { items: KpiMiniItem[] }) {
+  return (
+    <div className="kpi-mini" role="list" aria-label="Angka ringkas">
+      {items.map((item) => {
+        const body = (
+          <>
+            <span className="kpi-mini-l">{item.label}</span>
+            <b>
+              {item.prefix ? <small>{item.prefix}</small> : null}
+              {item.value}
+            </b>
+            {item.meter ? (
+              <meter className="capacity" min={0} max={Math.max(1, item.meter.max)} value={Math.min(item.meter.value, Math.max(1, item.meter.max))} aria-label={`${item.label} ${item.value}`} />
+            ) : null}
+            {item.note ? <em>{item.note}</em> : null}
+          </>
+        );
+        return item.href ? (
+          <Link key={item.key} href={item.href} className="kpi-mini-item" role="listitem">
+            {body}
+          </Link>
+        ) : (
+          <div key={item.key} className="kpi-mini-item" role="listitem">
+            {body}
+          </div>
+        );
+      })}
+    </div>
   );
 }

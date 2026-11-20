@@ -432,3 +432,263 @@ html[data-color-mode="dark"] .cetak {
     --u: 1px;
   }
 }
+
+/* ---------------------------------------------------------------- Kartu login siswa (cetak/kartu-login) */
+
+.kartu-pilih {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 100%;
+}
+
+.kartu-pilih .tab {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.kartu-pesan {
+  max-width: 1120px;
+  margin: 14px auto 0;
+  padding: 0 16px;
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.kartu-kosong {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 460px;
+  margin: 32px auto;
+  padding: 24px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+  color: var(--muted);
+}
+
+.kartu-kosong b {
+  color: var(--ink);
+  font-family: var(--heading);
+  font-size: 16px;
+}
+
+@media (min-width: 760px) {
+  .kartu-pilih {
+    flex: 0 0 auto;
+  }
+
+  .kartu-pesan {
+    padding: 0 24px;
+  }
+}
+
+/* Bingkai = satu lembar A4. Isi mengecil proporsional di layar sempit (satuan --mm). */
+.kartu-frame {
+  container-type: inline-size;
+  width: min(210mm, 100%);
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #0000001f,
+    0 18px 40px -22px #00000099;
+}
+
+.kartu-a4 {
+  --mm: calc(100cqw / 210);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: calc(3 * var(--mm));
+  width: calc(210 * var(--mm));
+  height: calc(297 * var(--mm));
+  padding: calc(9 * var(--mm)) calc(10 * var(--mm)) calc(8 * var(--mm));
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  color-scheme: light;
+  font: 400 calc(2.9 * var(--mm)) / 1.35 Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.kartu-a4 * {
+  color: #000;
+}
+
+.kartu-a4-h,
+.kartu-a4-f {
+  display: flex;
+  justify-content: space-between;
+  gap: calc(4 * var(--mm));
+  font-size: calc(2.6 * var(--mm));
+}
+
+.kartu-a4-h span:first-child {
+  font-weight: 700;
+}
+
+.kartu-a4-f {
+  justify-content: center;
+  color: #444;
+}
+
+.kartu-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  border-top: calc(0.3 * var(--mm)) dashed #777;
+  border-left: calc(0.3 * var(--mm)) dashed #777;
+}
+
+.kartu {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2.2 * var(--mm));
+  min-width: 0;
+  min-height: 0;
+  padding: calc(4 * var(--mm)) calc(4.5 * var(--mm));
+  border-right: calc(0.3 * var(--mm)) dashed #777;
+  border-bottom: calc(0.3 * var(--mm)) dashed #777;
+  overflow: hidden;
+}
+
+.kartu-h {
+  display: flex;
+  align-items: center;
+  gap: calc(2.5 * var(--mm));
+  padding-bottom: calc(2 * var(--mm));
+  border-bottom: calc(0.3 * var(--mm)) solid #000;
+}
+
+.kartu-h img {
+  width: calc(9 * var(--mm));
+  height: calc(9 * var(--mm));
+  flex: none;
+}
+
+.kartu-h div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kartu-h b {
+  font-size: calc(3.4 * var(--mm));
+  line-height: 1.2;
+}
+
+.kartu-h span {
+  font-size: calc(2.5 * var(--mm));
+  color: #333;
+}
+
+.kartu-m {
+  display: flex;
+  gap: calc(3 * var(--mm));
+  align-items: flex-start;
+}
+
+.kartu-id {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.kartu-id dt {
+  font-size: calc(2.2 * var(--mm));
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kartu-id dd {
+  margin: 0 0 calc(1.2 * var(--mm));
+  overflow-wrap: anywhere;
+}
+
+.kartu-nama {
+  font-weight: 700;
+  font-size: calc(3.6 * var(--mm));
+  line-height: 1.2;
+}
+
+.kartu-user {
+  font: 700 calc(5 * var(--mm)) / 1.15 "Courier New", Courier, monospace;
+  letter-spacing: 0.02em;
+}
+
+.kartu-url {
+  font-size: calc(3 * var(--mm));
+  font-weight: 700;
+}
+
+.kartu-qr {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.8 * var(--mm));
+  width: calc(25 * var(--mm));
+  margin: 0;
+}
+
+.kartu-qr img {
+  display: block;
+  width: calc(25 * var(--mm));
+  height: calc(25 * var(--mm));
+}
+
+.kartu-qr figcaption {
+  font-size: calc(2 * var(--mm));
+  text-align: center;
+  color: #333;
+}
+
+.kartu-langkah {
+  margin: auto 0 0;
+  padding-left: calc(4.4 * var(--mm));
+  font-size: calc(2.85 * var(--mm));
+  line-height: 1.35;
+}
+
+.kartu-sisa {
+  padding: 0;
+}
+
+@supports not (width: 1cqw) {
+  .kartu-frame {
+    width: 210mm;
+    margin: 0 auto;
+  }
+
+  .kartu-a4 {
+    --mm: 1mm;
+  }
+}
+
+@media print {
+  .kartu-pesan,
+  .kartu-kosong {
+    display: none !important;
+  }
+
+  .kartu-frame {
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+    page: blangko;
+    break-inside: avoid;
+  }
+
+  .kartu-frame:not(:last-child) {
+    break-after: page;
+  }
+
+  .kartu-a4 {
+    --mm: 1mm;
+  }
+}

@@ -1,6 +1,16 @@
 // Validasi isian form modul akademik. Angka dibiarkan berupa teks; rentangnya diperiksa di domain.
 import { z } from "zod";
-import { normalizeSessionTypeName, PRESENSI_TYPE_NAME_MAX, SELF_MARKS, SESSION_STATUS, SESSION_TYPES, TEACHER_MARKS, TEST_CATEGORIES } from "./akademik";
+import {
+  daysBetween,
+  normalizeSessionTypeName,
+  PRESENSI_TYPE_NAME_MAX,
+  SELF_MARKS,
+  SERIES_MAX_DAYS,
+  SESSION_STATUS,
+  SESSION_TYPES,
+  TEACHER_MARKS,
+  TEST_CATEGORIES,
+} from "./akademik";
 
 const text = (max: number, label: string) => z.string().trim().max(max, `${label} maksimal ${max} karakter.`).default("");
 const required = (min: number, max: number, label: string) =>
@@ -22,9 +32,41 @@ export const sessionInput = z.object({
   pengajar_id: z.string().default(""),
 });
 
+/** Sesi berulang: isian sesi biasa ditambah hari terpilih (1 = Senin … 7 = Minggu) dan tanggal akhir. */
+export const sessionSeriesInput = sessionInput
+  .extend({
+    sesi_id: z.literal("", { message: "Ulangi hanya untuk sesi baru." }).default(""),
+    sampai: date("Sampai tanggal"),
+    hari: z
+      .array(z.coerce.number().int().min(1, "Hari tidak valid.").max(7, "Hari tidak valid."))
+      .min(1, "Pilih minimal satu hari.")
+      .max(7)
+      .transform((days) => [...new Set(days)].sort((a, b) => a - b)),
+  })
+  .superRefine((value, issue) => {
+    if (value.sampai < value.tanggal) issue.addIssue({ code: "custom", path: ["sampai"], message: "Sampai tanggal harus sama dengan atau sesudah tanggal mulai." });
+    const span = daysBetween(value.tanggal, value.sampai);
+    if (span > SERIES_MAX_DAYS) issue.addIssue({ code: "custom", path: ["sampai"], message: `Rentang paling panjang ${SERIES_MAX_DAYS} hari (sekitar 3 bulan).` });
+  });
+
+/** Ubah atau hapus sesi dalam seri: hanya sesi ini, atau sesi ini dan berikutnya. */
+export const sessionScope = z.enum(["satu", "seri"]).catch("satu");
+export const sessionDeleteInput = z.object({ sesi_id: id("Sesi"), lingkup: sessionScope.default("satu") });
+
 export const sessionTypeInput = z.object({
   nama: z.string().transform(normalizeSessionTypeName).pipe(required(1, PRESENSI_TYPE_NAME_MAX, "Nama bidang")),
 });
+
+const typeValue = z.string().trim().min(1, "Bidang tidak valid.").max(PRESENSI_TYPE_NAME_MAX);
+export const sessionTypeChangeInput = z.discriminatedUnion("aksi", [
+  z.object({
+    value: typeValue,
+    aksi: z.literal("ubah"),
+    nama: z.string().transform(normalizeSessionTypeName).pipe(required(1, PRESENSI_TYPE_NAME_MAX, "Nama bidang")),
+    tampil: z.boolean().default(false),
+  }),
+  z.object({ value: typeValue, aksi: z.enum(["naik", "turun", "tampil", "sembunyi"]) }),
+]);
 
 export const sessionStatusInput = z.object({ sesi_id: id("Sesi"), status: z.enum(SESSION_STATUS) });
 

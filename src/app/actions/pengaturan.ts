@@ -2,12 +2,51 @@
 
 import { refresh } from "next/cache";
 import type { ActionState } from "@/lib/action-state";
-import { addSessionType } from "@/lib/core/akademik";
-import { sessionTypeInput } from "@/lib/core/akademik-input";
+import { addSessionType, changeSessionType } from "@/lib/core/akademik";
+import { sessionTypeChangeInput, sessionTypeInput } from "@/lib/core/akademik-input";
 import { saveClass, saveProgram, updateSettings } from "@/lib/core/domain";
 import { classInput, programInput, settingsInput } from "@/lib/core/validation";
+import { saveWaTemplate, waTemplateInput } from "@/lib/core/wa-template";
 import { failure, formObject, mutate, parse, success } from "@/lib/server/mutate";
 import { requireActor } from "@/lib/server/session";
+
+/** Ubah nama, tampil/sembunyi, atau geser urutan satu bidang presensi. */
+export async function aturBidangPresensi(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
+  try {
+    const input = parse(sessionTypeChangeInput, formObject(formData, formData.get("aksi") === "ubah" ? ["tampil"] : []));
+    const result = await mutate(actor, {
+      formData,
+      action: "aturBidangPresensi",
+      fingerprint: input,
+      tables: ["Pengaturan"],
+      apply: (t, ctx) => changeSessionType(t, input, ctx, actor),
+    });
+    refresh();
+    return success(result.outcome.message);
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Simpan template pesan WA, atau kembalikan ke teks bawaan. */
+export async function simpanTemplateWa(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
+  try {
+    const input = parse(waTemplateInput, formObject(formData));
+    const result = await mutate(actor, {
+      formData,
+      action: "simpanTemplateWa",
+      fingerprint: input,
+      tables: ["Pengaturan"],
+      apply: (t, ctx) => saveWaTemplate(t, input, ctx, actor),
+    });
+    refresh();
+    return success(result.outcome.message);
+  } catch (error) {
+    return failure(error);
+  }
+}
 
 export async function tambahBidangPresensi(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });

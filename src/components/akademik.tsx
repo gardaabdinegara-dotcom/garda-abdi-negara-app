@@ -15,7 +15,7 @@ import {
 } from "@/lib/core/akademik";
 import { FITUR } from "@/lib/core/fitur";
 import type { Actor, ClassGroup, Role } from "@/lib/core/types";
-import { Field } from "./form";
+import { SessionFieldsClient } from "./presensi-client";
 import { Badge, Tabs } from "./ui";
 
 type Part = "presensi" | "nilai" | "tugas" | "kesehatan" | "rapor";
@@ -79,50 +79,47 @@ export const SubmissionBadge = ({ status }: { status: SubmissionStatus }) => <Ba
 
 export const typeOptions = SESSION_TYPES.map((t) => ({ value: t, label: SESSION_TYPE_LABEL[t] }));
 
-/** Isian sesi untuk tambah dan ubah. */
+/**
+ * Isian sesi untuk tambah dan ubah. Bidang yang disembunyikan tidak ditawarkan untuk sesi baru,
+ * tetapi tetap muncul saat mengubah sesi lama yang memakainya.
+ * `today` diisi saat menambah sesi: sakelar Ulangi membuat seri sesi sekaligus.
+ */
 export function SessionFields({
   classes,
   teachers,
   sessionTypes,
   session,
   date,
+  today,
+  typeLabel,
 }: {
   classes: ClassGroup[];
   teachers: { user_id: string; nama: string }[];
   sessionTypes: SessionTypeOption[];
-  session?: Session;
+  session?: Session & { bidang?: string };
   date: string;
+  today?: string;
+  /** Nama tampilan bidang sesi ini bila bidangnya disembunyikan. */
+  typeLabel?: string;
 }) {
-  const jenis = session?.jenis ?? "FISIK";
-  const options = sessionTypes.some(({ value }) => value === jenis)
-    ? sessionTypes
-    : [...sessionTypes, { value: jenis, label: sessionTypeLabel(jenis) }];
+  const jenis = session?.jenis;
+  const options =
+    !jenis || sessionTypes.some(({ value }) => value === jenis)
+      ? sessionTypes
+      : [...sessionTypes, { value: jenis, label: typeLabel ?? session?.bidang ?? sessionTypeLabel(jenis) }];
   return (
-    <div className="form-grid two">
-      <Field label="Nama kegiatan" name="nama" defaultValue={session?.nama} placeholder="mis. Latihan jasmani pagi" required className="span-all" />
-      <Field label="Tanggal" name="tanggal" type="date" defaultValue={session?.tanggal ?? date} required />
-      <Field label="Bidang" name="jenis" type="select" defaultValue={jenis} options={options} />
-      <Field label="Jam mulai" name="jam_mulai" type="time" defaultValue={session?.jam_mulai ?? "07:00"} required />
-      <Field label="Jam selesai" name="jam_selesai" type="time" defaultValue={session?.jam_selesai ?? "09:00"} required />
-      <Field
-        label="Peserta"
-        name="kelas_id"
-        type="select"
-        defaultValue={session?.kelas_id ?? ""}
-        options={[{ value: "", label: "Semua siswa aktif" }, ...classes.map((c) => ({ value: c.kelas_id, label: `Kelas ${c.nama_kelas}` }))]}
-        hint="Peserta dibekukan saat sesi dibuka."
-      />
-      {teachers.length ? (
-        <Field
-          label="Pengajar"
-          name="pengajar_id"
-          type="select"
-          defaultValue={session?.pengajar_id ?? ""}
-          options={[{ value: "", label: "Saya sendiri" }, ...teachers.map((t) => ({ value: t.user_id, label: t.nama }))]}
-          hint="Pengajar harus sudah ditautkan ke kelas yang dipilih."
-        />
-      ) : null}
-    </div>
+    <SessionFieldsClient
+      classes={classes.map(({ kelas_id, nama_kelas }) => ({ kelas_id, nama_kelas }))}
+      teachers={teachers.map(({ user_id, nama }) => ({ user_id, nama }))}
+      sessionTypes={options}
+      session={
+        session
+          ? { nama: session.nama, tanggal: session.tanggal, jam_mulai: session.jam_mulai, jam_selesai: session.jam_selesai, jenis: session.jenis, kelas_id: session.kelas_id, pengajar_id: session.pengajar_id }
+          : undefined
+      }
+      date={date}
+      today={session ? undefined : today}
+    />
   );
 }
 

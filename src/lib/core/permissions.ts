@@ -51,7 +51,7 @@ export interface MenuItem {
   /** Label pendek untuk navigasi bawah di ponsel. */
   short?: string;
   href: string;
-  icon: "home" | "users" | "book" | "wallet" | "settings" | "user" | "check" | "chart" | "file" | "more" | "run" | "receipt" | "target";
+  icon: "home" | "users" | "book" | "wallet" | "settings" | "user" | "check" | "chart" | "file" | "more" | "run" | "receipt" | "target" | "bell";
 }
 
 /**
@@ -76,6 +76,7 @@ export function menuFor(actor: Actor): MenuItem[] {
       const items: MenuItem[] = [home, presensi, samapta];
       if (canViewFinance(actor)) items.push({ key: "keuangan", label: "Keuangan", href: "/keuangan", icon: "wallet" });
       items.push({ ...latihan, label: "Latihan siswa" });
+      items.push({ key: "pengumuman", label: "Pengumuman", href: "/pengumuman", icon: "bell" });
       items.push({ key: "siswa", label: "Siswa", href: "/siswa", icon: "users" }, ...hidden);
       items.push({ key: "pengaturan", label: "Pengaturan", href: "/pengaturan", icon: "settings" }, guide);
       return items;

@@ -169,6 +169,8 @@ export const COLUMNS: Record<Table, string[]> = {
     "transaksi_rujukan_id",
     "created_at",
     "created_by",
+    // Opsional: uang masuk yang dicatat dari siswa tertentu (riwayat bayar di profil siswa, bukan tagihan).
+    "siswa_id",
   ],
   Operasi: [
     "operation_id",
@@ -1037,6 +1039,13 @@ export function applyCommand(
         )
           throw new DomainError("Kategori tidak sesuai jenis transaksi.");
       }
+      // "Dari siswa" (opsional): uang masuk ditautkan ke satu siswa untuk riwayat bayar di profilnya.
+      const siswaId = String(d.siswa_id || "").trim();
+      if (siswaId) {
+        if (kind !== "PENERIMAAN_LAIN")
+          throw new DomainError("Dari siswa hanya untuk uang masuk dari siswa.");
+        found(s, "Siswa", siswaId);
+      }
       transaction({
         tanggal_transaksi: validDate(d.tanggal_transaksi),
         jenis: kind,
@@ -1048,6 +1057,7 @@ export function applyCommand(
         deskripsi: required(d.deskripsi, "Keterangan", 500),
         bukti_url: validateURL(d.bukti_url),
         referensi_eksternal: String(d.referensi_eksternal || "").slice(0, 100),
+        siswa_id: siswaId,
       });
       break;
     }

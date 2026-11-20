@@ -17,6 +17,7 @@ import { GARJAS_FIELDS, garjasAgeBand, isGarjasPos, type GarjasPos } from "@/lib
 import { ActionForm, Field, SubmitButton } from "./form";
 import { Icon } from "./icon";
 import { SamIcon } from "./samapta-icon";
+import { WaKabari } from "./wa";
 
 // ================================================================ Mode lapangan
 
@@ -1065,6 +1066,8 @@ export interface RankRowData {
   detailHref: string;
   printHref: string;
   firstName: string;
+  /** Pesan "Kirim hasil" ke wali; null bila hasil akhir belum lengkap. */
+  wa?: { nomor: string | null; pesan: string; untuk: string } | null;
 }
 
 const deltaLabel = (d: number | null) => (d === null ? "" : d > 0 ? `▲ ${fmt(d)}` : d < 0 ? `▼ ${fmt(-d)}` : "= 0");
@@ -1175,6 +1178,7 @@ function RankRows({ r, isOpen, panel, prevName, onToggle }: { r: RankRowData; is
                 <Icon name="print" />
                 Cetak blangko {r.firstName}
               </a>
+              {r.wa ? <WaKabari nomor={r.wa.nomor} pesan={r.wa.pesan} untuk={r.wa.untuk} label="Kirim hasil" judul="Kirim hasil ke wali" /> : null}
             </div>
           </td>
         </tr>

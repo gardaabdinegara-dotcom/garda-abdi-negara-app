@@ -4,7 +4,9 @@ import { canCorrectFinance, canRecordFinance, canSeeChildBills, canViewFinance, 
 import { toStudent, type Actor } from "../core/types";
 import { finance, invoiceSummary, num, setting, text, today } from "../keuangan/domain";
 import { accountName, familyBills, reversedIds, studentOf, userName } from "../keuangan/ringkasan";
+import { pembayaranSiswa, terakhirBayarPerSiswa } from "../keuangan/pembayaran-siswa";
 import { composeState, CORE_TABLES, FINANCE_TABLES, ledgerActor } from "../keuangan/sumber";
+import { AppError, type Tables } from "../data/types";
 import { buildReportDocument, PDF_REPORT_TITLES, validReportRange, type PdfReportKind, type PdfReportOptions } from "../keuangan/report-document";
 import { dataMode } from "../config";
 import { dataDeps } from "./data";
@@ -30,13 +32,30 @@ async function financeData(actor: Actor) {
     recorder: canRecordFinance(actor),
     closed: JSON.parse(setting(state, "closed_periods", "[]")) as string[],
     business: setting(state, "business_name", "Garda Abdi Negara"),
-    /** Siswa aktif (kode + nama) untuk mengisi keterangan pembayaran dengan cepat. */
-    students: (inti.Siswa ?? [])
-      .map(toStudent)
-      .filter((st) => st.aktif && !st.dihapus_pada && st.kode_siswa)
-      .map((st) => ({ kode: st.kode_siswa, nama: st.nama }))
-      .sort((a, b) => a.kode.localeCompare(b.kode)),
+    /** Siswa aktif untuk pilihan "Dari siswa" di Uang masuk: kode, nama, kelas/jalur, dan tanggal terakhir bayar. */
+    students: pilihanSiswa(inti, state),
   };
+}
+
+function pilihanSiswa(inti: Tables, state: ReturnType<typeof composeState>) {
+  const terakhir = terakhirBayarPerSiswa(state);
+  const kelas = new Map<string, string>();
+  for (const p of state.Pendaftaran) {
+    const id = String(p.siswa_id ?? "");
+    const nama = String(p.angkatan ?? "");
+    if (nama && (!kelas.has(id) || p.status === "AKTIF")) kelas.set(id, nama);
+  }
+  return (inti.Siswa ?? [])
+    .map(toStudent)
+    .filter((st) => st.aktif && !st.dihapus_pada && st.kode_siswa)
+    .map((st) => ({
+      id: st.siswa_id,
+      kode: st.kode_siswa,
+      nama: st.nama,
+      info: kelas.get(st.siswa_id) || st.jalur_target || "",
+      terakhir: terakhir.get(st.siswa_id) ?? "",
+    }))
+    .sort((a, b) => a.kode.localeCompare(b.kode));
 }
 
 export type FinanceData = Awaited<ReturnType<typeof financeData>>;
@@ -134,4 +153,28 @@ export async function loadTariffs(actor: Actor) {
     owner: data.owner,
     tariffs: new Map(data.state.Program.map((p) => [String(p.program_id), { skema: String(p.skema_default), tarif: Number(p.tarif_default) || 0 }])),
   };
+}
+
+/** Owner/admin dengan akses lihat keuangan; kartu Pembayaran di profil siswa hanya untuk mereka. */
+export const canSeePembayaranSiswa = (actor: Actor) => (actor.user.peran === "OWNER" || actor.user.peran === "ADMIN") && canViewFinance(actor);
+
+/**
+ * Riwayat uang masuk yang ditautkan ke satu siswa ("Dari siswa"), tanpa yang sudah dihapus/diubah.
+ * Null bila pengguna tidak berhak, siswa tidak ada, atau spreadsheet Keuangan belum siap (profil tetap tampil).
+ */
+export async function loadPembayaranSiswa(actor: Actor, siswaId: string) {
+  if (!canSeePembayaranSiswa(actor)) return null;
+  const source = await dataDeps();
+  let inti: Tables;
+  let keu: Tables;
+  try {
+    [inti, keu] = await Promise.all([source.store.read("inti", ["Siswa"]), source.store.read("keuangan", ["Akun", "Kategori", "Transaksi"])]);
+  } catch (error) {
+    if (error instanceof AppError && (error.code === "SCHEMA_INCOMPLETE" || error.code === "CONFIG")) return null;
+    throw error;
+  }
+  const siswa = (inti.Siswa ?? []).map(toStudent).find((st) => st.siswa_id === siswaId && !st.dihapus_pada);
+  if (!siswa) return null;
+  const rows = (name: string) => (keu[name] ?? []) as Parameters<typeof pembayaranSiswa>[0]["Transaksi"];
+  return pembayaranSiswa({ Transaksi: rows("Transaksi"), Akun: rows("Akun"), Kategori: rows("Kategori") }, siswaId, siswa.nama);
 }

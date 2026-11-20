@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { buatAkun } from "@/app/actions/akun";
+import { AkunDaftar, CetakKartuLogin, type AkunRingkas } from "@/components/akun-daftar";
 import { ActionForm, Field, SubmitButton } from "@/components/form";
-import { ActiveBadge, Badge, Empty, PageHead, RoleBadge } from "@/components/ui";
+import { PageHead } from "@/components/ui";
 import { FITUR } from "@/lib/core/fitur";
 import { canManageAccount, canSetFinanceAccess } from "@/lib/core/permissions";
-import { FINANCE_ACCESS, FINANCE_ACCESS_LABEL, ROLE_LABEL, ROLES, type Role } from "@/lib/core/types";
+import { FINANCE_ACCESS, FINANCE_ACCESS_LABEL, ROLE_LABEL, ROLES } from "@/lib/core/types";
 import { loadAccounts } from "@/lib/server/queries";
 import { requireActor } from "@/lib/server/session";
 import { SettingsTabs } from "../tabs";
@@ -18,9 +19,23 @@ type Search = Promise<Record<string, string | string[] | undefined>>;
 export default async function AccountsPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
   const params = await searchParams;
-  const filter = typeof params.peran === "string" && (ROLES as readonly string[]).includes(params.peran) ? (params.peran as Role) : null;
   const accounts = await loadAccounts(actor);
-  const shown = filter ? accounts.filter((a) => a.peran === filter) : accounts;
+  const saring = params.pin === "belum" ? "pin-belum" : typeof params.peran === "string" && (ROLES as readonly string[]).includes(params.peran) ? params.peran : "semua";
+  // Status PIN: akun siswa tanpa hash = belum membuat PIN (sama dengan aturan masuk pertama di lib/core/pin.ts).
+  const rows: AkunRingkas[] = accounts.map((a) => ({
+    user_id: a.user_id,
+    nama: a.nama,
+    username: a.username,
+    peran: a.peran,
+    peranLabel: ROLE_LABEL[a.peran],
+    aktif: a.aktif,
+    pin: a.peran === "SISWA" ? (a.punya_kredensial ? "aktif" : "belum") : null,
+    sementara: a.peran !== "SISWA" && a.wajib_ganti_password,
+    siswa_id: a.peran === "SISWA" ? (a.links.find((l) => l.jenis === "SISWA")?.siswa_id ?? "") : "",
+    manageable: a.manageable,
+  }));
+  const siswaAktif = rows.filter((a) => a.peran === "SISWA" && a.aktif);
+  const bisaCetak = canManageAccount(actor, "SISWA");
   const creatable = ROLES.filter((role) => (FITUR.peranTambahan || role === "OWNER") && canManageAccount(actor, role));
   const owner = canSetFinanceAccess(actor);
 
@@ -29,9 +44,16 @@ export default async function AccountsPage({ searchParams }: { searchParams: Sea
       <PageHead
         eyebrow="Pengaturan"
         title="Akun pengguna"
-        actions={!FITUR.peranTambahan && creatable.length > 0 ? (
-          <Link href="#buat-akun" className="btn btn-secondary only-mobile">Tambah Owner</Link>
-        ) : null}
+        actions={
+          <>
+            {!FITUR.peranTambahan && creatable.length > 0 ? (
+              <Link href="#buat-akun" className="btn btn-secondary only-mobile">
+                Tambah Owner
+              </Link>
+            ) : null}
+            {bisaCetak ? <CetakKartuLogin belum={siswaAktif.filter((a) => a.pin === "belum").length} semua={siswaAktif.length} /> : null}
+          </>
+        }
         description={
           !FITUR.peranTambahan
             ? "Akun Owner dan akun siswa. Reset PIN siswa yang lupa dari sini."
@@ -42,68 +64,14 @@ export default async function AccountsPage({ searchParams }: { searchParams: Sea
       />
       <SettingsTabs current="akun" owner={owner} />
       <div className="grid-main">
-        <section className="card">
+        <section className="card dr-card">
           <div className="card-head">
             <div>
               <h2>Daftar akun</h2>
-              <p>Pilih akun untuk mengubah data, membuat password sementara, atau menautkan siswa/kelas.</p>
+              <p>Ketuk akun siswa untuk Reset PIN atau membuka profilnya. Akun lain dibuka di halaman detail.</p>
             </div>
           </div>
-          <nav className="tabs" aria-label="Saring peran">
-            <Link href="/pengaturan/akun" className="tab" aria-current={filter ? undefined : "page"}>
-              Semua ({accounts.length})
-            </Link>
-            {ROLES.map((role) => {
-              const count = accounts.filter((a) => a.peran === role).length;
-              if (count === 0) return null;
-              return (
-                <Link key={role} href={`/pengaturan/akun?peran=${role}`} className="tab" aria-current={filter === role ? "page" : undefined}>
-                  {ROLE_LABEL[role]} ({count})
-                </Link>
-              );
-            })}
-          </nav>
-          {shown.length === 0 ? (
-            <Empty title="Belum ada akun" />
-          ) : (
-            <div className="table-wrap">
-              <table className="data responsive">
-                <thead>
-                  <tr>
-                    <th>Nama</th>
-                    <th>Peran</th>
-                    <th>Tautan</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((a) => (
-                    <tr key={a.user_id}>
-                      <td data-label="">
-                        <Link href={`/pengaturan/akun/${a.user_id}`} className="cell-title">
-                          {a.nama}
-                        </Link>
-                        <span className="cell-sub mono">@{a.username}</span>
-                      </td>
-                      <td data-label="Peran">
-                        <span className="row">
-                          <RoleBadge role={a.peran} />
-                          {a.peran === "ADMIN" && a.akses_keuangan !== "TIDAK" ? <Badge tone="warning">Keuangan: {FINANCE_ACCESS_LABEL[a.akses_keuangan]}</Badge> : null}
-                        </span>
-                      </td>
-                      <td data-label="Tautan">{a.links.length || "-"}</td>
-                      <td data-label="Status">
-                        <span className="row">
-                          <ActiveBadge active={a.aktif} />
-                          {a.aktif && a.wajib_ganti_password ? <Badge tone="warning">Password sementara</Badge> : null}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <AkunDaftar accounts={rows} initialSaring={saring} />
         </section>
 
         <div className="stack">

@@ -14,6 +14,8 @@ export interface UbahData {
   deskripsi: string;
   nominal: number;
   tanggal: string;
+  /** Siswa asal uang masuk ("Dari siswa"), kosong bila tidak ditautkan. */
+  siswa_id: string;
 }
 
 export interface BarisDompet {
@@ -158,7 +160,7 @@ export function riwayatDompet(
       status,
       bukti: text(t, "bukti_url"),
       edit: editable
-        ? { jenis, akun_id: text(t, "akun_id"), kategori_id: text(t, "kategori_id"), deskripsi: description, nominal: num(t, "nominal"), tanggal: date }
+        ? { jenis, akun_id: text(t, "akun_id"), kategori_id: text(t, "kategori_id"), deskripsi: description, nominal: num(t, "nominal"), tanggal: date, siswa_id: text(t, "siswa_id") }
         : null,
       hapus: owner && !status && !t.tagihan_id ? { transaksi_id: id, tanggal: date } : null,
       order,

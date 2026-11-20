@@ -5,6 +5,8 @@ export interface PilihanRekap extends FilterRekapLatihan {
   grafik: "aktivitas" | "skor";
   tanda: TandaRekap | "perlu";
   siswa: string | null;
+  /** Saring daftar siswa menurut target minggu ini. */
+  target: "belum" | "sudah" | null;
 }
 
 export function bacaPilihanRekap(query: Record<string, string | string[] | undefined>): PilihanRekap {
@@ -15,11 +17,12 @@ export function bacaPilihanRekap(query: Record<string, string | string[] | undef
     grafik: query.grafik === "skor" ? "skor" : "aktivitas",
     tanda: query.tanda === "turun" || query.tanda === "lama" || query.tanda === "belum" || query.tanda === "perlu" ? query.tanda : null,
     siswa: typeof query.siswa === "string" && query.siswa ? query.siswa : null,
+    target: query.target === "belum" || query.target === "sudah" ? query.target : null,
   };
 }
 
 export function rekapHref(pilihan: PilihanRekap, perubahan: Partial<PilihanRekap>, bagian?: "grafik-latihan" | "daftar-latihan"): string {
-  const { periode, jenis, durasi, grafik, tanda, siswa } = { ...pilihan, ...perubahan };
+  const { periode, jenis, durasi, grafik, tanda, siswa, target } = { ...pilihan, ...perubahan };
   const query = new URLSearchParams();
   if (periode !== FILTER_REKAP_AWAL.periode) query.set("periode", String(periode));
   if (jenis) query.set("jenis", jenis);
@@ -27,5 +30,6 @@ export function rekapHref(pilihan: PilihanRekap, perubahan: Partial<PilihanRekap
   if (grafik === "skor") query.set("grafik", grafik);
   if (tanda) query.set("tanda", tanda);
   if (siswa) query.set("siswa", siswa);
+  if (target) query.set("target", target);
   return `/latihan${query.size ? `?${query}` : ""}${bagian ? `#${bagian}` : ""}`;
 }

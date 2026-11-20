@@ -355,9 +355,11 @@ html[data-color-mode="dark"] .pr {
 /* ---------------------------------------------------------------- Strip sesi hari ini */
 
 .pr-strip {
+  position: relative;
   display: flex;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   padding: 2px;
   margin: -2px;
@@ -367,73 +369,109 @@ html[data-color-mode="dark"] .pr {
   display: none;
 }
 
-.pr-strip > a {
-  flex: 1 0 calc((100% - 12px) / 3);
-  min-width: 0;
+/* Tepi yang masih menyimpan chip lain dibuat pudar (diatur ScrollRow lewat data-fade). */
+.pr-strip[data-fade="r"] {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent);
+}
+
+.pr-strip[data-fade="l"] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px);
+  mask-image: linear-gradient(90deg, transparent, #000 28px);
+}
+
+.pr-strip[data-fade="l r"] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 40px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 40px), transparent);
+}
+
+/* Chip sesi dua baris: jam + titik status + label, lalu nama sesi utuh (maks. dua baris). */
+.pr-chip2 {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 52px;
-  padding: 6px 8px;
+  flex: none;
+  flex-direction: column;
+  gap: 4px;
+  width: 150px;
+  padding: 9px 11px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--surface);
   color: var(--muted);
   text-decoration: none;
-  overflow: hidden;
 }
 
-.pr-strip > a > .pr-ic,
-.pr-strip > a > .pr-pulse {
-  margin-left: 2px;
-}
-
-.pr-strip > a:hover {
+.pr-chip2:hover {
   border-color: var(--primary);
 }
 
-.pr-strip > a > span {
+.pr-chip2 .l1 {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   min-width: 0;
-  line-height: 1.25;
-}
-
-.pr-strip small {
-  font-size: 10.5px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.pr-strip b {
+.pr-chip2 .l1 b {
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.pr-chip2 .l2 {
+  display: -webkit-box;
+  min-height: 2.5em;
+  overflow: hidden;
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
-.pr-strip .done .pr-ic {
-  color: var(--primary);
-}
-
-.pr-strip .off b {
-  text-decoration: line-through;
+.pr-chip2.off .l2 {
   color: var(--muted);
+  text-decoration: line-through;
 }
 
-.pr-strip .on {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
+.pr-chip2.on {
+  padding: 8px 10px;
+  border: 2px solid var(--primary);
   background: var(--pr-psoft);
+}
+
+.pr-chip2.on .l1,
+.pr-chip2.on .l1 b,
+.pr-chip2.on .l2 {
   color: var(--primary);
 }
 
-.pr-strip .on b {
-  color: var(--primary);
+.pr-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.pr-dot.live {
+  background: var(--pr-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr-orange) 30%, transparent);
+  animation: pr-pulse 1.8s ease-in-out infinite;
+}
+
+.pr-dot.soon {
+  background: var(--pr-blue);
+}
+
+.pr-dot.off {
+  background: var(--muted);
+  opacity: 0.6;
 }
 
 .pr-pulse {
@@ -2262,8 +2300,8 @@ dialog.pr-sheet::backdrop {
     padding: 6px 16px;
   }
 
-  .pr-strip > a {
-    flex: 0 1 230px;
+  .pr-chip2 {
+    width: 200px;
   }
 
   .pr-k4 {
@@ -2452,6 +2490,7 @@ dialog.pr-sheet::backdrop {
 
 @media (prefers-reduced-motion: reduce) {
   .pr-pulse,
+  .pr-dot.live,
   .pr-t.is-busy .pr-ava::after,
   .pr-qbtn.is-busy .pr-ic {
     animation: none;
@@ -2459,5 +2498,391 @@ dialog.pr-sheet::backdrop {
 
   dialog.pr-sheet[open] {
     animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- Sesi berulang (Ulangi) */
+
+.pr-sfields {
+  gap: 14px;
+}
+
+.pr-rep {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.pr-rep.on {
+  border: 1.5px solid var(--primary);
+  background: color-mix(in srgb, var(--pr-psoft) 55%, var(--surface));
+}
+
+.pr-rep-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.pr-rep-ic {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 11px;
+  background: var(--pr-psoft);
+  color: var(--primary);
+}
+
+.pr-rep-h b {
+  font-size: 14.5px;
+}
+
+/* Sakelar dari checkbox role="switch". */
+.pr-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex: none;
+  margin: 0;
+  border-radius: 99px;
+  background: var(--border);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.pr-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--ink) 25%, transparent);
+  transition: left 0.15s ease;
+}
+
+.pr-switch:checked {
+  background: var(--primary);
+}
+
+.pr-switch:checked::after {
+  left: 21px;
+  background: var(--on-primary);
+}
+
+.pr-switch:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.pr-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pr-days label {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.pr-days input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pr-days span {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.pr-days input:checked + span {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.pr-days input:focus-visible + span {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.pr-sum {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.pr-sum-t {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.pr-sum-t > .pr-ic {
+  margin-top: 2px;
+  color: var(--primary);
+}
+
+.pr-sum-t b {
+  display: block;
+  color: var(--primary);
+  font-size: 15px;
+}
+
+.pr-sum.err .pr-sum-t b,
+.pr-sum.err .pr-sum-t > .pr-ic {
+  color: var(--pr-red);
+}
+
+.pr-cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.pr-cal .dw {
+  padding-bottom: 1px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.pr-cal i {
+  padding: 3px 0;
+  border-radius: 7px;
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.pr-cal i.on {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.pr-cal i.off {
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+.pr-cal i small {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* Info seri, pilihan lingkup ubah, dan pilihan hapus. */
+.pr-serinfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: var(--pr-bsoft);
+  color: var(--pr-blue);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.pr-serinfo > .pr-ic {
+  margin-top: 1px;
+}
+
+.pr-scope {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pr-scope legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.pr-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.pr-opt:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--pr-psoft);
+}
+
+.pr-opt.is-off {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.pr-opt input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+}
+
+.pr-opt > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pr-opt b {
+  font-size: 14px;
+}
+
+.pr-opt small {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.pr-acts {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-act {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pr-act:last-of-type {
+  border-bottom: 0;
+}
+
+.pr-act:hover:not(:disabled) .pr-ib {
+  background: var(--pr-psoft);
+}
+
+.pr-act:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.pr-act .pr-main span {
+  white-space: normal;
+}
+
+.pr-act.dg,
+.pr-act.dg .pr-main b {
+  color: var(--pr-red);
+}
+
+.pr-act.dg .pr-ib {
+  background: var(--pr-rsoft);
+}
+
+.pr-ib {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 11px;
+  background: var(--pr-soft);
+}
+
+/* Jadwal: lencana "Berulang". */
+.pr-main .pr-nrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.pr-rep-pill {
+  gap: 4px;
+  padding: 2px 8px;
+}
+
+.pr-rep-pill .pr-ic {
+  width: 13px;
+  height: 13px;
+}
+
+.pr-main .pr-rep-pill {
+  color: var(--pr-blue);
+  font-size: 11px;
+  overflow: visible;
+}
+
+/* Rekap: persentase dan tombol WA wali bertumpuk di ujung kanan baris merah. */
+.pr-rend {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Ponsel: deretan chip sesi menempel ke tepi layar agar jelas bisa digeser. */
+@media (max-width: 900px) {
+  .pr-strip {
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scroll-padding-inline: 16px;
   }
 }

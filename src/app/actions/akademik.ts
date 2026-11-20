@@ -7,6 +7,7 @@ import { readQrToken } from "@/lib/auth/qr";
 import {
   approveAttendance,
   archiveTest,
+  deleteSession,
   publishReport,
   recordAttendance,
   REPORT_TABLES,
@@ -15,7 +16,8 @@ import {
   saveAssignment,
   saveHealth,
   saveReportNote,
-  saveSession,
+  saveSessionScoped,
+  saveSessionSeries,
   saveTest,
   setSessionStatus,
   submitAssignment,
@@ -29,7 +31,10 @@ import {
   reportNoteInput,
   reviewInput,
   selfMarkInput,
+  sessionDeleteInput,
   sessionInput,
+  sessionScope,
+  sessionSeriesInput,
   sessionStatusInput,
   submissionInput,
   teacherMarkInput,
@@ -42,28 +47,45 @@ import { matchUjiSiswaForm, requireActor } from "@/lib/server/session";
 const SESSION_TABLES = ["Pengaturan", "Siswa", "Pendaftaran", "Sesi", "Presensi"] as const;
 const TASK_TABLES = ["Pengaturan", "Siswa", "Pendaftaran", "Tugas", "Pengumpulan"] as const;
 
+const SAVE_SESSION_TABLES = ["Pengaturan", "Pengguna", "Tautan_Akun", "Kelas", "Sesi", "Presensi"] as const;
+
 export async function simpanSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();
-  let createdId = "";
+  let target = "";
   try {
-    const input = parse(sessionInput, formObject(formData));
-    const result = await mutate(actor, {
-      formData,
-      action: "simpanSesi",
-      fingerprint: input,
-      tables: ["Pengaturan", "Pengguna", "Tautan_Akun", "Kelas", "Sesi"],
-      apply: (t, ctx) => saveSession(t, input, ctx, actor),
-    });
-    if (input.sesi_id) {
-      refresh();
-      return success(result.outcome.message);
+    const raw = formObject(formData);
+    // Sesi berulang: satu operasi membuat seluruh seri (semua atau tidak sama sekali).
+    if (!raw.sesi_id && formData.get("ulangi") === "on") {
+      const input = parse(sessionSeriesInput, { ...raw, hari: formData.getAll("hari").map(String) });
+      const result = await mutate(actor, {
+        formData,
+        action: "simpanSesiBerulang",
+        fingerprint: input,
+        tables: SAVE_SESSION_TABLES,
+        apply: (t, ctx) => saveSessionSeries(t, input, ctx, actor),
+      });
+      const first = (result.outcome.data as { tanggal?: string } | undefined)?.tanggal ?? input.tanggal;
+      target = `/akademik?tab=jadwal&tanggal=${encodeURIComponent(first)}`;
+    } else {
+      const input = { ...parse(sessionInput, raw), lingkup: sessionScope.parse(raw.lingkup) };
+      const result = await mutate(actor, {
+        formData,
+        action: "simpanSesi",
+        fingerprint: input,
+        tables: SAVE_SESSION_TABLES,
+        apply: (t, ctx) => saveSessionScoped(t, input, ctx, actor),
+      });
+      if (input.sesi_id) {
+        refresh();
+        return success(result.outcome.message);
+      }
+      // Sesi baru langsung terpilih di layar Presensi.
+      target = `/akademik?sesi=${encodeURIComponent(result.outcome.entityId)}`;
     }
-    createdId = result.outcome.entityId;
   } catch (error) {
     return failure(error);
   }
-  // Sesi baru langsung terpilih di layar Presensi.
-  redirect(`/akademik?sesi=${encodeURIComponent(createdId)}`);
+  redirect(target);
 }
 
 export async function ubahStatusSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -324,18 +346,22 @@ export async function revisiRapor(_prev: ActionState, formData: FormData): Promi
   }
 }
 
-/** Menghapus sesi yang salah input (owner/admin) lalu kembali ke tab Jadwal pada tanggal itu. */
+/**
+ * Menghapus sesi yang salah input (owner/admin) lalu kembali ke tab Jadwal pada tanggal itu.
+ * Lingkup "seri" ikut menghapus sesi berikutnya dalam seri yang belum berjalan.
+ */
 export async function hapusSesi(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const actor = await requireActor();
   const tanggal = String(formData.get("tanggal") ?? "");
   try {
-    const sesiId = String(formData.get("sesi_id") ?? "");
+    const input = parse(sessionDeleteInput, formObject(formData));
     await mutate(actor, {
       formData,
       action: "hapusSesi",
-      fingerprint: { sesiId },
+      // Sidik jari lama ({ sesiId }) dipertahankan untuk hapus satu sesi agar kirim ulang tetap dikenali.
+      fingerprint: input.lingkup === "seri" ? { sesiId: input.sesi_id, lingkup: "seri" } : { sesiId: input.sesi_id },
       tables: SESSION_TABLES,
-      apply: (t, ctx) => setSessionStatus(t, { sesi_id: sesiId, status: "DIHAPUS" }, ctx, actor),
+      apply: (t, ctx) => deleteSession(t, input, ctx, actor),
     });
   } catch (error) {
     return failure(error);

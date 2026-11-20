@@ -7,7 +7,7 @@ import { toStudent } from "../src/lib/core/types";
 const today = "2026-11-19";
 
 function sesi(id: string, tanggal: string, peserta_ids: string[], status: Session["status"] = "SELESAI"): Session {
-  return { sesi_id: id, tanggal, peserta_ids, status, nama: id, jam_mulai: "08:00", jam_selesai: "09:00", jenis: "Akademik", kelas_id: "K1", pengajar_id: "P1" };
+  return { sesi_id: id, tanggal, peserta_ids, status, nama: id, jam_mulai: "08:00", jam_selesai: "09:00", jenis: "Akademik", kelas_id: "K1", pengajar_id: "P1", seri_id: "" };
 }
 
 function catatan(session: string, student: string, status: AttendanceStatus, terlambat = false): Attendance {

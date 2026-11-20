@@ -1,7 +1,8 @@
 // Ringkasan progres dan rekap latihan psikotes. Murni hitungan (tanpa akses data), jadi bisa diuji langsung;
 // server membaca tab Latihan_Psikotes lalu memanggil fungsi di sini.
-import { JENIS_LATIHAN, type DurasiLatihan, type JenisLatihan } from "./latihan";
+import { JENIS_INFO, JENIS_LATIHAN, type DurasiLatihan, type JenisLatihan } from "./latihan";
 import type { Latihan } from "./latihan-simpan";
+import { namaTarget, type ProgresTarget } from "./latihan-target";
 import { median, ringkasPerubahanSiswa, type PerbandinganSiswa } from "./perubahan-siswa";
 import type { Student } from "./types";
 
@@ -144,6 +145,22 @@ export function tandaRekap(terakhir: Latihan | null, tren: number | null, hariSe
   if (!terakhir) return "belum";
   if (tren !== null && tren <= BATAS_TURUN) return "turun";
   if (hariSejak !== null && hariSejak >= BATAS_LAMA_HARI) return "lama";
+  return null;
+}
+
+/**
+ * Alasan singkat untuk pesan WA "Perlu didorong", mis. "sudah 9 hari belum latihan" atau
+ * "skor Kraepelin turun 12 poin". Null bila siswa tidak perlu didorong.
+ */
+export function catatanDorong(baris: Pick<RekapBaris, "tanda" | "terakhir" | "tren" | "hariSejak">, target?: ProgresTarget | null): string | null {
+  if (baris.tanda === "turun" && baris.terakhir && baris.tren !== null) {
+    return `skor ${JENIS_INFO[baris.terakhir.jenis].nama} turun ${Math.abs(baris.tren)} poin`;
+  }
+  if (baris.tanda === "lama" && baris.hariSejak !== null) return `sudah ${baris.hariSejak} hari belum latihan`;
+  if (baris.tanda === "belum") return "belum pernah mencoba latihan psikotes";
+  if (target && !target.terpenuhi) {
+    return `latihan ${namaTarget(target.target)} minggu ini baru ${target.selesai} dari ${target.target.kali} hari`;
+  }
   return null;
 }
 

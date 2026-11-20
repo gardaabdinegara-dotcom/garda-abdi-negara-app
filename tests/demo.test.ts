@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { kelompokkanPerSiswa, rekapDari } from "../src/lib/core/latihan-rekap";
 import { toLatihan } from "../src/lib/core/latihan-simpan";
+import { daftarPengumuman, pengumumanLewat, pengumumanTampil } from "../src/lib/core/pengumuman";
 import { toStudent } from "../src/lib/core/types";
 import { buildDemoData } from "../src/lib/demo/data-contoh";
 import { composeState } from "../src/lib/keuangan/sumber";
@@ -22,6 +23,25 @@ describe("data contoh mode pratinjau", () => {
     assert.ok(d.inti.Hasil_Samapta!.length >= 48);
     assert.ok(d.keuangan.Transaksi!.length > 40);
     assert.ok(d.inti.Pengguna!.some((u) => u.user_id === viewer.user_id), "pembuka pratinjau ada di data contoh");
+  });
+
+  test("pengumuman contoh: tiga tampil (yang disematkan paling atas) dan satu sudah lewat", () => {
+    const d = buildDemoData(viewer, NOW);
+    const list = daftarPengumuman(d.inti);
+    assert.equal(list.length, 4);
+    const tampil = pengumumanTampil(list, "2026-11-17");
+    assert.equal(tampil.length, 3);
+    assert.equal(tampil[0]!.judul, "Tes Samapta III");
+    assert.ok(tampil[0]!.disematkan);
+    assert.equal(pengumumanLewat(list, "2026-11-17").length, 1);
+    assert.ok(list.every((p) => p.created_by === viewer.user_id && p.created_at < NOW));
+  });
+
+  test("siswa contoh punya jalur beragam dan nomor wali (dua sengaja kosong)", () => {
+    const students = buildDemoData(viewer, NOW).inti.Siswa!.map(toStudent);
+    assert.deepEqual([...new Set(students.map((s) => s.jalur_target))].sort(), ["Kedinasan", "Polri", "TNI"]);
+    assert.equal(students.filter((s) => !s.no_wa_wali).length, 2);
+    assert.ok(students.every((s) => !s.no_wa_wali || /^62813\d{8}$/.test(s.no_wa_wali)));
   });
 
   test("sama persis bila dibuat ulang di hari yang sama (aman untuk banyak server)", () => {

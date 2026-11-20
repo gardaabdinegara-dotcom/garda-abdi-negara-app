@@ -10,6 +10,7 @@ import { PrintMenu, RankTable, type RankCell, type RankRowData } from "@/compone
 import { SamIcon } from "@/components/samapta-icon";
 import { Badge, Empty } from "@/components/ui";
 import { canManageSamapta, POS_INFO, TEST_STATUS_LABEL, type Klasifikasi } from "@/lib/core/samapta";
+import { waHasilSamapta } from "@/lib/core/samapta-hasil";
 import { initials } from "@/lib/format";
 import { loadSamaptaTest, type SamaptaEntry } from "@/lib/server/samapta";
 import { requireActor } from "@/lib/server/session";
@@ -68,7 +69,7 @@ function meanAkhir(entries: readonly SamaptaEntry[]): number | null {
 const CELL_LABEL: Record<string, string> = { lari: "Lari 12 mnt", situp: "Sit up", pushup: "Push up", shuttle: "Shuttle run" };
 
 function rankRows(data: Data): RankRowData[] {
-  const { test, entries, previous } = data;
+  const { test, entries, previous, wa } = data;
   const prevById = new Map((previous?.entries ?? []).map((e) => [e.student.siswa_id, e]));
   const ranked = entries.filter((e) => e.rank !== null).sort((a, b) => a.rank! - b.rank!);
   const unranked = entries.filter((e) => e.rank === null);
@@ -111,6 +112,7 @@ function rankRows(data: Data): RankRowData[] {
       detailHref: `/samapta/${test.tes_id}/siswa/${e.student.siswa_id}`,
       printHref: `/cetak/samapta/${test.tes_id}?siswa=${e.student.siswa_id}`,
       firstName: e.student.nama.trim().split(/\s+/)[0] ?? "",
+      wa: waHasilSamapta(wa.template, { lembaga: wa.lembaga, tes: test.nama, peserta: entries.length }, e),
     };
   });
 }
@@ -165,6 +167,10 @@ function ResultsPage({ data }: { data: Data }) {
               Mode lapangan
             </Link>
             <PrintMenu tesId={test.tes_id} students={students} defaultBlank={Math.min(40, Math.max(1, summary.peserta))} />
+            <a className="btn btn-secondary" href={`${base}/unduh`} download title="Satu berkas untuk semua peserta: nilai mentah dan nilai tiap materi, Garjas A, Garjas B, hasil akhir, klasifikasi, dan peringkat. Bisa dibuka di Excel atau Google Sheets.">
+              <SamIcon name="table" />
+              Unduh Excel (CSV)
+            </a>
           </>
         }
       />
