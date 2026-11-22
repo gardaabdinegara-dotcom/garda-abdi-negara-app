@@ -2,6 +2,7 @@
 // Kartu menampilkan skor terakhir dan tren; pilihan durasi dan kartu ada di komponen klien PilihLatihan.
 import Link from "next/link";
 import { JENIS_INFO, JENIS_LATIHAN } from "@/lib/core/latihan";
+import type { RingkasKlasemen } from "@/lib/core/latihan-klasemen";
 import type { ProgresLatihan, TargetSiswa } from "@/lib/server/latihan";
 import { Icon } from "./icon";
 import { PilihLatihan, type KartuLatihan } from "./latihan-pilih";
@@ -22,7 +23,45 @@ function ringkasan(progres: ProgresLatihan): string {
   return `${minggu} Skor ${nama} ${j.tren > 0 ? "naik" : "turun"} ${Math.abs(j.tren)} poin dari latihan sebelumnya.`;
 }
 
-export function MenuLatihan({ progres, coba, target = null, zona = "Asia/Jakarta" }: { progres: ProgresLatihan | null; coba: boolean; target?: TargetSiswa | null; zona?: string }) {
+/** Ubin posisi klasemen minggu ini di samping menu latihan. */
+function UbinKlasemen({ klasemen }: { klasemen: RingkasKlasemen }) {
+  const g = klasemen.gerak;
+  return (
+    <Link className="lt-tile" href="/latihan/klasemen">
+      <span className="lt-ico lt-ico-klasemen" aria-hidden="true">
+        <Icon name="trophy" />
+      </span>
+      <span className="lt-tile-main">
+        <b>Klasemen minggu ini</b>
+        <span>{klasemen.peringkat ? `Peringkat ${klasemen.peringkat} dari ${klasemen.dari} · ${klasemen.poin} poin` : "Belum dapat poin minggu ini"}</span>
+        {g?.arah === "naik" ? (
+          <span className="lt-tile-dur kl-tile-naik">▲ naik {g.selisih} dari kemarin</span>
+        ) : g?.arah === "turun" ? (
+          <span className="lt-tile-dur kl-tile-turun">▼ turun {g.selisih} dari kemarin</span>
+        ) : g?.arah === "baru" ? (
+          <span className="lt-tile-dur kl-tile-naik">Baru masuk klasemen hari ini</span>
+        ) : !klasemen.peringkat ? (
+          <span className="lt-tile-dur">3 latihan Standar per jenis untuk ikut</span>
+        ) : null}
+      </span>
+      <span className="badge badge-success">Lihat</span>
+    </Link>
+  );
+}
+
+export function MenuLatihan({
+  progres,
+  coba,
+  target = null,
+  klasemen = null,
+  zona = "Asia/Jakarta",
+}: {
+  progres: ProgresLatihan | null;
+  coba: boolean;
+  target?: TargetSiswa | null;
+  klasemen?: RingkasKlasemen | null;
+  zona?: string;
+}) {
   const kartu: KartuLatihan[] = JENIS_LATIHAN.map((jenis) => {
     const j = progres?.perJenis[jenis];
     return { jenis, skor: j?.terakhir?.skor ?? null, jumlah: j?.jumlah ?? 0, tren: j?.tren ?? null, target: target?.target.jenis === jenis };
@@ -61,6 +100,7 @@ export function MenuLatihan({ progres, coba, target = null, zona = "Asia/Jakarta
           <PilihLatihan kartu={kartu} coba={false} />
         </div>
         <aside className="lt-menu-side">
+          {klasemen ? <UbinKlasemen klasemen={klasemen} /> : null}
           <Link className="lt-tile lt-tile-progres" href="/latihan/progres">
             <span className="lt-ico lt-ico-progres" aria-hidden="true">
               <Icon name="chart" />

@@ -109,6 +109,9 @@ const SECTIONS: Section[] = [
         <b>Target mingguan</b>: tekan <b>Pasang target</b> (mis. 3 kali Kraepelin Standar per minggu). Siswa melihat progresnya di menu Latihan; filter <b>Belum memenuhi</b> menampilkan yang tertinggal, lengkap dengan tombol <b>WA siswa</b>.
       </>,
       <>
+        <Link href="/latihan/klasemen">Klasemen</Link>: adu skor latihan Standar tiap minggu (Senin sampai Minggu). Tiap jenis memakai rata-rata 3 skor terbaik; peringkat 1 sampai 8 mendapat poin untuk klasemen umum. Siswa juga melihat tingkat (Perunggu, Perak, Emas) dan lencananya.
+      </>,
+      <>
         Ingin merasakan layarnya? <Link href="/latihan/coba">Coba latihan</Link>: hasilnya ditampilkan tetapi tidak disimpan.
       </>,
     ],
@@ -207,6 +210,9 @@ const SECTIONS: Section[] = [
       </>,
       <>
         <Link href="/latihan/progres">Progres saya</Link>: grafik skor dari latihan ke latihan. Bila sinyal putus saat menyimpan, hasil disimpan di HP dan bisa dikirim ulang. Kartu <b>Target minggu ini</b> menunjukkan berapa kali lagi perlu latihan.
+      </>,
+      <>
+        <Link href="/latihan/klasemen">Klasemen</Link>: posisimu minggu ini di tiap jenis dan klasemen umum, tingkat (Perunggu, Perak, Emas), dan lencana. Yang dihitung hanya latihan durasi Standar, minimal 3 kali per jenis.
       </>,
       <><b>Info dari pelatih</b> di beranda berisi pengumuman terbaru: jadwal tes, perlengkapan, atau perubahan sesi.</>,
     ],

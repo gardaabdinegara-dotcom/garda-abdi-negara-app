@@ -21,6 +21,6 @@ export default async function LatihanPage({ searchParams }: { searchParams: Prom
     return <RekapLatihanView rekap={rekap} pilihan={pilihan} />;
   }
   if (actor.user.peran !== "SISWA") notFound();
-  const [{ progres, target }, zona] = await Promise.all([loadMenuLatihan(actor), zonaLembaga()]);
-  return <MenuLatihan progres={progres} target={target} coba={false} zona={zona} />;
+  const [{ progres, target, klasemen }, zona] = await Promise.all([loadMenuLatihan(actor), zonaLembaga()]);
+  return <MenuLatihan progres={progres} target={target} klasemen={klasemen} coba={false} zona={zona} />;
 }

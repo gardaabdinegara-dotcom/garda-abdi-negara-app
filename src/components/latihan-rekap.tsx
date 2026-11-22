@@ -309,7 +309,12 @@ export function RekapLatihanView({ rekap, pilihan }: RekapProps) {
       <PageHead
         title="Latihan siswa"
         description="Pantau aktivitas dan perkembangan latihan psikotes siswa aktif."
-        actions={<Link className="btn btn-secondary" href="/latihan/coba"><Icon name="target" /> Coba latihan</Link>}
+        actions={
+          <>
+            <Link className="btn btn-secondary" href="/latihan/klasemen"><Icon name="trophy" /> Klasemen</Link>
+            <Link className="btn btn-secondary" href="/latihan/coba"><Icon name="target" /> Coba latihan</Link>
+          </>
+        }
       />
 
       {rekap.siswaAktif > 0 ? (

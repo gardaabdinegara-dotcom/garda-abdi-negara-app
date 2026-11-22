@@ -42,6 +42,15 @@ const PATHS = {
   phone: "M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2M12 7v6M9.5 10.5 12 13l2.5-2.5",
   copy: "M9 9h10v12H9zM5 15V3h10v2",
   download: "M12 4v11M7 10l5 5 5-5M5 20h14",
+  star: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
+  medal: "M8 3h8l-2 6h-4zM12 21a5 5 0 1 0 0-10 5 5 0 0 0 0 10",
+  crown: "M3 8l4 4 5-7 5 7 4-4-2 11H5z",
+  grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  wave: "M3 12h4l2-4 4 8 2-4h6",
+  flame: "M12 21c4 0 7-2.7 7-6.5 0-3-2-5.5-4-7.5 0 2-1 3.5-2.5 3.5C12 8 11 5.5 9 3c0 4-4 6-4 11.5C5 18.3 8 21 12 21z",
+  podium: "M3 20h18M5 20v-6h4v6M10 20V9h4v11M15 20v-8h4v8",
+  levelUp: "M7 13l5-5 5 5M7 19l5-5 5 5",
+  info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 11v5M12 8h.01",
 } as const;
 
 export type IconName = keyof typeof PATHS;

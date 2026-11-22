@@ -3,7 +3,21 @@ import { notFound } from "next/navigation";
 import { academicSettings, localClock } from "../core/akademik";
 import { kelompokkanPerSiswa, progresOf, rekapDari, dalamMingguIni, type FilterRekapLatihan, type ProgresLatihan, type RekapLatihan } from "../core/latihan-rekap";
 import { toLatihan, type Latihan } from "../core/latihan-simpan";
-import { bacaTarget, hariBeruntun, progresTarget, rekorBeruntun, ringkasTargetKelompok, type ProgresTarget, type RingkasTargetKelompok, type TargetLatihan } from "../core/latihan-target";
+import { bacaTarget, geserTanggal, hariBeruntun, progresTarget, rekorBeruntun, ringkasTargetKelompok, type ProgresTarget, type RingkasTargetKelompok, type TargetLatihan } from "../core/latihan-target";
+import {
+  klasemenMinggu,
+  lencanaSiswa,
+  namaKlasemen,
+  riwayatMinggu,
+  ringkasKlasemen,
+  seninDari,
+  tingkatSiswa,
+  type KlasemenMinggu,
+  type Lencana,
+  type RingkasKlasemen,
+  type TingkatJenis,
+} from "../core/latihan-klasemen";
+import type { JenisLatihan } from "../core/latihan";
 import { waTemplates } from "../core/wa";
 import { linkedStudentIds, toStudent, type Actor, type Student } from "../core/types";
 import { AppError, type Tables } from "../data/types";
@@ -40,19 +54,89 @@ function targetSiswa(target: TargetLatihan, riwayat: readonly Latihan[], hariIni
   return { ...progresTarget(target, riwayat, hariIni), beruntun: hariBeruntun(tanggal, hariIni), rekor: rekorBeruntun(tanggal, hariIni) };
 }
 
+/** Bahan klasemen: siswa aktif, semua latihan, minggu berjalan (Senin sampai hari ini), dan posisi akhir kemarin. */
+function dasarKlasemen(m: ReturnType<typeof model>) {
+  const aktif = m.students.filter((s) => s.aktif);
+  const peserta = aktif.map((s) => s.siswa_id);
+  const latihan = [...m.bySiswa.values()].flat();
+  const dari = seninDari(m.hariIni);
+  const sekarang = klasemenMinggu(latihan, peserta, dari, m.hariIni);
+  const kemarin = m.hariIni > dari ? klasemenMinggu(latihan, peserta, dari, geserTanggal(m.hariIni, -1)) : null;
+  return { aktif, peserta, latihan, dari, sekarang, kemarin };
+}
+
 /**
- * Menu latihan siswa: progres dan target minggu ini (null bila owner belum memasang target).
- * Owner/admin (mode coba) mendapat progres dan target null.
+ * Menu latihan siswa: progres, target minggu ini (null bila owner belum memasang target), dan posisi klasemen.
+ * Owner/admin (mode coba) mendapat semuanya null.
  */
-export async function loadMenuLatihan(actor: Actor): Promise<{ progres: ProgresLatihan | null; target: TargetSiswa | null }> {
-  if (actor.user.peran !== "SISWA") return { progres: null, target: null };
+export async function loadMenuLatihan(
+  actor: Actor,
+): Promise<{ progres: ProgresLatihan | null; target: TargetSiswa | null; klasemen: RingkasKlasemen | null }> {
+  const kosong = { progres: null, target: null, klasemen: null };
+  if (actor.user.peran !== "SISWA") return kosong;
   const siswaId = linkedStudentIds(actor, "SISWA")[0];
-  if (!siswaId) return { progres: null, target: null };
+  if (!siswaId) return kosong;
   const m = model(await read());
   const student = m.students.find((s) => s.siswa_id === siswaId);
-  if (!student) return { progres: null, target: null };
+  if (!student) return kosong;
   const riwayat = m.bySiswa.get(siswaId) ?? [];
-  return { progres: progresOf(student, riwayat, m.hariIni), target: m.target && student.aktif ? targetSiswa(m.target, riwayat, m.hariIni) : null };
+  const k = student.aktif ? dasarKlasemen(m) : null;
+  return {
+    progres: progresOf(student, riwayat, m.hariIni),
+    target: m.target && student.aktif ? targetSiswa(m.target, riwayat, m.hariIni) : null,
+    klasemen: k ? ringkasKlasemen(k.sekarang, k.kemarin, siswaId) : null,
+  };
+}
+
+export interface DataKlasemen {
+  hariIni: string;
+  zona: string;
+  /** Senin dan Minggu minggu berjalan. */
+  dari: string;
+  sampai: string;
+  sekarang: KlasemenMinggu;
+  kemarin: KlasemenMinggu | null;
+  mingguLalu: KlasemenMinggu;
+  /** Nama tampil per siswa_id: nama lengkap untuk owner/admin, nama depan dan inisial untuk siswa. */
+  nama: Record<string, string>;
+  peserta: number;
+  lihatSemua: boolean;
+  /** Tingkat dan lencana siswa yang masuk (null untuk owner/admin atau akun yang belum tertaut). */
+  saya: { siswa_id: string; tingkat: Record<JenisLatihan, TingkatJenis>; lencana: Lencana[] } | null;
+}
+
+/** Klasemen latihan minggu berjalan untuk siswa (dengan tingkat dan lencana sendiri) dan owner/admin. */
+export async function loadKlasemen(actor: Actor): Promise<DataKlasemen> {
+  const lihatSemua = canSeeAllLatihan(actor);
+  if (!lihatSemua && actor.user.peran !== "SISWA") notFound();
+  const t = await read();
+  const m = model(t);
+  const d = dasarKlasemen(m);
+  const mingguLalu = klasemenMinggu(d.latihan, d.peserta, geserTanggal(d.dari, -7), geserTanggal(d.dari, -1));
+  const nama = lihatSemua ? Object.fromEntries(d.aktif.map((s) => [s.siswa_id, s.nama])) : namaKlasemen(d.aktif);
+  let saya: DataKlasemen["saya"] = null;
+  const siswaId = actor.user.peran === "SISWA" ? linkedStudentIds(actor, "SISWA")[0] : undefined;
+  if (siswaId && d.peserta.includes(siswaId)) {
+    const riwayat = m.bySiswa.get(siswaId) ?? [];
+    saya = {
+      siswa_id: siswaId,
+      tingkat: tingkatSiswa(riwayat, m.hariIni),
+      lencana: lencanaSiswa({ siswaId, latihanSiswa: riwayat, mingguSelesai: riwayatMinggu(d.latihan, d.peserta, d.dari), sekarang: d.sekarang, hariIni: m.hariIni }),
+    };
+  }
+  return {
+    hariIni: m.hariIni,
+    zona: academicSettings(t).zona_waktu,
+    dari: d.dari,
+    sampai: geserTanggal(d.dari, 6),
+    sekarang: d.sekarang,
+    kemarin: d.kemarin,
+    mingguLalu,
+    nama,
+    peserta: d.peserta.length,
+    lihatSemua,
+    saya,
+  };
 }
 
 /** Progres milik siswa yang masuk. Null untuk owner/admin (mereka boleh mencoba latihan tanpa menyimpan). */
