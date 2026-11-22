@@ -75,7 +75,7 @@ export async function kirimLatihan(k: KirimanLatihan): Promise<HasilKirim> {
 }
 
 /** Kartu di menu Latihan: hasil yang belum terkirim dari HP ini, dengan tombol kirim dan buang. */
-export function KirimTertunda({ pemilik }: { pemilik: string }) {
+export function KirimTertunda({ pemilik, zona }: { pemilik: string; zona: string }) {
   const testId = useUjiSiswaId();
   const [list, setList] = useState<KirimanLatihan[]>([]);
   const [kirim, setKirim] = useState<string | null>(null);
@@ -127,7 +127,7 @@ export function KirimTertunda({ pemilik }: { pemilik: string }) {
                   {JENIS_INFO[k.jenis].nama} · skor {skor}
                 </b>
                 <span>
-                  {DURASI_LABEL[k.durasi]} · {waktuLatihan(k.dibuat || k.mulai)}
+                  {DURASI_LABEL[k.durasi]} · {waktuLatihan(k.dibuat || k.mulai, zona)}
                 </span>
               </div>
               <button type="button" className="btn btn-sm" onClick={() => kirimSatu(k)} disabled={kirim !== null} aria-busy={sibuk || undefined}>

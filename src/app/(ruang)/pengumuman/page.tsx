@@ -5,6 +5,7 @@ import { TulisPengumuman } from "@/components/pengumuman-tulis";
 import { Empty, Notice, PageHead } from "@/components/ui";
 import { loadPengumumanOwner } from "@/lib/server/pengumuman";
 import { requireActor } from "@/lib/server/session";
+import { zonaLembaga } from "@/lib/server/zona";
 
 export const metadata: Metadata = { title: "Pengumuman" };
 
@@ -14,7 +15,7 @@ type Search = Promise<Record<string, string | string[] | undefined>>;
 export default async function PengumumanPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor({ roles: ["OWNER", "ADMIN"] });
   const tab = (await searchParams).tab === "lewat" ? "lewat" : "tampil";
-  const data = await loadPengumumanOwner(actor);
+  const [data, zona] = await Promise.all([loadPengumumanOwner(actor), zonaLembaga()]);
   const list = tab === "lewat" ? data.lewat : data.tampil;
 
   return (
@@ -42,7 +43,7 @@ export default async function PengumumanPage({ searchParams }: { searchParams: S
           ) : (
             <div className="png-daftar">
               {list.map((p) => (
-                <PengumumanKartu key={p.pengumuman_id} p={p} today={data.today} lewat={tab === "lewat"} />
+                <PengumumanKartu key={p.pengumuman_id} p={p} today={data.today} zona={zona} lewat={tab === "lewat"} />
               ))}
             </div>
           )}

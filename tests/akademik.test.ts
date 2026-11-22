@@ -238,6 +238,19 @@ describe("sesi dan presensi", () => {
     );
   });
 
+  test("zona WITA: jam presensi dan terlambat memakai jam Makassar", async () => {
+    const f = await fixture();
+    const row = f.t.Pengaturan!.find((r) => r.key === "zona_waktu");
+    if (row) row.value = "Asia/Makassar";
+    else f.t.Pengaturan!.push({ key: "zona_waktu", value: "Asia/Makassar" });
+    setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);
+    // 07.05 WIB = 08.05 WITA: sesi mulai 07.00 dengan toleransi 10 menit, jadi terlambat.
+    submitAttendance(f.t, { sesi_id: f.sesi, status_diajukan: "HADIR", catatan: "" }, at("07:05"), f.siswa);
+    const r = attendanceMap(f.t).get(`${f.sesi}:${f.a}`)!;
+    assert.equal(r.waktu, "08:05");
+    assert.equal(r.terlambat, true);
+  });
+
   test("wali tidak bisa mengajukan presensi; siswa kelas lain ditolak", async () => {
     const f = await fixture();
     setSessionStatus(f.t, { sesi_id: f.sesi, status: "AKTIF" }, at("07:00"), f.teacher);

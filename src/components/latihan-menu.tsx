@@ -22,7 +22,7 @@ function ringkasan(progres: ProgresLatihan): string {
   return `${minggu} Skor ${nama} ${j.tren > 0 ? "naik" : "turun"} ${Math.abs(j.tren)} poin dari latihan sebelumnya.`;
 }
 
-export function MenuLatihan({ progres, coba, target = null }: { progres: ProgresLatihan | null; coba: boolean; target?: TargetSiswa | null }) {
+export function MenuLatihan({ progres, coba, target = null, zona = "Asia/Jakarta" }: { progres: ProgresLatihan | null; coba: boolean; target?: TargetSiswa | null; zona?: string }) {
   const kartu: KartuLatihan[] = JENIS_LATIHAN.map((jenis) => {
     const j = progres?.perJenis[jenis];
     return { jenis, skor: j?.terakhir?.skor ?? null, jumlah: j?.jumlah ?? 0, tren: j?.tren ?? null, target: target?.target.jenis === jenis };
@@ -45,7 +45,7 @@ export function MenuLatihan({ progres, coba, target = null }: { progres: Progres
   return (
     <div className="page lt-page">
       <PageHead title="Latihan Psikotes" description="Pilih durasi, lalu ketuk jenis latihan. Angka dan simbol dibuat acak setiap kali, jadi tiap latihan berbeda." />
-      {progres ? <KirimTertunda pemilik={progres.student.siswa_id} /> : null}
+      {progres ? <KirimTertunda pemilik={progres.student.siswa_id} zona={zona} /> : null}
       <div className="lt-menu">
         <div className="lt-menu-main">
           {progres && target ? (

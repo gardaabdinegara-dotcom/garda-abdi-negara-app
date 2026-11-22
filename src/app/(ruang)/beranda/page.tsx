@@ -36,6 +36,7 @@ import { loadInfoPelatih, type PengumumanView } from "@/lib/server/pengumuman";
 import { loadOverview, loadWaTemplates, type Overview } from "@/lib/server/queries";
 import { loadMySamapta, loadSamaptaOverview } from "@/lib/server/samapta";
 import { requireActor } from "@/lib/server/session";
+import { zonaLembaga } from "@/lib/server/zona";
 
 export const metadata: Metadata = { title: "Beranda" };
 
@@ -52,7 +53,7 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
   const params = await searchParams;
   const role = actor.user.peran;
   const family = role === "SISWA" || role === "WALI";
-  const [overview, academic, money, samaptaStaff, samaptaMine, templates, info] = await Promise.all([
+  const [overview, academic, money, samaptaStaff, samaptaMine, templates, info, zona] = await Promise.all([
     loadOverview(actor),
     loadAcademicHome(actor),
     loadFinanceHome(actor),
@@ -60,14 +61,15 @@ export default async function HomePage({ searchParams }: { searchParams: Search 
     role === "SISWA" ? loadMySamapta(actor) : Promise.resolve(null),
     canManageStudents(actor) ? loadWaTemplates() : Promise.resolve(null),
     family ? loadInfoPelatih() : Promise.resolve([] as PengumumanView[]),
+    zonaLembaga(),
   ]);
 
   return (
     <div className="page dash">
       {params.password === "diganti" ? <Notice tone="success">Password berhasil diganti. Perangkat lain sudah otomatis keluar.</Notice> : null}
-      {canManageStudents(actor) && academic.kind === "staff" && templates ? <AdminHome actor={actor} overview={overview} academic={academic} money={money} samapta={samaptaStaff} templates={templates} /> : null}
-      {role === "PENGAJAR" && academic.kind === "staff" ? <TeacherHome actor={actor} overview={overview} academic={academic} samapta={samaptaStaff} /> : null}
-      {family && academic.kind === "family" ? <FamilyHome actor={actor} academic={academic} money={money} samapta={samaptaMine} info={info} /> : null}
+      {canManageStudents(actor) && academic.kind === "staff" && templates ? <AdminHome actor={actor} overview={overview} academic={academic} money={money} samapta={samaptaStaff} templates={templates} zona={zona} /> : null}
+      {role === "PENGAJAR" && academic.kind === "staff" ? <TeacherHome actor={actor} overview={overview} academic={academic} samapta={samaptaStaff} zona={zona} /> : null}
+      {family && academic.kind === "family" ? <FamilyHome actor={actor} academic={academic} money={money} samapta={samaptaMine} info={info} zona={zona} /> : null}
     </div>
   );
 }
@@ -156,6 +158,7 @@ function AdminHome({
   money,
   samapta,
   templates,
+  zona,
 }: {
   actor: Actor;
   overview: Overview;
@@ -163,6 +166,7 @@ function AdminHome({
   money: FinanceHome;
   samapta: SamaptaStaff | null;
   templates: Record<WaJenis, string>;
+  zona: string;
 }) {
   const finance = money?.kind === "staff" && money.ready ? money : null;
   const { latest, running, gap } = samaptaFocus(samapta);
@@ -198,7 +202,7 @@ function AdminHome({
 
   return (
     <>
-      <Hero eyebrow={formatToday()} title={`${greeting()}, ${firstName(actor)}`} text={heroText(chips, "Tidak ada yang perlu ditindak saat ini. Semua berjalan sesuai jadwal.")} chips={chips} />
+      <Hero eyebrow={formatToday(zona)} title={`${greeting(zona)}, ${firstName(actor)}`} text={heroText(chips, "Tidak ada yang perlu ditindak saat ini. Semua berjalan sesuai jadwal.")} chips={chips} />
 
       <HariIniCard
         sessions={sesiHariIni(academic.todays)}
@@ -315,7 +319,7 @@ function SamaptaCard({ latest }: { latest: ReturnType<typeof samaptaFocus>["late
 
 // ---------------------------------------------------------------- Pengajar (peran disembunyikan, tetap berfungsi)
 
-function TeacherHome({ actor, overview, academic, samapta }: { actor: Actor; overview: Overview; academic: StaffAcademic; samapta: SamaptaStaff | null }) {
+function TeacherHome({ actor, overview, academic, samapta, zona }: { actor: Actor; overview: Overview; academic: StaffAcademic; samapta: SamaptaStaff | null; zona: string }) {
   const { latest, gap } = samaptaFocus(samapta);
   const chips: HeroChip[] = [];
   if (academic.pending) chips.push({ icon: "clipboard", label: `${academic.pending} pengajuan hadir menunggu`, href: "/akademik" });
@@ -329,8 +333,8 @@ function TeacherHome({ actor, overview, academic, samapta }: { actor: Actor; ove
     <>
       <div className="dash-hero-row">
         <Hero
-          eyebrow={formatToday()}
-          title={`${greeting()}, ${firstName(actor)}`}
+          eyebrow={formatToday(zona)}
+          title={`${greeting(zona)}, ${firstName(actor)}`}
           text={heroText(chips, academic.todays.length ? `Ada ${academic.todays.length} sesi hari ini.` : "Tidak ada sesi dan tindakan tertunda hari ini.")}
           chips={chips}
           action={{ href: "/akademik", label: academic.todays.length ? "Buka sesi hari ini" : "Lihat presensi" }}
@@ -355,13 +359,13 @@ function TeacherHome({ actor, overview, academic, samapta }: { actor: Actor; ove
 
 // ---------------------------------------------------------------- Siswa & wali
 
-function FamilyHome({ actor, academic, money, samapta, info }: { actor: Actor; academic: FamilyAcademic; money: FinanceHome; samapta: SamaptaMine; info: PengumumanView[] }) {
+function FamilyHome({ actor, academic, money, samapta, info, zona }: { actor: Actor; academic: FamilyAcademic; money: FinanceHome; samapta: SamaptaMine; info: PengumumanView[]; zona: string }) {
   const wali = actor.user.peran === "WALI";
   if (academic.family.length === 0) {
     return (
       <>
-        <Hero eyebrow={formatToday()} title={`${greeting()}, ${firstName(actor)}`} text="Akun Anda belum tertaut ke data siswa." />
-        <InfoPelatihCard items={info} />
+        <Hero eyebrow={formatToday(zona)} title={`${greeting(zona)}, ${firstName(actor)}`} text="Akun Anda belum tertaut ke data siswa." />
+        <InfoPelatihCard items={info} zona={zona} />
         <Empty title="Belum tertaut">Minta admin menautkan data siswa ke akun Anda.</Empty>
       </>
     );
@@ -389,14 +393,14 @@ function FamilyHome({ actor, academic, money, samapta, info }: { actor: Actor; a
     <>
       <div className="dash-hero-row">
         <Hero
-          eyebrow={formatToday()}
-          title={`${greeting()}, ${wali ? firstName(actor) : first.student.nama.split(/\s+/).find((w) => !/^(muh\.?|muhamad|muhammad|a\.?)$/i.test(w)) ?? firstName(actor)}`}
+          eyebrow={formatToday(zona)}
+          title={`${greeting(zona)}, ${wali ? firstName(actor) : first.student.nama.split(/\s+/).find((w) => !/^(muh\.?|muhamad|muhammad|a\.?)$/i.test(w)) ?? firstName(actor)}`}
           text={chips.length ? `Ada ${chips.length} hal yang perlu kamu perhatikan.` : sessionsToday ? `Ada ${sessionsToday} sesi hari ini.` : wali ? "Perkembangan anak yang ditautkan ke akun Anda." : "Tidak ada sesi hari ini. Tetap semangat berlatih."}
           chips={chips}
           action={wali && FITUR.tagihan ? { href: "/keuangan/tagihan", label: "Lihat tagihan" } : { href: "/akademik", label: "Buka presensi" }}
         />
         {/* Di ponsel tepat di bawah sapaan; di layar lebar selebar baris di bawah sapaan dan kehadiran. */}
-        <InfoPelatihCard items={info} />
+        <InfoPelatihCard items={info} zona={zona} />
         <RingCard
           title={wali && academic.family.length > 1 ? `Kehadiran ${first.student.nama.split(/\s+/)[0]}` : "Kehadiran bulan ini"}
           sub={monthLabel(academic.clock.periode)}

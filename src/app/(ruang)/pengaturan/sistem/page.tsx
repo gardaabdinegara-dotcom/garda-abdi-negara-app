@@ -3,13 +3,14 @@ import Link from "next/link";
 import { Badge, Notice, PageHead } from "@/components/ui";
 import { loadSystemStatus } from "@/lib/server/sistem";
 import { requireActor } from "@/lib/server/session";
+import { zonaLembaga } from "@/lib/server/zona";
 import { SettingsTabs } from "../tabs";
 
 export const metadata: Metadata = { title: "Status sistem" };
 
 export default async function SystemPage() {
   await requireActor({ roles: ["OWNER"] });
-  const status = await loadSystemStatus();
+  const [status, zona] = await Promise.all([loadSystemStatus(), zonaLembaga()]);
   const allOk = status.envOk && status.sheets.every((s) => s.ok);
 
   return (
@@ -63,7 +64,7 @@ export default async function SystemPage() {
               </div>
             ))}
           </div>
-          <p className="muted">Diperiksa {new Date(status.checkedAt).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}. Muat ulang halaman untuk memeriksa lagi.</p>
+          <p className="muted">Diperiksa {new Date(status.checkedAt).toLocaleString("id-ID", { timeZone: zona })}. Muat ulang halaman untuk memeriksa lagi.</p>
         </section>
       </div>
       <section className="card">

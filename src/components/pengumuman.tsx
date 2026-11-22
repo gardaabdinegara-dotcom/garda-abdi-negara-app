@@ -8,13 +8,11 @@ import { TulisPengumuman } from "./pengumuman-tulis";
 import { WaKabari } from "./wa";
 import "./pengumuman.css";
 
-const ZONA = "Asia/Jakarta";
-
-/** "2026-11-19T02:00:00Z" → "Kamis, 19 Nov" (atau dengan tahun). */
-export function tanggalTerbit(iso: string, tahun = false): string {
+/** "2026-11-19T02:00:00Z" → "Kamis, 19 Nov" (atau dengan tahun), menurut zona waktu lembaga. */
+export function tanggalTerbit(iso: string, zona: string, tahun = false): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat("id-ID", { timeZone: ZONA, weekday: "long", day: "numeric", month: "short", ...(tahun ? { year: "numeric" } : {}) }).format(d);
+  return new Intl.DateTimeFormat("id-ID", { timeZone: zona, weekday: "long", day: "numeric", month: "short", ...(tahun ? { year: "numeric" } : {}) }).format(d);
 }
 
 /** "2026-11-29" → "29 Nov". */
@@ -24,20 +22,20 @@ export function tanggalPendek(date: string): string {
   return new Intl.DateTimeFormat("id-ID", { timeZone: "UTC", day: "numeric", month: "short" }).format(new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))));
 }
 
-function IsiInfo({ p }: { p: PengumumanView }) {
+function IsiInfo({ p, zona }: { p: PengumumanView; zona: string }) {
   return (
     <>
       <h3 className="png-judul">{p.judul}</h3>
       <p className="png-isi">{p.isi}</p>
       <span className="png-oleh">
-        {p.penulis} · {tanggalTerbit(p.created_at, true)}
+        {p.penulis} · {tanggalTerbit(p.created_at, zona, true)}
       </span>
     </>
   );
 }
 
 /** Kartu "Info dari pelatih" di bawah sapaan beranda siswa: satu info tampil, sisanya dibuka lewat "N info lain". */
-export function InfoPelatihCard({ items }: { items: PengumumanView[] }) {
+export function InfoPelatihCard({ items, zona }: { items: PengumumanView[]; zona: string }) {
   if (items.length === 0) return null;
   const [first, ...rest] = items;
   return (
@@ -48,7 +46,7 @@ export function InfoPelatihCard({ items }: { items: PengumumanView[] }) {
         </span>
         {first!.disematkan ? <span className="badge badge-warning">Disematkan</span> : null}
       </div>
-      <IsiInfo p={first!} />
+      <IsiInfo p={first!} zona={zona} />
       {rest.length ? (
         <details className="png-lain">
           <summary>
@@ -59,7 +57,7 @@ export function InfoPelatihCard({ items }: { items: PengumumanView[] }) {
             {rest.map((p) => (
               <li key={p.pengumuman_id}>
                 {p.disematkan ? <span className="badge badge-warning">Disematkan</span> : null}
-                <IsiInfo p={p} />
+                <IsiInfo p={p} zona={zona} />
               </li>
             ))}
           </ul>
@@ -70,13 +68,13 @@ export function InfoPelatihCard({ items }: { items: PengumumanView[] }) {
 }
 
 /** Kartu satu pengumuman di halaman owner, dengan Ubah, kirim WA, dan Hapus. */
-export function PengumumanKartu({ p, today, lewat = false }: { p: PengumumanView; today: string; lewat?: boolean }) {
+export function PengumumanKartu({ p, today, zona, lewat = false }: { p: PengumumanView; today: string; zona: string; lewat?: boolean }) {
   return (
     <article className={`card png-kartu${p.disematkan && !lewat ? " is-sematan" : ""}`}>
       <div className="png-atas">
         <span className="row">
           {p.disematkan && !lewat ? <span className="badge badge-warning">Disematkan</span> : null}
-          <span className="png-tgl">{tanggalTerbit(p.created_at)}</span>
+          <span className="png-tgl">{tanggalTerbit(p.created_at, zona)}</span>
         </span>
       </div>
       <h3 className="png-judul">{p.judul}</h3>

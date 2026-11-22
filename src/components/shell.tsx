@@ -29,7 +29,7 @@ export function Wordmark() {
  * Kerangka halaman setelah masuk.
  * Desktop: menu samping + bar atas berisi pencarian. Tablet: menu ikon. Ponsel: bar atas ringkas + menu bawah.
  */
-export function Shell({ actor, preview = false, testId, children }: { actor: Actor; preview?: boolean; testId?: string; children: React.ReactNode }) {
+export function Shell({ actor, preview = false, testId, zona, children }: { actor: Actor; preview?: boolean; testId?: string; zona: string; children: React.ReactNode }) {
   const items = menuFor(actor);
   const name = actor.user.nama;
   const short = initials(name);
@@ -80,7 +80,7 @@ export function Shell({ actor, preview = false, testId, children }: { actor: Act
             </form>
           ) : null}
           <div className="appbar-tools">
-            <span className="appbar-date">{formatToday()}</span>
+            <span className="appbar-date">{formatToday(zona)}</span>
             <ThemeToggle />
             <AppInstallButton />
             <Link href="/akun-saya" className="appbar-avatar" aria-label={`Akun saya: ${name}`}>

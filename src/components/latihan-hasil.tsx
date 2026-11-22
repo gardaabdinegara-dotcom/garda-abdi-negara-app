@@ -21,11 +21,11 @@ export interface DataPembanding extends HasilLatihan {
 
 const fmt = (v: number, d = 1) => v.toLocaleString("id-ID", { minimumFractionDigits: d, maximumFractionDigits: d });
 
-/** "17 Nov 2026, 10.12" (WIB). */
-export function waktuLatihan(iso: string): string {
+/** "17 Nov 2026, 10.12" menurut zona waktu lembaga. */
+export function waktuLatihan(iso: string, zona: string): string {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return "";
-  return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(t);
+  return new Intl.DateTimeFormat("id-ID", { timeZone: zona, day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(t);
 }
 
 /** Selisih bertanda: "+2,3", "−1,0", "0". */
@@ -158,7 +158,7 @@ function Aspek({ data, sebelumnya }: { data: DataHasil; sebelumnya: DataPembandi
   );
 }
 
-function Banding({ data, sebelumnya }: { data: DataHasil; sebelumnya: DataPembanding | null }) {
+function Banding({ data, sebelumnya, zona }: { data: DataHasil; sebelumnya: DataPembanding | null; zona: string }) {
   const nama = JENIS_INFO[data.jenis].nama;
   if (!sebelumnya) {
     return (
@@ -180,7 +180,7 @@ function Banding({ data, sebelumnya }: { data: DataHasil; sebelumnya: DataPemban
       <div>
         <h2 id="lt-banding-h">Dibanding latihan sebelumnya</h2>
         <p className="lt-sub">
-          {waktuLatihan(sebelumnya.mulai)}
+          {waktuLatihan(sebelumnya.mulai, zona)}
           {sebelumnya.durasi ? ` · ${DURASI_LABEL[sebelumnya.durasi]}` : ""}
         </p>
       </div>
@@ -215,9 +215,12 @@ export function LatihanHasil({
   sebelumnya,
   status,
   aksi,
+  zona = "Asia/Jakarta",
 }: {
   data: DataHasil;
   sebelumnya: DataPembanding | null;
+  /** Zona waktu lembaga untuk waktu latihan pembanding (hanya tampil bila ada pembanding). */
+  zona?: string;
   /** Keterangan di atas hasil, mis. status menyimpan atau "Tidak disimpan (mode coba)". */
   status?: React.ReactNode;
   aksi?: React.ReactNode;
@@ -273,7 +276,7 @@ export function LatihanHasil({
             </div>
             <KurvaKerja kurva={data.kurva.length ? data.kurva : [0]} satuan={info.bagian} />
           </section>
-          <Banding data={data} sebelumnya={sebelumnya} />
+          <Banding data={data} sebelumnya={sebelumnya} zona={zona} />
           {aksi ? <div className="lt-aksi">{aksi}</div> : null}
         </div>
       </div>

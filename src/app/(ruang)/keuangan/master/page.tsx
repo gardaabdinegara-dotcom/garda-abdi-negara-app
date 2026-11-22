@@ -8,6 +8,7 @@ import { endOfMonth, finance, num, reconciliationFor, text, type Row } from "@/l
 import { formatDate } from "@/lib/format";
 import { loadFinance } from "@/lib/server/keuangan";
 import { requireActor } from "@/lib/server/session";
+import { zonaLembaga } from "@/lib/server/zona";
 
 export const metadata: Metadata = { title: "Akun & periode" };
 
@@ -61,7 +62,7 @@ function CategoryFields({ category }: { category?: Row }) {
 
 export default async function MasterPage({ searchParams }: { searchParams: Search }) {
   const actor = await requireActor();
-  const data = await loadFinance(actor);
+  const [data, zona] = await Promise.all([loadFinance(actor), zonaLembaga()]);
   if (!data.owner) notFound();
   const params = await searchParams;
   const month = typeof params.bulan === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(params.bulan) ? params.bulan : data.month;
@@ -226,7 +227,7 @@ export default async function MasterPage({ searchParams }: { searchParams: Searc
                 Tutup {monthLabel(month)}
               </SubmitButton>
             </div>
-            {last ? <p className="muted">Pencocokan terakhir {new Date(last.checkedAt).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}: {last.note}</p> : null}
+            {last ? <p className="muted">Pencocokan terakhir {new Date(last.checkedAt).toLocaleString("id-ID", { timeZone: zona })}: {last.note}</p> : null}
           </FinanceForm>
         )}
         {data.closed.length ? <p className="muted">Bulan tertutup: {data.closed.sort().map(monthLabel).join(", ")}.</p> : null}

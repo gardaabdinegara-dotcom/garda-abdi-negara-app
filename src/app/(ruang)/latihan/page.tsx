@@ -5,6 +5,7 @@ import { RekapLatihanView } from "@/components/latihan-rekap";
 import { bacaPilihanRekap } from "@/lib/latihan-rekap-route";
 import { canSeeAllLatihan, loadMenuLatihan, loadRekapLatihan } from "@/lib/server/latihan";
 import { getActor, requireActor } from "@/lib/server/session";
+import { zonaLembaga } from "@/lib/server/zona";
 
 export async function generateMetadata(): Promise<Metadata> {
   const actor = await getActor();
@@ -20,6 +21,6 @@ export default async function LatihanPage({ searchParams }: { searchParams: Prom
     return <RekapLatihanView rekap={rekap} pilihan={pilihan} />;
   }
   if (actor.user.peran !== "SISWA") notFound();
-  const { progres, target } = await loadMenuLatihan(actor);
-  return <MenuLatihan progres={progres} target={target} coba={false} />;
+  const [{ progres, target }, zona] = await Promise.all([loadMenuLatihan(actor), zonaLembaga()]);
+  return <MenuLatihan progres={progres} target={target} coba={false} zona={zona} />;
 }
